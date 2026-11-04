@@ -3421,7 +3421,7 @@ function resolveFight(p){
 }
 function enemyTurn(){
   if(S.cor<=0&&!B.shadow)return shadowStart();
-  B.state='dodge';B.corSeen=false;B.pel=null;B.run=null;B.tk=null;B.ballP=null;B.svy=0;B.tbox=BD;B.dt=0;B.bul=[];B.accs={};B.mira=null;B.soul={x:BD.x+BD.w/2-3,y:BD.y+BD.h/2-3};
+  B.turnDmg=0;B.state='dodge';B.corSeen=false;B.pel=null;B.run=null;B.tk=null;B.ballP=null;B.svy=0;B.tbox=BD;B.dt=0;B.bul=[];B.accs={};B.mira=null;B.soul={x:BD.x+BD.w/2-3,y:BD.y+BD.h/2-3};
   B.turn++;
   if(B.felix){B.attacks++;const n=B.attacks,X=['tiki','saque','penal','pique'];B.pats=n<2?['partido']:n<5?['partido','relato']:['partido','relato',X[(n-5)%4]];B.dur=12;return;}
   if(B.boss){B.attacks++;const n=B.attacks,P5=['fuego','botas','mira','minas','firmes'];
@@ -3503,7 +3503,7 @@ function updDodge(dt){
       B.inv=(S.eq.armor&&IT[S.eq.armor].inv)||1.4;B.screen=6;
       if(u.k==='cor'){loseCor(6);sfx.cor();}
       else if(S.party.includes('arana')&&S.spiderHP>0&&!B.tuto&&rnd()<.2){S.spiderHP=Math.max(0,S.spiderHP-3);sfx.hurt();B.pops.push({fi:0,txt:S.spiderHP>0?'ARAÑA -3':'LA ARAÑA SE ESCONDE',miss:1,t:0});}
-      else{const atk=Math.max(2,...alive().map(f=>f.def.atk));S.hp=Math.max(0,S.hp-Math.max(1,atk-Math.floor(defVal()/2)));sfx.hurt();}
+      else{const atk=Math.max(2,...alive().map(f=>f.def.atk)),cap=B.boss?9:8,per=Math.max(1,Math.round(atk*.5)-Math.floor(defVal()/3)),d=Math.max(0,Math.min(per,cap-(B.turnDmg||0)));B.turnDmg=(B.turnDmg||0)+d;S.hp=Math.max(0,S.hp-d);if(d>0)sfx.hurt();else AU.t(220,.05,'square',.03,140);}
       if(S.hp<=0)return B.tuto?tutoLose():gameOver('hp');
       if(S.cor<=0&&!B.shadow)return shadowStart();
     }
