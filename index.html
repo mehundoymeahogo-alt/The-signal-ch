@@ -3386,7 +3386,8 @@ const pick=a=>a[(rnd()*a.length)|0];
 function ivanAction(attacked){
   if(!S.party.includes('ivan')||B.tuto)return[];
   const mh=maxHP();
-  if(S.hp<mh*.55){const h=12+S.lv;S.hp=Math.min(mh,S.hp+h);return[pick(['Iván te alcanza un frasco de su laboratorio.','Iván te tira un frasquito: "¡Tomá, no preguntes qué tiene!"','Iván te pone una gasa con algo que huele a menta y a cable quemado.','Iván: "Respirá. Tomá esto. Funcionó con las ratas."'])+' (+'+h+' PV)'];}
+  B.ivCd=(B.ivCd||0)-1;
+  if(S.hp<mh*.4&&B.ivCd<=0&&(B.ivN||0)<3){const h=6+Math.floor(S.lv/2);B.ivCd=3;B.ivN=(B.ivN||0)+1;S.hp=Math.min(mh,S.hp+h);return[pick(['Iván te alcanza un frasco de su laboratorio.','Iván te tira un frasquito: "¡Tomá, no preguntes qué tiene!"','Iván te pone una gasa con algo que huele a menta y a cable quemado.','Iván: "Respirá. Tomá esto. Funcionó con las ratas."'])+' (+'+h+' PV)'];}
   if(attacked){const a=alive();if(a.length){const f=a[(rnd()*a.length)|0],d=f.id==='sombra'?1:6;f.hp=Math.max(0,f.hp-d);f.shake=4;B.pops.push({fi:B.foes.indexOf(f),txt:String(d),t:0});
     const L=pick(['Iván tira un tubo de ensayo.','Iván le revolea un erlenmeyer.','Iván le tira un frasco que hace "pfff".','Iván grita "¡ácido!" y tira algo que, sinceramente, es agua.'])+' ('+d+' de daño)';
     if(f.hp<=0){f.dead=true;return[L].concat(f.def.kill);}return[L];}}
@@ -3533,7 +3534,7 @@ function updBattle(dt){
       if(hit('left')||hit('up')){B.sub=(B.sub+n-1)%n;sfx.sel();}
       if(hit('right')||hit('down')){B.sub=(B.sub+1)%n;sfx.sel();}
       if(hit('a')){sfx.ok();
-        if(B.state==='act'&&list[B.sub].sil){const sb=B.sub;bSay(list[B.sub].run(B.foes[B.target]),()=>{B.state='act';B.tbox=BT;B.sub=sb;});}
+        if(B.state==='act'&&list[B.sub].sil){const L=list[B.sub].run(B.foes[B.target]);if(!S.flags.silHintFree){S.flags.silHintFree=1;L.push('(Pedirle una pista a Silvestre no gasta tu turno.)');}bSay(L,()=>{menuCore();B.menu=1;});}
         else if(B.state==='act'){const f=B.foes[B.target],was=f.calm>=f.def.need,c0=f.calm,L=list[B.sub].run(f);{const bl=foeTalkAct(f,c0,was);if(bl)L.push(bl);}if(!f.def.boss&&!was&&f.calm>=f.def.need)L.push(f.def.name+(S.pro?' ya no quiere pelear. Lo podés perdonar.':' ya no quiere pelear. Lo podés desintonizar.'));afterPlayer(L,false);}
         else if(B.state==='item')afterPlayer(useItem(list[B.sub]),false);
         else doMercy(B.sub);}
