@@ -45,7 +45,7 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
 <div class="wrap">
   <div class="tv">
     <canvas id="game" width="640" height="480" tabindex="0" aria-label="La señal, juego"></canvas>
-    <div class="plate"><span>Capítulo 1 · VHS</span><span class="btns"><button id="quit" type="button">Volver al título</button><button id="mute" type="button">Sonido: sí</button><button id="fs" type="button">Pantalla completa</button></span></div>
+    <div class="plate"><span id="chapPlate">Capítulo 1 · VHS</span><span class="btns"><button id="quit" type="button">Volver al título</button><button id="mute" type="button">Sonido: sí</button><button id="fs" type="button">Pantalla completa</button></span></div>
   </div>
   <div class="pad" id="pad" aria-label="Controles táctiles">
     <div class="dpad">
@@ -335,6 +335,11 @@ function newState(){return{pro:true,name:'Valentín',map:0,x:24,y:16,dir:'up',lv
   party:[],flags:{},zones:{},day:1,min:300,canal:ri(1,100),code:String(ri(0,99999)).padStart(5,'0'),left:15,left3:20,kills:0,spares:0,deaths:0,play:0,bells:0,wake:'none'};}
 function saveLS(){try{localStorage.setItem(SAVE,JSON.stringify(S));}catch(e){}}
 function snapshot(){SNAP=JSON.stringify(S);saveLS();}
+let CHAPC={raw:undefined,d:null};
+function chapInfo(){let d=S;if(scene==='title'||!d){try{const j=localStorage.getItem(SAVE);if(j!==CHAPC.raw){CHAPC.raw=j;CHAPC.d=j?JSON.parse(j):null;}d=CHAPC.d;}catch(e){d=null;}}
+  let n=1,name='EL CUARTO PISO',pre=false;if(d){const f=d.flags||{};if(f.cap1||d.chapter===2){n=2;name='EL TERCER PISO';}else if(d.pro){pre=true;}}
+  const title=pre?'PRÓLOGO · FEBRERO DE 2025':'CAPÍTULO '+n+' · '+name,plate=pre?'Prólogo · VHS':'Capítulo '+n+' · VHS';
+  try{const el=document.getElementById('chapPlate');if(el&&el.textContent!==plate)el.textContent=plate;}catch(e){}return{n,title,plate};}
 function hasSave(){try{return !!localStorage.getItem(SAVE);}catch(e){return false;}}
 function loadLS(){try{const s=localStorage.getItem(SAVE);if(!s)return false;S=JSON.parse(s);SNAP=s;return true;}catch(e){return false;}}
 function clearSave(){try{localStorage.removeItem(SAVE);}catch(e){}}
@@ -3126,7 +3131,8 @@ function amb2Tick(){if(!S||scene!=='map'||!AU.c||AU.m)return;AMB2_T-=1/60;if(AMB
     else{AU.t(70,.12,'square',.03,50);AU.t(70,.12,'square',.02,50,.35);}}
   else if(m===MP.DEPTO||m===MP.ESTEF||m===MP.GERO||m===MP.SILV){if(rnd()<.5)for(let k=0;k<4;k++)AU.t(1000,.012,'square',.006,0,k);else nzHit(400,1,.025,.6);}
 }
-function musTick(){try{amb2Tick();}catch(e){}rainTick();try{windSound(performance.now()/1000);}catch(e){}ambTick();try{p3dTick(1/60);}catch(e){console.error(e);}const w=musWant();if(S&&!S.pro&&scene==='map'&&S.map===MP.PISO3)musLoad('rain');if(MUS.cur&&MUS.cur!==w)musStop();if(w){musLoad(w);musStart(w);}if(MUS.src&&AU.c&&AU.c.currentTime>MUS.src.next-1.5)musIter(Math.max(MUS.src.next,AU.c.currentTime+.02),false);}
+let CHAPT=0;
+function musTick(){if(++CHAPT%60===0)try{chapInfo();}catch(e){}try{amb2Tick();}catch(e){}rainTick();try{windSound(performance.now()/1000);}catch(e){}ambTick();try{p3dTick(1/60);}catch(e){console.error(e);}const w=musWant();if(S&&!S.pro&&scene==='map'&&S.map===MP.PISO3)musLoad('rain');if(MUS.cur&&MUS.cur!==w)musStop();if(w){musLoad(w);musStart(w);}if(MUS.src&&AU.c&&AU.c.currentTime>MUS.src.next-1.5)musIter(Math.max(MUS.src.next,AU.c.currentTime+.02),false);}
 /* ================= el interruptor ================= */
 let SCARE=null;
 function startScare(){DLG=null;UI=null;SCARE={t:0,stage:0};AU.t(220,.05,'square',.05);}
@@ -4249,7 +4255,7 @@ function render(t){
       ctx.fillStyle='#0a0d2a';ctx.fillRect(0,0,W,H);ctx.fillStyle='rgba(255,255,255,.03)';for(let i=0;i<H;i+=4)ctx.fillRect(0,i,W,1);
       const j=rnd()<.05?(rnd()-.5)*6:0;
       txt('LA SEÑAL',W/2+j,94,'#e6e8ef',52,'center',true);
-      txt('CAPÍTULO 1 · EL CUARTO PISO',W/2,116,'#9aa0c4',12,'center');
+      txt(chapInfo().title,W/2,116,'#9aa0c4',12,'center');
       const opts=titleOpts();
       if(TS.cheat){const c=TS.cheat;ctx.fillStyle='rgba(6,8,24,.92)';ctx.fillRect(40,128,240,92);ctx.strokeStyle='#e3a849';ctx.lineWidth=1;ctx.strokeRect(40.5,128.5,239,91);
         txt('TRUCOS',W/2,142,'#e3a849',13,'center');
