@@ -1715,11 +1715,12 @@ function pedroEnter2(){
   if(!S.flags.nicoDead)return say([{who:'Nicolás',t:'¡Ahí estás! Te estaba esperando.'},{who:'Nicolás',t:'Estuve buscando cosas... bueno, revolviendo. Y encontré esto: un respiradero nuevo. Ayer no estaba. Te lo juro.'},{who:'Nicolás',t:'Salen voces. Muchas. Como una radio mal sintonizada.'},{who:'Nicolás',t:'Vení, es acá arriba. Al lado mío.'}]);
   return say(S.party.includes('silvestre')?[{who:'Silvestre',t:'¿Escuchás? Voces.'},{who:'Silvestre',t:'Vienen de ahí arriba. De esa rejilla. Esa rejilla ayer no estaba.'}]:['Se escuchan voces. Vienen de una rejilla en la pared que no recordás.']);
 }
-function endChapter2(){if(S.flags.trueGeno&&!S.flags.tgAbort&&!(S.flags.estefDead&&S.flags.geroDead))S.flags.tgFall=1;S.flags.cap2=1;saveLS();transition(1.4,()=>{scene='end';EN={t:0,ch:2};});}
+function chapterCor(k){if(S.flags['corRec'+k])return;S.flags['corRec'+k]=1;if(S.maxCor>=100){S.flags['corGain'+k]=0;return;}const b=S.maxCor;S.maxCor=Math.min(100,S.maxCor+10);const g=S.maxCor-b;S.cor=Math.min(S.maxCor,S.cor+g);S.flags['corGain'+k]=g;}
+function endChapter2(){chapterCor(2);if(S.flags.trueGeno&&!S.flags.tgAbort&&!(S.flags.estefDead&&S.flags.geroDead))S.flags.tgFall=1;S.flags.cap2=1;saveLS();transition(1.4,()=>{scene='end';EN={t:0,ch:2};});}
 function drawEnd2(t){
   ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
   txt('FIN DEL CAPÍTULO 2',W/2,62,'#e6e8ef',26,'center',true);txt('EL TERCER PISO',W/2,80,'#9aa0b4',12,'center');
-  if(EN.t>.8){const L=['Félix (la relatora): '+(S.flags.felix==='spare'?'perdonada':'eliminada'),'Vecinos: '+S.kills+' eliminados · '+S.spares+' perdonados','LV '+S.lv+' · $'+S.pesos+' · Día '+S.day,'Equipo: '+(['ivan','silvestre','geronimo','arana'].filter(p=>S.party.includes(p)).map(p=>({ivan:'Iván',silvestre:'Silvestre',geronimo:'Gerónimo',arana:'la araña'})[p]).join(', ')||'nadie')].concat(S.flags.tgAbort?['Algo te sigue, piso por piso.']:[]).concat(['RUTA: '+routeName()]);
+  if(EN.t>.8){const L=['Félix (la relatora): '+(S.flags.felix==='spare'?'perdonada':'eliminada'),'Vecinos: '+S.kills+' eliminados · '+S.spares+' perdonados','LV '+S.lv+' · $'+S.pesos+' · Día '+S.day,'Equipo: '+(['ivan','silvestre','geronimo','arana'].filter(p=>S.party.includes(p)).map(p=>({ivan:'Iván',silvestre:'Silvestre',geronimo:'Gerónimo',arana:'la araña'})[p]).join(', ')||'nadie')].concat(S.flags.tgAbort?['Algo te sigue, piso por piso.']:[]).concat(S.flags.corGain2>0?['Cordura máxima recuperada: +'+S.flags.corGain2+' ('+S.maxCor+'/100)']:[]).concat(['RUTA: '+routeName()]);
     L.forEach((l,i)=>txtFit(l,W/2,104+i*12,i===L.length-1?'#e3a849':'#c9ccd8',11,'center',W-14));}
   if(EN.t>1.6)txt('Sigue: Capítulo 3 · El quinto piso',W/2,186,'#e3a849',14,'center');
   if(EN.t>2&&Math.floor(t*2)%2)txt('Z para volver al título',W/2,214,'#767c92',11,'center');
@@ -1809,11 +1810,18 @@ function goatTalk(){
 }
 function ivanProof(pr){
   return {who:'Iván',t:pr||'Si sos real, demostralo. Las copias no tienen sombra.',choices:[
-    {l:'Pararte bajo la lámpara',f(){say(['Te parás debajo de la lámpara del techo.','Iván mira el piso. Tu sombra está ahí, firme, del tamaño correcto.',{who:'Iván',t:'Bueno. Sos real. Perdón: esta noche no confío ni en mi reflejo.'},{who:'Iván',t:'Voy con vos. Solo no se puede.'},{t:'Iván se sumó al equipo.',on(){S.party.push('ivan');F.x=6;F.y=3;F.fx=6;F.fy=3;F.dir='down';sfx.lvl();}},{who:'Iván',t:'Antes de salir: el pasillo no está vacío. Cascos, radios, soldaditos de plomo... cosas que se mueven solas.'},{who:'Iván',t:'No son fantasmas. Las estuve estudiando. Son extensiones de las copias.'},{who:'Iván',t:'Lo que nos está copiando no se queda en la gente. Se derrama. Contamina los objetos que tiene cerca, y los objetos se levantan.'},{who:'Iván',t:'Por eso se ven así: podridos, con los ojos blancos. Es la misma fuerza que está en los de afuera.'},{who:'Iván',t:'Lo bueno: si los calmás, la contaminación se va. Vuelven a ser cosas. Lo comprobé con una tostadora.'},{who:'Iván',t:'Eso es todo lo que pude investigar. No es mucho. Pero es más de lo que sabe cualquiera en este piso.'},{who:'Iván',t:'Una cosa más. Esta noche se me metió una sombra en el laboratorio y se llevó tres tubos de ensayo.'},{who:'Iván',t:'Uno estaba rajado. El reactivo brilla en la oscuridad, así que tiene que haber dejado un rastro.'},{who:'Iván',t:'Traémelos y te doy algo que apareció en mi horno. A mí no me sirve. A vos capaz que sí.',on(){S.flags.tubosAsk=1;}}]);}},
+    {l:'Pararte bajo la lámpara',f(){say(['Te parás debajo de la lámpara del techo.','Iván mira el piso. Tu sombra está ahí, firme, del tamaño correcto.',{who:'Iván',t:'Bueno. Sos real. Perdón: esta noche no confío ni en mi reflejo.'},{who:'Iván',t:'Voy con vos. Solo no se puede.'},{t:'Iván se sumó al equipo.',on(){S.party.push('ivan');F.x=6;F.y=3;F.fx=6;F.fy=3;F.dir='down';sfx.lvl();}},{who:'Iván',t:'Antes de salir: el pasillo no está vacío. Cascos, radios, soldaditos de plomo... cosas que se mueven solas.'},{who:'Iván',t:'No son fantasmas. Las estuve estudiando. Son extensiones de las copias.'},{who:'Iván',t:'Lo que nos está copiando no se queda en la gente. Se derrama. Contamina los objetos que tiene cerca, y los objetos se levantan.'},{who:'Iván',t:'Por eso se ven así: podridos, con los ojos blancos. Es la misma fuerza que está en los de afuera.'},{who:'Iván',t:'Lo bueno: si los calmás, la contaminación se va. Vuelven a ser cosas. Lo comprobé con una tostadora.'},...IVAN_COR(),{who:'Iván',t:'Eso es todo lo que pude investigar. No es mucho. Pero es más de lo que sabe cualquiera en este piso.'},{who:'Iván',t:'Una cosa más. Esta noche se me metió una sombra en el laboratorio y se llevó tres tubos de ensayo.'},{who:'Iván',t:'Uno estaba rajado. El reactivo brilla en la oscuridad, así que tiene que haber dejado un rastro.'},{who:'Iván',t:'Traémelos y te doy algo que apareció en mi horno. A mí no me sirve. A vos capaz que sí.',on(){S.flags.tubosAsk=1;}}]);}},
     {l:'Decirle que sos real',f(){say([{who:'Iván',t:'Eso es exactamente lo que diría una copia.'}],()=>say([ivanProof('...¿Y? Demostralo.')]));}},
     {l:'Preguntarle algo',f(){ivanPre();}},
     {l:'Irte',f(){}}]};
 }
+const IVAN_COR=()=>[{who:'Iván',t:'Y lo más importante, te lo digo como estudiante de medicina: cuidá la cordura.'},
+  {who:'Iván',t:'Es lo que te mantiene de este lado. Cada cosa horrible que mirás, cada crueldad que hacés y cada ataque violeta de esas cosas te saca un poco.'},
+  {who:'Iván',t:'Cuando baja, se nota: todo se oscurece, ves gente donde no hay nadie y el pasillo empieza a hablarte.'},
+  {who:'Iván',t:'Si llega a cero, aparece la Sombra. A esa no la calmás ni le ganás. Solo podés escaparte.'},
+  {who:'Iván',t:'Y si caés y rebobinás, algo no vuelve entero: la cordura máxima baja.'},
+  {who:'Iván',t:'Para recuperarla: comé, dormí en tu cama y no mires lo que no hace falta mirar. Mantenela alta. En serio.'},
+  {who:'Iván',t:'Lo único bueno: cada vez que cerrás una etapa grande, la cabeza se acomoda un poco. Algo de lo perdido vuelve.',on(){S.flags.ivanCor=1;}}];
 function ivanTalk(){
   if(S.flags.ivanMet)return say([{who:'Iván',t:'¿Volviste? ...Cerrá la puerta.'},ivanProof('Sigo esperando. Demostrá que sos real.')]);
   S.flags.ivanMet=1;
@@ -3080,6 +3088,7 @@ function lifeTick(dt){lifeInit();if(scene!=='map'||!S)return;if(!S.pro)for(const
   const m=MAPS[S.map],busy=!!(DLG||UI||CUT||TR||PENDING.length||VOID||BLACKOUT);
   for(const n of m.npcs)if(n._mv){n._mv.p+=dt*3.2;if(n._mv.p>=1){n._mv=null;if(n._d0&&n.x===n._h[0]&&n.y===n._h[1]&&!n._hosting)n.dir=n._d0;}}
   if(busy)return;
+  if(!S.pro&&!S.flags.ivanCor&&S.party.includes('ivan')&&!CHASE){S.flags.ivanCor=1;say([{who:'Iván',t:'Che, me olvidé de decirte algo importante.'}].concat(IVAN_COR()));return;}
   // reloj: en los pisos, el tiempo corre solo (1 minuto cada 2 segundos)
   if(!S.pro){LIFE.acc+=dt;while(LIFE.acc>=2){LIFE.acc-=2;addTime(1,1);}}
   // anfitriones miran a sus visitas
@@ -4397,7 +4406,7 @@ function rewind(){
 }
 let EN=null;
 function routeName(){if(S.flags.ivanDead)return S.flags.tgAbort?'ESTÁTICA':S.flags.tgFall?'INTERFERENCIA':'ANIQUILACIÓN';const pk=S.flags.pedro==='kill',ps=S.flags.pedro==='spare';if(S.spares===0&&!ps&&(S.kills>0||pk))return 'INTERFERENCIA';if(S.kills===0&&!pk)return 'SINTONÍA';return 'ESTÁTICA';}
-function endChapter(){S.flags.cap1=1;saveLS();transition(1.2,()=>{scene='end';EN={t:0};});}
+function endChapter(){chapterCor(1);S.flags.cap1=1;saveLS();transition(1.2,()=>{scene='end';EN={t:0};});}
 function continueGame(){
   if(!loadLS())return transition(.8,newGame);
   if(S.flags.cap2){transition(.8,()=>{scene='end';EN={t:0,ch:2};});return;}
@@ -4543,7 +4552,7 @@ function render(t){
       ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
       txt('FIN DEL CAPÍTULO 1',W/2,62,'#e6e8ef',26,'center',true);
       txt('EL CUARTO PISO',W/2,80,'#9aa0b4',12,'center');
-      if(EN.t>.8){const lines=['Pedro (el militar): '+(S.flags.pedro==='spare'?'perdonado':'eliminado'),'Vecinos del pasillo: '+S.kills+' eliminados · '+S.spares+' perdonados','LV '+S.lv+' · $'+S.pesos+' · Día '+S.day+' · '+hhmm(S.min),'Equipo: '+([S.party.includes('ivan')?'Iván':'',S.party.includes('arana')?'la araña':''].filter(Boolean).join(' y ')||'nadie')].concat(S.flags.ivanDead?['Iván: eliminado'+(S.flags.nicoDead?' · Nicolás: eliminado':'')]:[]).concat(['RUTA: '+routeName()]);lines.forEach((l,i)=>txtFit(l,W/2,104+i*12,i===lines.length-1?(S.flags.ivanDead||routeName()==='INTERFERENCIA'?'#e8505b':'#e3a849'):'#c9ccd8',11,'center',W-14));}
+      if(EN.t>.8){const lines=['Pedro (el militar): '+(S.flags.pedro==='spare'?'perdonado':'eliminado'),'Vecinos del pasillo: '+S.kills+' eliminados · '+S.spares+' perdonados','LV '+S.lv+' · $'+S.pesos+' · Día '+S.day+' · '+hhmm(S.min),'Equipo: '+([S.party.includes('ivan')?'Iván':'',S.party.includes('arana')?'la araña':''].filter(Boolean).join(' y ')||'nadie')].concat(S.flags.ivanDead?['Iván: eliminado'+(S.flags.nicoDead?' · Nicolás: eliminado':'')]:[]).concat(S.flags.corGain1>0?['Cordura máxima recuperada: +'+S.flags.corGain1+' ('+S.maxCor+'/100)']:[]).concat(['RUTA: '+routeName()]);lines.forEach((l,i)=>txtFit(l,W/2,104+i*12,i===lines.length-1?(S.flags.ivanDead||routeName()==='INTERFERENCIA'?'#e8505b':'#e3a849'):'#c9ccd8',11,'center',W-14));}
       if(EN.t>1.6)txt('Sigue: Capítulo 2 · El tercer piso',W/2,186,'#e3a849',14,'center');
       if(EN.t>2&&Math.floor(t*2)%2)txt('Z para seguir',W/2,214,'#767c92',11,'center');
       break;}
