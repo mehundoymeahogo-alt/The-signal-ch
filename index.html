@@ -3732,7 +3732,8 @@ function updTape(dt){
   if(cross(14.2)){AU.t(120,.25,'sine',.06,60);}
   if(cross(15.8)){AU.t(55,1.6,'sawtooth',.05,40);}
   for(const x of [16.25,16.7,17.1])if(cross(x)){AU.nz(.12,.12);AU.t(1400,.08,'sawtooth',.04,900);}
-  if(cross(17.45)){AU.nz(.35,.35);AU.t(1800,.3,'sawtooth',.08,300);}
+  if(cross(17.15))sfx.scream();
+  if(cross(17.5)){AU.nz(.35,.35);AU.t(1800,.3,'sawtooth',.08,300);}
   if(S.flags[TP.k===3?'tape3':'tape']&&hit('a'))TP.t=Math.max(TP.t,TAPE_END-.3);
   if(TP.t>=TAPE_END&&TP.k===3){TP=null;S.flags.tape3=1;scene='map';return say(['La cinta se termina con un chasquido.','Anotás el código en la palma de la mano, debajo del otro: '+S.code3+'.','(Está en Notas, en el menú.)']);}
   if(TP.t>=TAPE_END){TP=null;S.flags.tape=1;scene='map';say(['La cinta se termina con un chasquido.','Anotás el código en la palma de la mano con birome: '+S.code+'.','(Está en Notas, en el menú.)']);}
@@ -3751,6 +3752,22 @@ function tapeOverlay(t,cam,time){
 function tapeStatic(t){ctx.drawImage(noiseC[(rnd()*4)|0],0,0,W,H);const y=((t*90)%(H+30))-15;ctx.fillStyle='rgba(255,255,255,.18)';ctx.fillRect(0,y,W,10);ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(0,y+10,W,4);}
 // persona vista desde la cámara alta: el sprite del juego, escalado según la profundidad
 function tapePerson(x,y,s,look,dir,t,mv,alpha){ctx.save();ctx.globalAlpha*=alpha==null?1:alpha;ctx.translate(x,y);ctx.scale(s,s);ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(0,0,6,2,0,0,7);ctx.fill();drawPerson(-8,-15,{...look,dir},t,mv);ctx.restore();}
+// "la Sombra" de las cintas: demasiado alta y flaca, brazos hasta las rodillas, la cabeza torcida y sin sombra en el piso
+function tapeThing(x,y,s,t,grin,look){ctx.save();ctx.translate(x,y);ctx.scale(s,s);const C='#020203',tw=Math.sin(t*37)>.9?(rnd()-.5)*.6:0,sh=(rnd()-.5)*.25;
+  ctx.fillStyle=C;ctx.strokeStyle=C;ctx.lineCap='round';
+  ctx.fillRect(-3+sh,-17,1.5,17);ctx.fillRect(1.5+sh,-17,1.5,17);ctx.fillRect(-3.6,-.8,2.6,.8);ctx.fillRect(1.2,-.8,2.6,.8);
+  ctx.beginPath();ctx.moveTo(-3.6,-17);ctx.lineTo(3.6,-17);ctx.lineTo(5.2,-35);ctx.quadraticCurveTo(0,-37.5,-5.6,-34.5);ctx.closePath();ctx.fill();
+  ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(-5,-34);ctx.quadraticCurveTo(-8,-22,-7.4,-7);ctx.moveTo(5,-34.5);ctx.quadraticCurveTo(8.4,-21,7.6,-4.5);ctx.stroke();
+  ctx.lineWidth=.45;ctx.beginPath();for(const [hx,hy] of [[-7.4,-7],[7.6,-4.5]])for(let f=-1;f<=1;f++){ctx.moveTo(hx,hy);ctx.lineTo(hx+f*.9,hy+3.2+Math.abs(f)*-.4);}ctx.stroke();
+  ctx.fillRect(-.7,-41,1.4,7);
+  ctx.save();ctx.translate(.6,-44);ctx.rotate(.42+tw);ctx.beginPath();ctx.ellipse(0,0,3.3,4.4,0,0,7);ctx.fill();
+  ctx.fillStyle='#f2f2ea';ctx.beginPath();ctx.ellipse(-1.35,-.7,.95,.62,0,0,7);ctx.ellipse(1.35,-.7,.95,.62,0,0,7);ctx.fill();ctx.fillStyle=C;ctx.fillRect(-1.45,-.85,.3,.3);ctx.fillRect(1.25,-.85,.3,.3);
+  if(grin>0){ctx.strokeStyle='#e8e4d8';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(-2.4*grin,1.4);ctx.quadraticCurveTo(0,1.4+2.2*grin,2.4*grin,1.4);ctx.stroke();ctx.strokeStyle=C;ctx.lineWidth=.18;ctx.beginPath();for(let k=-2;k<=2;k++){ctx.moveTo(k*.8*grin,1.6+(1-Math.abs(k)/3)*1.2*grin);ctx.lineTo(k*.8*grin,2.4+(1-Math.abs(k)/3)*1.2*grin);}ctx.stroke();}
+  ctx.restore();ctx.lineCap='butt';ctx.restore();
+  // estática alrededor: la imagen se desgarra donde está
+  const top=y-48*s,hh=48*s;for(let i=0;i<3;i++){if(rnd()<.6){const yy=top+rnd()*hh,h=1+rnd()*3*s/2;ctx.drawImage(ctx.canvas,(x-12*s)*2,yy*2,24*s*2,h*2,x-12*s+(rnd()-.5)*6*s/2,yy,24*s,h);}}}
+// el cierre: la cara pegada al lente
+function tapeFace(t){faceFx('a',t,1.05+(t-17.15)*.5,(rnd()-.5)*6,(rnd()-.5)*6,1,5+rnd()*6);ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='saturation';ctx.fillStyle='#808080';ctx.fillRect(0,0,640,480);ctx.globalCompositeOperation='multiply';ctx.fillStyle='#b8c8b0';ctx.fillRect(0,0,640,480);ctx.restore();glitchFx(5,50);}
 function tapeShade(x,y,s,eyes){ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.fillStyle='#030304';ctx.fillRect(-4,-14,8,14);ctx.fillRect(-6,-18,12,7);ctx.beginPath();ctx.ellipse(0,-22,4.5,5,0,0,7);ctx.fill();
   if(eyes){ctx.fillStyle='#f4f4ee';ctx.fillRect(-2.5,-23,1.4,1.2);ctx.fillRect(1.1,-23,1.4,1.2);}ctx.restore();}
 /* ---- escenario del piso 4: el pasillo de la escalera ---- */
@@ -3806,21 +3823,21 @@ function tapeCloseKeypad(t){const F=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(x
   tapeOverlay(t,k3?'CAM 03B · TECLADO':'CAM 04B · TECLADO',k3?'03:33':'03:13');}
 /* ---- plano general: llegada ---- */
 function tapeArrive(t){const k3=TP.k===3,u=Math.min(1,Math.max(0,(t-2.6)/3.4)),fl=.75+.25*Math.sin(t*23)*(Math.sin(t*.9)>.6?1:0);
-  if(!k3){tapeHall4(t,fl,0);const q=u,x=148+(214-148)*q,y=100+(188-100)*Math.pow(q,1.3),s=.7+1.9*Math.pow(q,1.4);tapePerson(x,y,s,tapeWho(),q<.96?'down':'right',t,q<.98);tapeOverlay(t,'CAM 04 · PASILLO','03:12');}
-  else{const x=-20+(206+20)*u,y=176+Math.sin(u*Math.PI)*6;tapeTrack3(t,fl,0,x);tapePerson(x,y,2.4,tapeWho(),u<.97?'right':'up',t*1.3,u<.98);tapeOverlay(t,'CAM 03 · PISTA','03:32');}}
+  if(!k3){tapeHall4(t,fl,0);const q=u,x=148+(214-148)*q,y=100+(188-100)*Math.pow(q,1.3),s=.7+1.9*Math.pow(q,1.4);tapePerson(x,y,s,tapeWho(),q<.96?'down':'right',t,q<.98);if(t>4.7&&t<4.95){ctx.fillStyle='#e8e8e0';ctx.fillRect(146,70,1,1);ctx.fillRect(149,70,1,1);}tapeOverlay(t,'CAM 04 · PASILLO','03:12');}
+  else{const x=-20+(206+20)*u,y=176+Math.sin(u*Math.PI)*6;tapeTrack3(t,fl,0,x);tapePerson(x,y,2.4,tapeWho(),u<.97?'right':'up',t*1.3,u<.98);if(t>4.5&&t<5.4)tapeThing(232,60,.42,t,0);tapeOverlay(t,'CAM 03 · PISTA','03:32');}}
 /* ---- plano general: entra... y algo viene ---- */
 function tapeAfter(t){const k3=TP.k===3,fl0=.75+.25*Math.sin(t*23)*(Math.sin(t*.9)>.6?1:0);
   const dOpen=t<14.6?Math.min(1,(t-13.6)/.5):t<15.2?1-Math.min(1,(t-14.6)/.6):0;
   // la luz se corta a los saltos; en cada corte, la sombra está más cerca
   const cut=t>15.8&&((t>16.15&&t<16.3)||(t>16.6&&t<16.75)||(t>17.0&&t<17.15));const fl=cut?.1:fl0;
   if(!k3){tapeHall4(t,fl,dOpen);if(t<14.6){const q=Math.min(1,(t-13.6)/.9);tapePerson(214+q*16,188-q*6,2.6,tapeWho(),'right',t,true,1-q);}
-    const st=t<15.8?-1:t<16.3?0:t<16.75?1:t<17.15?2:3,P=[[148,100,.8],[160,124,1.5],[178,158,2.6],[200,236,6]];
-    if(st>=0&&!cut){const [x,y,s]=P[st];tapeShade(x,y,s,st>=1);}
+    const st=t<15.8?-1:t<16.3?0:t<16.75?1:t<17.15?2:3,P=[[148,98,.55],[156,122,1.05],[170,170,2.1]];
+    if(st>=0&&st<3&&!cut){const [x,y,s]=P[st];tapeThing(x,y,s,t,st*.5);}if(st===3){tapeFace(t);}
     tapeOverlay(t,'CAM 04 · PASILLO','03:14');}
   else{const empty=t>16.3;tapeTrack3(t,fl,dOpen,empty?-1:160);if(t<14.6){const q=Math.min(1,(t-13.6)/.9);tapePerson(206+q*6,176-q*6,2.4,tapeWho(),'up',t,true,1-q);}
-    if(t>16.75&&!cut){const s=t<17.15?2.6:5,x=t<17.15?70:150,y=t<17.15?178:240;tapeShade(x,y,s,true);}
+    if(t>15.8&&t<16.3&&!cut)tapeThing(286,58,.45,t,0);if(t>16.75&&t<17.15&&!cut)tapeThing(96,206,2.3,t,1);if(t>=17.15)tapeFace(t);
     tapeOverlay(t,'CAM 03 · PISTA','03:34');}
-  if(t>17.42){ctx.fillStyle='rgba(255,255,255,'+Math.min(.8,(t-17.42)*6)+')';ctx.fillRect(0,0,W,H);}}
+  if(t>17.5){ctx.fillStyle='rgba(255,255,255,'+Math.min(.8,(t-17.5)*8)+')';ctx.fillRect(0,0,W,H);}}
 function drawTape(){const t=TP.t,sh=tapeShot(t);
   if(sh===0){ctx.fillStyle='#1a2ad0';ctx.fillRect(0,0,W,H);txt('PLAY ▶',20,30,'#fff',18);txt('CINTA: PISO '+(TP.k===3?3:4),W/2,H/2,'#fff',16,'center');txt('SP   0:00:'+String(Math.floor(t*10)).padStart(2,'0'),W/2,H/2+20,'#c8d0ff',11,'center');return;}
   if(sh===1||sh===5){tapeStatic(t);if(sh===5&&t>17.6&&t<17.8){ctx.globalAlpha=.5;tapeAfter(17.45);ctx.globalAlpha=1;}return;}
