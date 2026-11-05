@@ -164,6 +164,12 @@ const LSPR={};function lightSpr(r){r=Math.round(r);if(LSPR[r])return LSPR[r];con
 const IT={
   cuchillo:{n:'Cuchillo de cocina',t:'weapon',k:'perforación',dmg:15,d:'Un cuchillo de cocina. 15 de daño.'},
   palo:{n:'Palo de amasar',t:'weapon',k:'contundente',dmg:18,d:'Pesado y confiable. 18 de daño, contundente.'},
+  tijera:{n:'Tijera de podar',t:'weapon',k:'cortante',dmg:17,d:'Oxidada pero filosa. 17 de daño, cortante.'},
+  trincheta:{n:'Trincheta',t:'weapon',k:'cortante',dmg:27,d:'La hoja nueva, sin estrenar. 27 de daño, cortante.'},
+  llave:{n:'Llave inglesa',t:'weapon',k:'contundente',dmg:28,d:'Pesada, de las de antes. 28 de daño, contundente.'},
+  punzon:{n:'Punzón',t:'weapon',k:'perforación',dmg:27,d:'Para cuero. O para lo que sea. 27 de daño, perforación.'},
+  honda:{n:'Gomera reforzada',t:'weapon',k:'rango',dmg:25,d:'Con goma de cámara de bici. 25 de daño, a distancia.'},
+  cuero:{n:'Campera de cuero',t:'armor',def:10,d:'Pesada y con olor a moto. +10 de defensa.'},
   gomera:{n:'Gomera',t:'weapon',k:'rango',dmg:16,d:'Con piedritas del cantero. 16 de daño, a distancia.'},
   destornillador:{n:'Destornillador',t:'weapon',k:'perforación',dmg:20,d:'Mango amarillo. 20 de daño, perforación.'},
   rompeviento:{n:'Campera rompeviento',t:'armor',def:3,d:'Abriga poco. +3 de defensa.'},
@@ -201,7 +207,11 @@ const IT={
   auris:{n:'Auriculares de Félix',t:'acc',corRes:.3,d:'Los auriculares de la relatora. No sale nada del cable. La cordura baja un 30% menos.'},
   patito:{n:'Patito de goma',t:'key',d:'Amarillo. Hace "cuic". Lo tenías en la mano antes de despertar.'}
 };
-const SHOP=[['sanguche',15],['jean',60],['palo',45],['gomera',40],['destornillador',65],['walkman',55],['alfajor',25],['vitamina',70]];
+const SHOP_T=[[['sanguche',15],['jean',60],['palo',45],['gomera',40],['destornillador',65],['tijera',50],['walkman',55],['alfajor',25],['vitamina',70]],
+  [['sanguche',15],['cuero',110],['llave',95],['honda',85],['punzon',92],['trincheta',90],['walkman',55],['alfajor',25],['vitamina',70]]];
+// Nico renueva armas y abrigos a medida que llegás a pisos nuevos (por ahora: el 4 y el 3)
+const shopTier=()=>Math.min(SHOP_T.length-1,(S.flags.cap1||S.chapter>=2)?1:0);
+let SHOP=SHOP_T[0];
 const XPT=[0,20,50,90,140,200,270,350,440,540,650,770,900,1040,1190,1350,1520,1700,1890,2090];
 const CAST=['IVAN','ISIDORO','ISI','GERONIMO','AUGUSTO','SELENE','SILVESTRE','MANUEL','ROMAN','MATIAS','MILAGROS','SOFIA','BRIAN','FELIX','ESTEFANIA','ANGELINA','ANGIE','PEDRO','MAXIMO','NICOLAS','BIANCA','TOMAS','VALENTINO','JOAQUIN','CIRO','CATALINA','DEN'];
 
@@ -382,7 +392,7 @@ function itemEffect(id){const it=IT[id],L=[];
   if(id==='hisopo')return 'No está claro para qué sirve. Capaz que para un momento muy específico.';
   if(it.t==='food'||it.t==='med'){if(it.full)L.push('te cura toda la vida');if(it.hp&&it.cor)L.push('recupera '+it.hp+' PV y '+it.cor+' de cordura');else if(it.hp)L.push('recupera '+it.hp+' PV');else if(it.cor)L.push('recupera '+it.cor+' de cordura');if(it.maxhp)L.push('sube tu vida máxima '+it.maxhp+' para siempre');
     let s=L.join(' y ');s=s.charAt(0).toUpperCase()+s.slice(1)+'. Se gasta al usarlo.';if(it.hp||it.full)s+=' (Tenés '+S.hp+'/'+maxHP()+' PV.)';else if(it.cor)s+=' (Tenés '+S.cor+'/'+S.maxCor+' de cordura.)';return s;}
-  if(it.t==='weapon'){const c=S.eq.weapon&&IT[S.eq.weapon];return 'Arma '+it.k+': '+it.dmg+' de daño.'+(c?' (Ahora usás '+c.n+': '+c.dmg+'.)':'');}
+  if(it.t==='weapon'){const c=S.eq.weapon&&IT[S.eq.weapon];return 'Arma '+it.k+': '+it.dmg+' de daño. '+critText(it.k)+(c?' (Ahora usás '+c.n+': '+c.dmg+'.)':'');}
   if(it.t==='armor'){const c=S.eq.armor&&IT[S.eq.armor];return 'Abrigo: +'+it.def+' de defensa'+(it.inv?' y los golpes tardan más en volver a lastimarte':'')+(id==='chaqueta'?' y más daño con armas a distancia':'')+'.'+(c?' (Ahora tenés '+c.n+': +'+c.def+'.)':'');}
   if(it.t==='acc'){if(it.dmgx)L.push('+'+Math.round((it.dmgx-1)*100)+'% de daño');if(it.half)L.push('tu vida máxima queda a la mitad');if(it.corRes)L.push('la cordura baja un '+Math.round(it.corRes*100)+'% menos');if(it.hpx)L.push('+'+Math.round((it.hpx-1)*100)+'% de vida máxima');if(it.d20)L.push('1 chance en 20 de que el enemigo no quiera pelear');if(id==='crono')L.push('los ataques enemigos duran 2 segundos menos');
     const c=S.eq.acc&&IT[S.eq.acc];let s=L.join(', ');s='Accesorio: '+s+'.';return s+(c?' (Reemplaza a '+c.n+'.)':'');}
@@ -2199,7 +2209,18 @@ function drawDlg(){
 /* ================= menus / UI ================= */
 let UI=null;
 function openStore(cat){UI={kind:'store',cat,tab:0,i:0,msg:''};sfx.sel();}
-function openShop(){UI={kind:'shop',i:0,msg:''};}
+function openShop(){SHOP=SHOP_T[shopTier()];const who=S.flags.nicoDead?'Ginés':'Nicolás',go=()=>{UI={kind:'shop',i:0,msg:''};};
+  const L=[];
+  if(!S.flags.shopTut){S.flags.shopTut=1;L.push({who,t:'Antes de que compres algo, escuchá, que esto te puede salvar.'},
+    {who,t:'Cada arma pega distinto. Si clavás el golpe justo en el centro de la barra, es un crítico, y a veces pasa algo más.'},
+    {who,t:'Lo contundente, como un palo: a veces los deja tan aturdidos que en su próximo ataque tiran menos cosas.'},
+    {who,t:'Lo que perfora, como un destornillador: a veces los deja lentos, y lo que te tiran viene más despacio.'},
+    {who,t:'Lo que corta, como una tijera: a veces les queda un corte y sangran unos turnos.'},
+    {who,t:'Y las gomeras usan tres barras en vez de una. Si clavás las tres en el centro, a veces el golpe pega el triple.'},
+    {who,t:'Los abrigos te cubren: cada golpe que te dan te saca la mitad de tu defensa menos.'});}
+  if((S.flags.shopSeen||0)<shopTier()){if(S.flags.shopSeen!=null||L.length)L.push({who,t:'Ah, y me llegó mercadería nueva. Para lo que hay más abajo, vas a necesitar algo mejor que un palo de amasar.'});S.flags.shopSeen=shopTier();}
+  if(S.flags.shopSeen==null)S.flags.shopSeen=shopTier();
+  if(L.length)return say(L,go);go();}
 function openKeypad(){
   if(!S.flags.pedro)return say(['Pedro está parado delante de la puerta.']);
   UI={kind:'keypad',d:[0,0,0,0,0],p:0,msg:''};sfx.sel();
@@ -2344,8 +2365,8 @@ function drawUI(){
   }
   if(u.kind==='shop'){
     panel(16,10,288,156,'#e3a849');txt('KIOSCO NICO',26,26,'#e3a849',14);txt('$'+S.pesos,294,26,'#e6e8ef',13,'right');
-    SHOP.forEach(([id,b],i)=>{const y=42+i*12;txt((u.i===i?'▸ ':'  ')+IT[id].n,24,y,u.i===i?'#e3a849':'#c9ccd8',11);txt('$'+price(b,id),294,y,'#e6e8ef',11,'right');});
-    wrap(IT[SHOP[u.i][0]].d,270,10).slice(0,2).forEach((l,i)=>txt(l,26,138+i*10,'#9aa0b4',10));
+    SHOP.forEach(([id,b],i)=>{const y=40+i*(SHOP.length>8?10.6:12);txt((u.i===i?'▸ ':'  ')+IT[id].n,24,y,u.i===i?'#e3a849':'#c9ccd8',11);txt('$'+price(b,id),294,y,'#e6e8ef',11,'right');});
+    {const id=SHOP[u.i][0],it=IT[id];wrap(it.d+(it.t==='weapon'?' '+critText(it.k):''),270,10).slice(0,2).forEach((l,i)=>txt(l,26,138+i*10,'#9aa0b4',10));}
     txt(u.msg||'Z comprar · X salir',26,158,'#767c92',10);
   }
   if(u.kind==='keypad'){
@@ -3950,9 +3971,10 @@ const BT={x:16,y:112,w:288,h:70},BD={x:110,y:100,w:100,h:84};
 function startBattle(ids,opts){
   sfx.stat();
   transition(.8,()=>{
-    const foes=ids.map(id=>({id,def:FOES[id],hp:FOES[id].hp,calm:0,used:{},spared:false,dead:false,fade:1,shake:0}));
+    const foes=ids.map(id=>({id,def:FOES[id],hp:FOES[id].boss||['felix','pedro','ivan','tuto','sombra'].includes(id)?FOES[id].hp:Math.round(FOES[id].hp*1.25),calm:0,used:{},spared:false,dead:false,fade:1,shake:0}));
     B={foes,boss:!!opts.boss,tuto:!!opts.tuto,ivanFight:!!opts.ivan,felix:!!opts.felix,leftKey:opts.leftKey||'left',goals:0,fgoals:0,onEnd:opts.onEnd,state:'text',box:{...BT},tbox:BT,menu:0,sub:0,target:0,targetFor:null,
       soul:{x:157,y:145},bul:[],accs:{},t:0,inv:0,screen:0,pops:[],lines:[],li:0,shown:0,next:null,flav:'',turn:0,attacks:0,fp:0,fpStop:0,ft:0,mira:null,fled:false,pats:[],dur:3,dt:0};
+    for(const f of foes)f.mhp=f.hp;
     scene='battle';
     const intro=B.tuto?['Gerónimo saca un dragón de cartón con ojos de botón. "¡Un dragón salvaje aparece!"','(PELEAR: apretá Z cuando la línea pase por el centro de la barra.)','(ACTUAR: hacé cosas. Algunas calman al enemigo.)','Gerónimo: "¿Ves esa chispita? Es tu voluntad. Lo que te hace seguir adelante y elegir qué hacer."','Gerónimo: "Mientras la cuides, seguís en juego. Si se apaga... bueno, no dejes que se apague."','(Cuando te atacan, mové tu chispa con las flechas y esquivá.)','(PERDONAR: si el enemigo está calmado, la pelea termina sin lastimar a nadie. Ahí también está HUIR.)']
       :opts.felix?['¡Félix (la relatora) arranca la transmisión!','(Pateá la pelota con tu chispa hasta el arco de la izquierda. Con tres goles se termina el partido.)']
@@ -3993,8 +4015,10 @@ function drawBubble(bb,shown,t){const f=B.foes[bb.fi];if(!f)return;const n=B.foe
   const ey=clamp(ty,y+5,y+h-5);ctx.beginPath();if(left){ctx.moveTo(x+w-.5,ey-3);ctx.lineTo(tx,ty);ctx.lineTo(x+w-.5,ey+3);}else{ctx.moveTo(x+.5,ey-3);ctx.lineTo(tx,ty);ctx.lineTo(x+.5,ey+3);}ctx.fill();ctx.stroke();ctx.fillStyle=bg;ctx.fillRect(left?x+w-2:x,ey-2,2,4);
   let lf=Math.floor(shown);L.forEach((l,i)=>{if(lf<=0)return;const sub=l.slice(0,lf);lf-=l.length+1;txt(sub,x+6,y+10+i*11,fg,11);});}
 function bSay(lines,next){lines=pageLines(lines);B.state='text';B.lines=lines;B.li=0;B.shown=0;B.next=next;B.tbox=BT;}
+function bleedTick(){const L=[];for(const f of alive()){if(!(f.bleed>0))continue;f.bleed--;const d=f.bleedD||1;f.hp=Math.max(0,f.hp-d);f.shake=4;B.pops.push({fi:B.foes.indexOf(f),txt:String(d),t:0});
+  if(f.hp<=0){f.dead=true;L.push(f.def.name+' se desangra.',...f.def.kill);}else L.push(f.def.name+' sangra: pierde '+d+' de vida.');}return L;}
 function toMenu(){
-  const pl=B.turn>0?poisonTick():[];
+  const pl=B.turn>0?poisonTick().concat(bleedTick()):[];
   if(pl.length){B.turn=-B.turn;return bSay(pl,()=>{B.turn=-B.turn;if(!alive().length)endBattle();else menuCore();});}
   menuCore();
 }
@@ -4027,7 +4051,7 @@ function bossQuotes(){
 }
 function chooseTarget(next){const a=alive();if(a.length===1){B.target=B.foes.indexOf(a[0]);next();}else{B.state='target';B.sub=0;B.targetFor=next;}}
 function choose(i){
-  if(i===0)chooseTarget(()=>{B.state='fight';B.fp=0;});
+  if(i===0)chooseTarget(()=>{B.state='fight';B.fp=0;B.fbar=null;B.fbar3=null;});
   else if(i===1)chooseTarget(()=>{B.state='act';B.sub=0;});
   else if(i===2){if(!S.items.some(id=>IT[id].t==='food'||IT[id].t==='med'))bSay(['No tenés nada para usar en los bolsillos.'],menuCore);else{B.state='item';B.sub=0;}}
   else{B.state='mercy';B.sub=0;}
@@ -4080,16 +4104,29 @@ function afterPlayer(lines,attacked){
   if(!L.length)return alive().length?enemyTurn():endBattle();
   bSay(L,()=>{if(!alive().length)endBattle();else enemyTurn();});
 }
+const wKind=()=>S.eq.weapon?IT[S.eq.weapon].k:'contundente';
+function critText(k){return k==='contundente'?'Crítico: 15% de aturdir (su próximo ataque con 25% menos proyectiles).':k==='perforación'?'Crítico: 15% de ralentizar (su próximo ataque 25% más lento).':k==='cortante'?'Crítico: 15% de dejar sangrado (25% del daño del arma por turno, 3 turnos).':'Usa 3 barras. Si las 3 son críticas: 15% de pegar el triple.';}
+function resolveFight3(){B.fpStop=B.fbar.length?B.fbar[B.fbar.length-1]:-1;const f=B.foes[B.target],acc=B.fbar.map(p=>p<0?-1:1-Math.min(1,Math.abs(p-.5)*2));B.cm=[];
+  if(acc.every(a=>a<0)){B.pops.push({fi:B.target,txt:'FALLASTE',miss:1,t:0});}
+  else{let dmg=f.id==='sombra'?1:Math.max(1,Math.round(acc.reduce((s,a)=>s+(a<0?0:atkVal()*dmgMult()*(.4+1.2*a)/3),0)));
+    if(f.id!=='sombra'&&acc.every(a=>a>=.9)){B.pops.push({fi:B.target,txt:'¡CRÍTICO x3!',miss:1,t:0});if(rnd()<.15){dmg*=3;B.cm.push('¡Las tres piedras entran justo! Triple impacto.');}}
+    f.hp=Math.max(0,f.hp-dmg);f.shake=7;sfx.hit();B.pops.push({fi:B.target,txt:String(dmg),t:0});}
+  B.state='fightres';B.ft=.9;}
 function resolveFight(p){
   B.fpStop=p;const f=B.foes[B.target];
   if(p<0){B.pops.push({fi:B.target,txt:'FALLASTE',miss:1,t:0});}
-  else{const acc=1-Math.min(1,Math.abs(p-.5)*2),dmg=f.id==='sombra'?1:Math.max(1,Math.round(atkVal()*dmgMult()*(.4+1.2*acc)));f.hp=Math.max(0,f.hp-dmg);f.shake=7;sfx.hit();B.pops.push({fi:B.target,txt:String(dmg),t:0});}
+  else{const acc=1-Math.min(1,Math.abs(p-.5)*2),dmg=f.id==='sombra'?1:Math.max(1,Math.round(atkVal()*dmgMult()*(.4+1.2*acc)));f.hp=Math.max(0,f.hp-dmg);f.shake=7;sfx.hit();B.pops.push({fi:B.target,txt:String(dmg),t:0});
+    B.cm=[];if(acc>=.9&&f.id!=='sombra'&&f.hp>0){B.pops.push({fi:B.target,txt:'¡CRÍTICO!',miss:1,t:0});if(rnd()<.15){const k=wKind(),nm=f.def.name;
+      if(k==='contundente'){B.less=1;B.cm.push('¡El golpe aturde a '+nm+'! Su próximo ataque va a tener menos proyectiles.');}
+      else if(k==='perforación'){B.slow=1;B.cm.push('¡'+nm+' queda entumecido! Su próximo ataque va a ser más lento.');}
+      else if(k==='cortante'){const base=S.eq.weapon?IT[S.eq.weapon].dmg:4;f.bleed=3;f.bleedD=Math.max(1,Math.round(base*.25));B.cm.push('A '+nm+' le quedó un corte. Va a sangrar unos turnos.');}}}}
   B.state='fightres';B.ft=.9;
 }
 const MAX_HIT=9; // tope de daño de un proyectil en todo el juego
 function soulHit(u){const cx=B.soul.x+3,cy=B.soul.y+3,nx=clamp(cx,u.x,u.x+u.w),ny=clamp(cy,u.y,u.y+u.h);return Math.abs(cx-nx)+Math.abs(cy-ny)<=3.6;}
 function enemyTurn(){
   if(S.cor<=0&&!B.shadow)return shadowStart();
+  B.lessT=B.less;B.slowT=B.slow;B.less=0;B.slow=0;
   B.state='dodge';B.corSeen=false;B.pel=null;B.run=null;B.tk=null;B.ballP=null;B.svy=0;B.tbox=BD;B.dt=0;B.bul=[];B.accs={};B.mira=null;B.soul={x:BD.x+BD.w/2-3,y:BD.y+BD.h/2-3};
   B.turn++;
   if(B.felix){B.attacks++;const n=B.attacks,X=['tiki','saque','penal','pique'];B.pats=n<2?['partido']:n<5?['partido','relato']:['partido','relato',X[(n-5)%4]];B.dur=12;return;}
@@ -4159,12 +4196,12 @@ function updDodge(dt){
   const mx=(keys.right?1:0)-(keys.left?1:0),my=(keys.down?1:0)-(keys.up?1:0);
   const grav=B.pats.includes('vallas'),my2=grav?0:my,nrm=(mx&&my2)?.7071:1;B.soul.x=clamp(B.soul.x+mx*82.8*nrm*dt,b.x+2,b.x+b.w-8);B.soul.y=clamp(B.soul.y+my2*82.8*nrm*dt,b.y+2,b.y+b.h-8);
   if(grav){const fl=b.y+b.h-8;B.svy=(B.svy||0)+400*dt;if(keys.up&&B.soul.y>=fl-.5)B.svy=-158;B.soul.y=Math.min(fl,Math.max(b.y+2,B.soul.y+B.svy*dt));if(B.soul.y>=fl)B.svy=0;}
-  if(B.dt>WARN_T&&B.dt<B.dur-.4){const df=(B.tuto?1:1.3)*(B.pats.length>1?.7:1)*(B.boss?1+(B.attacks/15)*.4:1);const n0=B.bul.length;for(const p of B.pats)PAT[p](dt,df,b);if(B.pats.length>1&&B.bul.length>n0){const nw=B.bul.splice(n0);for(const u of nw){if(u.keep){B.bul.push(u);continue;}B.thin=(B.thin||0)+.3;if(B.thin>=1){B.thin-=1;continue;}B.bul.push(u);}}}
+  if(B.dt>WARN_T&&B.dt<B.dur-.4){const df=(B.tuto?1:1.3)*(B.pats.length>1?.7:1)*(B.boss?1+(B.attacks/15)*.4:1);const n0=B.bul.length;for(const p of B.pats)PAT[p](dt,df,b);if(B.lessT&&B.bul.length>n0){const nw=B.bul.splice(n0);for(const u of nw)if(rnd()>=.25)B.bul.push(u);}if(B.pats.length>1&&B.bul.length>n0){const nw=B.bul.splice(n0);for(const u of nw){if(u.keep){B.bul.push(u);continue;}B.thin=(B.thin||0)+.3;if(B.thin>=1){B.thin-=1;continue;}B.bul.push(u);}}}
   B.inv-=dt;
   const sx=B.soul.x+1,sy=B.soul.y+1;
   for(const u of B.bul){
     if(u.warn>0){u.warn-=dt;continue;}
-    const sp=(B.tuto?1:1.15)*.8;u.x+=u.vx*dt*sp;u.y+=u.vy*dt*sp;if(u.life!=null)u.life-=dt;
+    const sp=(B.tuto?1:1.15)*.8*(B.slowT?.75:1);u.x+=u.vx*dt*sp;u.y+=u.vy*dt*sp;if(u.life!=null)u.life-=dt;
     if(u.ax)u.vx+=u.ax*dt;if(u.ay)u.vy+=u.ay*dt;if(u.floorBounce&&u.y+u.h>b.y+b.h){u.y=b.y+b.h-u.h;u.vy=-Math.abs(u.vy)*.86;}
     if(u.rebound!=null&&u.y>=u.rebound){const dx=B.soul.x+3-u.x,dy=B.soul.y+3-u.y,d=Math.hypot(dx,dy)||1,v=Math.hypot(u.vx,u.vy)*1.35;u.vx=dx/d*v;u.vy=dy/d*v;u.rebound=null;}
     if(u.bounce){if(u.x<b.x){u.x=b.x;u.vx=Math.abs(u.vx);}if(u.x+u.w>b.x+b.w){u.x=b.x+b.w-u.w;u.vx=-Math.abs(u.vx);}if(u.y<b.y){u.y=b.y;u.vy=Math.abs(u.vy);}if(u.y+u.h>b.y+b.h){u.y=b.y+b.h-u.h;u.vy=-Math.abs(u.vy);}}
@@ -4172,7 +4209,7 @@ function updDodge(dt){
       B.inv=(S.eq.armor&&IT[S.eq.armor].inv)||1.4;B.screen=6;
       if(u.k==='cor'){loseCor(6);sfx.cor();}
       else if(S.party.includes('arana')&&S.spiderHP>0&&!B.tuto&&rnd()<.2){S.spiderHP=Math.max(0,S.spiderHP-3);sfx.hurt();B.pops.push({fi:0,txt:S.spiderHP>0?'ARAÑA -3':'LA ARAÑA SE ESCONDE',miss:1,t:0});}
-      else{const atk=Math.max(2,...alive().map(f=>f.def.atk)),d=Math.min(MAX_HIT,Math.max(1,atk-Math.floor(defVal()/2)));S.hp=Math.max(0,S.hp-d);sfx.hurt();}
+      else{const atk=Math.max(2,...alive().map(f=>f.def.atk)),d=Math.min(MAX_HIT,Math.max(1,Math.round(atk-defVal()*.5)));S.hp=Math.max(0,S.hp-d);sfx.hurt();}
       if(S.hp<=0)return B.tuto?tutoLose():gameOver('hp');
       if(S.cor<=0&&!B.shadow)return shadowStart();
     }
@@ -4210,8 +4247,10 @@ function updBattle(dt){
       break;}
     case 'itemconf':{if(hit('b')){B.state='item';B.sub=B.isub||0;sfx.sel();break;}if(hit('left')||hit('right')||hit('up')||hit('down')){B.csub=1-B.csub;sfx.sel();}
       if(hit('a')){sfx.ok();if(B.csub===0)afterPlayer(useItem(B.ci),false);else{B.state='item';B.sub=B.isub||0;}}break;}
-    case 'fight':if(hit('b')){B.state='menu';break;}B.fp+=dt/1.1;if(hit('a'))resolveFight(B.fp);else if(B.fp>1.05)resolveFight(-1);break;
-    case 'fightres':B.ft-=dt;if(B.ft<=0){const f=B.foes[B.target];if(f.hp<=0&&!f.dead){f.dead=true;sfx.stat();afterPlayer(f.def.kill.slice(),true);}else afterPlayer([],true);}break;
+    case 'fight':if(hit('b')&&!(B.fbar&&B.fbar.length)){B.state='menu';break;}B.fp+=dt/(wKind()==='rango'?.8:1.1);
+      if(wKind()==='rango'){B.fbar=B.fbar||[];if(hit('a')||B.fp>1.05){B.fbar.push(B.fp>1.05?-1:B.fp);sfx.hit();B.fp=0;if(B.fbar.length>=3){resolveFight3();B.fbar3=B.fbar;B.fbar=null;}}}
+      else if(hit('a'))resolveFight(B.fp);else if(B.fp>1.05)resolveFight(-1);break;
+    case 'fightres':B.ft-=dt;if(B.ft<=0){const f=B.foes[B.target];const cm=B.cm||[];B.cm=[];if(f.hp<=0&&!f.dead){f.dead=true;sfx.stat();afterPlayer(f.def.kill.slice(),true);}else afterPlayer(cm,true);}break;
     case 'dodge':updDodge(dt);break;
   }
 }
@@ -4508,7 +4547,7 @@ function renderBattle(t){
     if(f.dead&&f.fade>0){ctx.fillStyle='#050608';for(let k=0;k<(1-f.fade)*40;k++)ctx.fillRect(xs[i]-45,rnd()*104,90,1+rnd()*2);}
     if(B.state==='target'&&alive()[B.sub]===f)txt('▼',xs[i],8,'#e3a849',12,'center');});
   if(B.casing&&B.casing.t<3){const c=B.casing.t,x=Math.max(250-c*90,160),y=96;ctx.save();ctx.translate(x,y);ctx.rotate(c<1.2?-c*8:0);ctx.fillStyle='#b8902a';ctx.fillRect(-6,-3,12,6);ctx.fillStyle='#d8b040';ctx.fillRect(-6,-3,12,2);ctx.fillStyle='#6a5018';ctx.fillRect(5,-3,2,6);ctx.fillStyle='#1a1408';ctx.fillRect(-7,-2,1,4);ctx.restore();if(c>1.2&&c<1.5){ctx.fillStyle='#ffe08a';ctx.beginPath();ctx.arc(x-9,y,5,0,7);ctx.fill();}}
-  for(const p of B.pops){const x=xs[p.fi]||160;txt(p.txt,x,26-p.t*8,p.miss?'#9aa0b4':'#ff5a5a',18,'center',true);if(!p.miss){const f=B.foes[p.fi];bar(x-30,32,60,4,f.hp,f.def.hp,'#7cff9a','#3a1414');}}
+  for(const p of B.pops){const x=xs[p.fi]||160;txt(p.txt,x,26-p.t*8,p.miss?'#9aa0b4':'#ff5a5a',18,'center',true);if(!p.miss){const f=B.foes[p.fi];bar(x-30,32,60,4,f.hp,f.mhp||f.def.hp,'#7cff9a','#3a1414');}}
   const b=B.box;ctx.fillStyle='#000';ctx.fillRect(b.x,b.y,b.w,b.h);ctx.strokeStyle='#e6e8ef';ctx.lineWidth=2;ctx.strokeRect(b.x,b.y,b.w,b.h);
   const tx=b.x+10,ty=b.y+17;
   switch(B.state){
@@ -4529,7 +4568,8 @@ function renderBattle(t){
       ctx.fillStyle='#e6e8ef';ctx.fillRect(fx+fw/2-1,fy-3,2,fh+6);
       const p=B.state==='fight'?B.fp:B.fpStop;
       if(p>=0){ctx.fillStyle=(B.state==='fightres'&&Math.floor(t*16)%2)?'#e3a849':'#fff';ctx.fillRect(fx+Math.min(p,1)*fw-2,fy-5,4,fh+10);}
-      if(B.state==='fight')txt('Z para golpear',b.x+b.w/2,b.y+b.h-6,'#767c92',10,'center');break;}
+      {const mk=B.state==='fight'?(B.fbar||[]):(B.fbar3||[]);if(wKind()==='rango'){mk.forEach((q,i)=>{if(q>=0){ctx.fillStyle='#e3a849';ctx.fillRect(fx+q*fw-1,fy-5,2,fh+10);}});for(let i=0;i<3;i++){ctx.fillStyle=i<mk.length?'#e3a849':'#3a3e50';ctx.fillRect(b.x+b.w-30+i*7,b.y+6,5,5);}}}
+      if(B.state==='fight')txt(wKind()==='rango'?'Z para tirar (3 piedras)':'Z para golpear',b.x+b.w/2,b.y+b.h-6,'#767c92',10,'center');break;}
     case 'dodge':{
       ctx.save();ctx.beginPath();ctx.rect(b.x+1,b.y+1,b.w-2,b.h-2);ctx.clip();
       if(B.mira&&B.pats.includes('mira')){const m=B.mira;ctx.strokeStyle='#e8505b';ctx.lineWidth=1;ctx.beginPath();ctx.arc(m.x,m.y,7,0,7);ctx.moveTo(m.x-10,m.y);ctx.lineTo(m.x+10,m.y);ctx.moveTo(m.x,m.y-10);ctx.lineTo(m.x,m.y+10);ctx.stroke();}
