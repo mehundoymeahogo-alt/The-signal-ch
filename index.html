@@ -4104,19 +4104,20 @@ function afterPlayer(lines,attacked){
   if(!L.length)return alive().length?enemyTurn():endBattle();
   bSay(L,()=>{if(!alive().length)endBattle();else enemyTurn();});
 }
+const CRIT_A=.95; // el crítico es el 5% del centro de la barra
 const wKind=()=>S.eq.weapon?IT[S.eq.weapon].k:'contundente';
 function critText(k){return k==='contundente'?'Crítico: 15% de aturdir (su próximo ataque con 25% menos proyectiles).':k==='perforación'?'Crítico: 15% de ralentizar (su próximo ataque 25% más lento).':k==='cortante'?'Crítico: 15% de dejar sangrado (25% del daño del arma por turno, 3 turnos).':'Usa 3 barras. Si las 3 son críticas: 15% de pegar el triple.';}
 function resolveFight3(){B.fpStop=B.fbar.length?B.fbar[B.fbar.length-1]:-1;const f=B.foes[B.target],acc=B.fbar.map(p=>p<0?-1:1-Math.min(1,Math.abs(p-.5)*2));B.cm=[];
   if(acc.every(a=>a<0)){B.pops.push({fi:B.target,txt:'FALLASTE',miss:1,t:0});}
   else{let dmg=f.id==='sombra'?1:Math.max(1,Math.round(acc.reduce((s,a)=>s+(a<0?0:atkVal()*dmgMult()*(.4+1.2*a)/3),0)));
-    if(f.id!=='sombra'&&acc.every(a=>a>=.9)){B.pops.push({fi:B.target,txt:'¡CRÍTICO x3!',miss:1,t:0});if(rnd()<.15){dmg*=3;B.cm.push('¡Las tres piedras entran justo! Triple impacto.');}}
+    if(f.id!=='sombra'&&acc.every(a=>a>=CRIT_A)){B.pops.push({fi:B.target,txt:'¡CRÍTICO x3!',miss:1,t:0});if(rnd()<.15){dmg*=3;B.cm.push('¡Las tres piedras entran justo! Triple impacto.');}}
     f.hp=Math.max(0,f.hp-dmg);f.shake=7;sfx.hit();B.pops.push({fi:B.target,txt:String(dmg),t:0});}
   B.state='fightres';B.ft=.9;}
 function resolveFight(p){
   B.fpStop=p;const f=B.foes[B.target];
   if(p<0){B.pops.push({fi:B.target,txt:'FALLASTE',miss:1,t:0});}
   else{const acc=1-Math.min(1,Math.abs(p-.5)*2),dmg=f.id==='sombra'?1:Math.max(1,Math.round(atkVal()*dmgMult()*(.4+1.2*acc)));f.hp=Math.max(0,f.hp-dmg);f.shake=7;sfx.hit();B.pops.push({fi:B.target,txt:String(dmg),t:0});
-    B.cm=[];if(acc>=.9&&f.id!=='sombra'&&f.hp>0){B.pops.push({fi:B.target,txt:'¡CRÍTICO!',miss:1,t:0});if(rnd()<.15){const k=wKind(),nm=f.def.name;
+    B.cm=[];if(acc>=CRIT_A&&f.id!=='sombra'&&f.hp>0){B.pops.push({fi:B.target,txt:'¡CRÍTICO!',miss:1,t:0});if(rnd()<.15){const k=wKind(),nm=f.def.name;
       if(k==='contundente'){B.less=1;B.cm.push('¡El golpe aturde a '+nm+'! Su próximo ataque va a tener menos proyectiles.');}
       else if(k==='perforación'){B.slow=1;B.cm.push('¡'+nm+' queda entumecido! Su próximo ataque va a ser más lento.');}
       else if(k==='cortante'){const base=S.eq.weapon?IT[S.eq.weapon].dmg:4;f.bleed=3;f.bleedD=Math.max(1,Math.round(base*.25));B.cm.push('A '+nm+' le quedó un corte. Va a sangrar unos turnos.');}}}}
@@ -4565,13 +4566,14 @@ function renderBattle(t){
       const fx=b.x+12,fw=b.w-24,fy=b.y+b.h/2-10,fh=20;
       // zonas de daño: azul → verde → amarillo → naranja → rojo → gris (crítico, en el centro)
       ctx.fillStyle='#0c0e14';ctx.fillRect(fx-2,fy-2,fw+4,fh+4);
-      const Z=[[0,'#2a5ad0'],[.3,'#2aa84a'],[.55,'#e0c830'],[.72,'#e8822a'],[.82,'#d8342a'],[.9,'#b8bcc4']];
-      const zc=a=>{let c=Z[0][1];for(const [q,col] of Z)if(a>=q)c=col;return c;};
-      for(let i=0;i<fw;i++){const a=1-Math.abs((i+.5)/fw-.5)*2;ctx.fillStyle=zc(a);ctx.fillRect(fx+i,fy,1,fh);}
-      ctx.fillStyle='rgba(255,255,255,.18)';ctx.fillRect(fx,fy,fw,2);ctx.fillStyle='rgba(0,0,0,.28)';ctx.fillRect(fx,fy+fh-3,fw,3);
-      ctx.fillStyle='rgba(0,0,0,.55)';for(const [q] of Z.slice(1))for(const sg of [-1,1]){ctx.fillRect(fx+fw/2+sg*(1-q)*fw/2-(sg>0?0:1),fy,1,fh);}
-      {const cw=fw*.1,cx0=fx+fw/2-cw/2,sh=((t*.8)%1.6)-.3;ctx.fillStyle='#d8dce4';ctx.fillRect(cx0,fy,cw,fh);ctx.fillStyle='rgba(255,255,255,.55)';if(sh>=0&&sh<=1)ctx.fillRect(cx0+sh*cw-1,fy,2,fh);
-        ctx.strokeStyle='#ffffff';ctx.lineWidth=1;ctx.strokeRect(cx0+.5,fy-2.5,cw-1,fh+5);txt('CRÍTICO',fx+fw/2,fy-5,'#d8dce4',9,'center');}
+      // barra en forma de huso: finita en los bordes, más alta hacia el centro. Colores apagados; el crítico es la franja gris del medio
+      const Z=[[0,'#34465e'],[.3,'#3a5a44'],[.55,'#6e6a3c'],[.72,'#74523a'],[.82,'#723a36'],[CRIT_A,'#b4b8c0']];
+      const zc=a=>{let c=Z[0][1];for(const [q,col] of Z)if(a>=q)c=col;return c;},hh=a=>fh*(.28+.72*Math.pow(a,1.15));
+      ctx.fillStyle='#0c0e14';ctx.fillRect(fx-2,fy-2,fw+4,fh+4);
+      for(let i=0;i<fw;i++){const a=1-Math.abs((i+.5)/fw-.5)*2,h=hh(a),y=fy+(fh-h)/2;ctx.fillStyle=zc(a);ctx.fillRect(fx+i,y,1,h);ctx.fillStyle='rgba(255,255,255,.12)';ctx.fillRect(fx+i,y,1,1);ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(fx+i,y+h-1,1,1);}
+      ctx.fillStyle='rgba(0,0,0,.5)';for(const [q] of Z.slice(1))for(const sg of [-1,1]){const h=hh(q);ctx.fillRect(fx+fw/2+sg*(1-q)*fw/2-(sg>0?0:1),fy+(fh-h)/2,1,h);}
+      {const cw=fw*(1-CRIT_A),cx0=fx+fw/2-cw/2,sh=((t*.8)%1.6)-.3;if(sh>=0&&sh<=1){ctx.fillStyle='rgba(255,255,255,.45)';ctx.fillRect(cx0+sh*cw-.5,fy,1,fh);}
+        ctx.strokeStyle='rgba(230,232,236,.8)';ctx.lineWidth=1;ctx.strokeRect(cx0-.5,fy-2.5,cw+1,fh+5);txt('CRÍTICO',fx+fw/2,fy-5,'#b4b8c0',8,'center');}
       const p=B.state==='fight'?B.fp:B.fpStop;
       if(p>=0){const cx1=fx+Math.min(p,1)*fw;ctx.fillStyle='#000';ctx.fillRect(cx1-3,fy-6,6,fh+12);ctx.fillStyle=(B.state==='fightres'&&Math.floor(t*16)%2)?'#e3a849':'#fff';ctx.fillRect(cx1-2,fy-5,4,fh+10);}
       {const mk=B.state==='fight'?(B.fbar||[]):(B.fbar3||[]);if(wKind()==='rango'){mk.forEach((q,i)=>{if(q>=0){ctx.fillStyle='#e3a849';ctx.fillRect(fx+q*fw-1,fy-5,2,fh+10);}});for(let i=0;i<3;i++){ctx.fillStyle=i<mk.length?'#e3a849':'#3a3e50';ctx.fillRect(b.x+b.w-30+i*7,b.y+6,5,5);}}}
