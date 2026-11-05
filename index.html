@@ -4563,11 +4563,17 @@ function renderBattle(t){
       ['Usar','Volver'].forEach((n,i)=>txt((B.csub===i?'▸ ':'  ')+n,tx+i*90,b.y+b.h-9,B.csub===i?'#e3a849':'#9aa0b4',12));break;}
     case 'fight':case 'fightres':{
       const fx=b.x+12,fw=b.w-24,fy=b.y+b.h/2-10,fh=20;
-      ctx.fillStyle='#14161f';ctx.fillRect(fx,fy,fw,fh);
-      for(let i=0;i<fw;i+=2){const v=1-Math.abs(i/fw-.5)*2;ctx.fillStyle=`rgba(227,168,73,${.06+v*v*.6})`;ctx.fillRect(fx+i,fy,2,fh);}
-      ctx.fillStyle='#e6e8ef';ctx.fillRect(fx+fw/2-1,fy-3,2,fh+6);
+      // zonas de daño: azul → verde → amarillo → naranja → rojo → gris (crítico, en el centro)
+      ctx.fillStyle='#0c0e14';ctx.fillRect(fx-2,fy-2,fw+4,fh+4);
+      const Z=[[0,'#2a5ad0'],[.3,'#2aa84a'],[.55,'#e0c830'],[.72,'#e8822a'],[.82,'#d8342a'],[.9,'#b8bcc4']];
+      const zc=a=>{let c=Z[0][1];for(const [q,col] of Z)if(a>=q)c=col;return c;};
+      for(let i=0;i<fw;i++){const a=1-Math.abs((i+.5)/fw-.5)*2;ctx.fillStyle=zc(a);ctx.fillRect(fx+i,fy,1,fh);}
+      ctx.fillStyle='rgba(255,255,255,.18)';ctx.fillRect(fx,fy,fw,2);ctx.fillStyle='rgba(0,0,0,.28)';ctx.fillRect(fx,fy+fh-3,fw,3);
+      ctx.fillStyle='rgba(0,0,0,.55)';for(const [q] of Z.slice(1))for(const sg of [-1,1]){ctx.fillRect(fx+fw/2+sg*(1-q)*fw/2-(sg>0?0:1),fy,1,fh);}
+      {const cw=fw*.1,cx0=fx+fw/2-cw/2,sh=((t*.8)%1.6)-.3;ctx.fillStyle='#d8dce4';ctx.fillRect(cx0,fy,cw,fh);ctx.fillStyle='rgba(255,255,255,.55)';if(sh>=0&&sh<=1)ctx.fillRect(cx0+sh*cw-1,fy,2,fh);
+        ctx.strokeStyle='#ffffff';ctx.lineWidth=1;ctx.strokeRect(cx0+.5,fy-2.5,cw-1,fh+5);txt('CRÍTICO',fx+fw/2,fy-5,'#d8dce4',9,'center');}
       const p=B.state==='fight'?B.fp:B.fpStop;
-      if(p>=0){ctx.fillStyle=(B.state==='fightres'&&Math.floor(t*16)%2)?'#e3a849':'#fff';ctx.fillRect(fx+Math.min(p,1)*fw-2,fy-5,4,fh+10);}
+      if(p>=0){const cx1=fx+Math.min(p,1)*fw;ctx.fillStyle='#000';ctx.fillRect(cx1-3,fy-6,6,fh+12);ctx.fillStyle=(B.state==='fightres'&&Math.floor(t*16)%2)?'#e3a849':'#fff';ctx.fillRect(cx1-2,fy-5,4,fh+10);}
       {const mk=B.state==='fight'?(B.fbar||[]):(B.fbar3||[]);if(wKind()==='rango'){mk.forEach((q,i)=>{if(q>=0){ctx.fillStyle='#e3a849';ctx.fillRect(fx+q*fw-1,fy-5,2,fh+10);}});for(let i=0;i<3;i++){ctx.fillStyle=i<mk.length?'#e3a849':'#3a3e50';ctx.fillRect(b.x+b.w-30+i*7,b.y+6,5,5);}}}
       if(B.state==='fight')txt(wKind()==='rango'?'Z para tirar (3 piedras)':'Z para golpear',b.x+b.w/2,b.y+b.h-6,'#767c92',10,'center');break;}
     case 'dodge':{
