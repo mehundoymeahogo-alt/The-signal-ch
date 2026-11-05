@@ -3499,7 +3499,7 @@ function startBattle(ids,opts){
     B={foes,boss:!!opts.boss,tuto:!!opts.tuto,ivanFight:!!opts.ivan,felix:!!opts.felix,leftKey:opts.leftKey||'left',goals:0,fgoals:0,onEnd:opts.onEnd,state:'text',box:{...BT},tbox:BT,menu:0,sub:0,target:0,targetFor:null,
       soul:{x:157,y:145},bul:[],accs:{},t:0,inv:0,screen:0,pops:[],lines:[],li:0,shown:0,next:null,flav:'',turn:0,attacks:0,fp:0,fpStop:0,ft:0,mira:null,fled:false,pats:[],dur:3,dt:0};
     scene='battle';
-    const intro=B.tuto?['Gerónimo saca un dragón de cartón con ojos de botón. "¡Un dragón salvaje aparece!"','(PELEAR: apretá Z cuando la línea pase por el centro de la barra.)','(ACTUAR: hacé cosas. Algunas calman al enemigo.)','(Cuando te atacan, mové tu chispa con las flechas y esquivá.)','(PERDONAR: si el enemigo está calmado, la pelea termina sin lastimar a nadie. Ahí también está HUIR.)']
+    const intro=B.tuto?['Gerónimo saca un dragón de cartón con ojos de botón. "¡Un dragón salvaje aparece!"','(PELEAR: apretá Z cuando la línea pase por el centro de la barra.)','(ACTUAR: hacé cosas. Algunas calman al enemigo.)','Gerónimo: "¿Ves esa chispita? Es tu voluntad. Lo que te hace seguir adelante y elegir qué hacer."','Gerónimo: "Mientras la cuides, seguís en juego. Si se apaga... bueno, no dejes que se apague."','(Cuando te atacan, mové tu chispa con las flechas y esquivá.)','(PERDONAR: si el enemigo está calmado, la pelea termina sin lastimar a nadie. Ahí también está HUIR.)']
       :opts.felix?['¡Félix (la relatora) arranca la transmisión!','(Pateá la pelota con tu chispa hasta el arco de la izquierda. Con tres goles se termina el partido.)']
       :B.boss?['¡Pedro (el militar) te corta el paso!']
       :opts.ivan?['Iván no se mueve de la puerta del laboratorio.']
@@ -3632,6 +3632,7 @@ function resolveFight(p){
   B.state='fightres';B.ft=.9;
 }
 const MAX_HIT=9; // tope de daño de un proyectil en todo el juego
+function soulHit(u){const cx=B.soul.x+3,cy=B.soul.y+3,nx=clamp(cx,u.x,u.x+u.w),ny=clamp(cy,u.y,u.y+u.h);return Math.abs(cx-nx)+Math.abs(cy-ny)<=3.6;}
 function enemyTurn(){
   if(S.cor<=0&&!B.shadow)return shadowStart();
   B.state='dodge';B.corSeen=false;B.pel=null;B.run=null;B.tk=null;B.ballP=null;B.svy=0;B.tbox=BD;B.dt=0;B.bul=[];B.accs={};B.mira=null;B.soul={x:BD.x+BD.w/2-3,y:BD.y+BD.h/2-3};
@@ -3712,7 +3713,7 @@ function updDodge(dt){
     if(u.ax)u.vx+=u.ax*dt;if(u.ay)u.vy+=u.ay*dt;if(u.floorBounce&&u.y+u.h>b.y+b.h){u.y=b.y+b.h-u.h;u.vy=-Math.abs(u.vy)*.86;}
     if(u.rebound!=null&&u.y>=u.rebound){const dx=B.soul.x+3-u.x,dy=B.soul.y+3-u.y,d=Math.hypot(dx,dy)||1,v=Math.hypot(u.vx,u.vy)*1.35;u.vx=dx/d*v;u.vy=dy/d*v;u.rebound=null;}
     if(u.bounce){if(u.x<b.x){u.x=b.x;u.vx=Math.abs(u.vx);}if(u.x+u.w>b.x+b.w){u.x=b.x+b.w-u.w;u.vx=-Math.abs(u.vx);}if(u.y<b.y){u.y=b.y;u.vy=Math.abs(u.vy);}if(u.y+u.h>b.y+b.h){u.y=b.y+b.h-u.h;u.vy=-Math.abs(u.vy);}}
-    if(B.inv<=0&&sx<u.x+u.w&&sx+4>u.x&&sy<u.y+u.h&&sy+4>u.y){
+    if(B.inv<=0&&soulHit(u)){
       B.inv=(S.eq.armor&&IT[S.eq.armor].inv)||1.4;B.screen=6;
       if(u.k==='cor'){loseCor(6);sfx.cor();}
       else if(S.party.includes('arana')&&S.spiderHP>0&&!B.tuto&&rnd()<.2){S.spiderHP=Math.max(0,S.spiderHP-3);sfx.hurt();B.pops.push({fi:0,txt:S.spiderHP>0?'ARAÑA -3':'LA ARAÑA SE ESCONDE',miss:1,t:0});}
