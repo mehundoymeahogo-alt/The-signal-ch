@@ -38,7 +38,7 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
 .ab{display:flex;gap:14px;align-items:center;}
 .ab button{width:68px;height:68px;border-radius:50%;font-size:28px;}
 .ab .a{transform:translateY(-18px);border-color:var(--amber);}
-.ab .m{width:44px;height:44px;font-size:20px;transform:translateY(22px);}
+.ab .mc{display:flex;flex-direction:column;gap:8px;}.ab .m{width:44px;height:44px;font-size:18px;}
 @media (pointer:coarse){.pad{display:flex}.hint.keys{display:none}}
 </style>
 
@@ -55,12 +55,12 @@ button:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
       <button class="d" data-k="down" aria-label="Abajo">▼</button>
     </div>
     <div class="ab">
-      <button class="m" data-k="menu" aria-label="Menú">☰</button>
+      <span class="mc"><button class="m" data-k="menu" aria-label="Opciones">☰</button><button class="m" data-k="bag" aria-label="Bolsillos">C</button></span>
       <button class="b" data-k="b" aria-label="Botón B">B</button>
       <button class="a" data-k="a" aria-label="Botón A">A</button>
     </div>
   </div>
-  <p class="hint keys"><b>Flechas / WASD</b> moverse · <b>Z / Enter</b> aceptar · <b>X</b> volver · <b>Esc</b> menú y opciones · <b>M</b> sonido</p>
+  <p class="hint keys"><b>Flechas / WASD</b> moverse · <b>Z / Enter</b> aceptar · <b>X</b> volver · <b>C</b> bolsillos y equipo · <b>Esc</b> opciones · <b>M</b> sonido</p>
 </div>
 
 <script>
@@ -72,7 +72,7 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rnd=Math.random,ri=(a,b)=>a+Math.
 
 /* ================= input ================= */
 const keys={},pressed={};let IDLE=0;const IDLE_MAX=180;
-const KM={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',KeyZ:'a',Enter:'a',Space:'a',KeyX:'b',Escape:'menu',ShiftLeft:'b',ShiftRight:'b',KeyM:'mute'};
+const KM={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',KeyZ:'a',Enter:'a',Space:'a',KeyX:'b',Escape:'menu',KeyC:'bag',ShiftLeft:'b',ShiftRight:'b',KeyM:'mute'};
 addEventListener('keydown',e=>{const k=KM[e.code];if(!k)return;if(k!=='b'&&k!=='menu')IDLE=0;e.preventDefault();if(!keys[k])pressed[k]=true;keys[k]=true;AU.un();});
 addEventListener('keyup',e=>{const k=KM[e.code];if(k)keys[k]=false;});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
@@ -2173,7 +2173,7 @@ function lookLines(id){
 function uiUpdate(){
   const u=UI,nav=(n)=>{if(!n)return;if(hit('up')){u.i=(u.i+n-1)%n;sfx.sel();}if(hit('down')){u.i=(u.i+1)%n;sfx.sel();}};
   switch(u.kind){
-    case 'menu':{const o=menuOpts();nav(o.length);if(hit('b')){UI=null;return;}
+    case 'menu':{const o=menuOpts();nav(o.length);if(hit('b')||hit('bag')){UI=null;return;}
       if(hit('a')){sfx.ok();const c=o[u.i];
         if(c==='Bolsillos')UI={kind:'pockets',i:0,mode:'p'};
         else if(c==='Objetos clave')UI={kind:'pockets',i:0,mode:'k'};
@@ -2857,6 +2857,7 @@ function updMap(dt){
   if(CHASE&&!P.moving)chaseUpdate(dt);
   if(P.moving){P.prog+=dt/(P.dur||.2);if(P.prog<1)return;P.prog=1;P.moving=false;arrive();if(scene!=='map'||DLG||UI||TR||CUT||PENDING.length)return;}
   if(hit('b'))return;
+  if(hit('bag')){if(!S.pro){UI={kind:'menu',i:0};sfx.sel();}return;}
   if(hit('a')){interact();return;}
   const h=(keys.right?1:0)-(keys.left?1:0),v=(keys.down?1:0)-(keys.up?1:0);
   if(h||v){
@@ -4109,9 +4110,9 @@ const OPT=(()=>{const o={mus:8,fx:8};try{const j=JSON.parse(localStorage.getItem
 function saveOpt(){try{localStorage.setItem('piso13_opt',JSON.stringify(OPT));}catch(e){}}
 function applyVol(){if(!AU.c||!AU.fx)return;AU.fx.gain.value=OPT.fx/8;AU.mus.gain.value=OPT.mus/8;}
 let PAUSE=null;
-const CONTROLS=[['Moverse','Flechas / WASD'],['Aceptar, hablar','Z / Enter / Espacio'],['Volver, cancelar','X / Shift'],['Menú y opciones','Esc'],['Silenciar','M'],['Esquivar en peleas','Flechas'],['Celular: aceptar','A'],['Celular: volver','B'],['Celular: menú','☰']];
+const CONTROLS=[['Moverse','Flechas / WASD'],['Aceptar, hablar','Z / Enter / Espacio'],['Volver, cancelar','X / Shift'],['Bolsillos y equipo','C'],['Opciones (pausa)','Esc'],['Silenciar','M'],['Esquivar en peleas','Flechas'],['Celular: aceptar','A'],['Celular: volver','B'],['Celular: bolsillos','C'],['Celular: opciones','☰']];
 const canBag=()=>S&&!S.pro&&scene==='map'&&!DLG&&!UI&&!CUT&&!TR&&!CHASE&&!VIEW;
-function pauseItems(){const L=['Continuar'];if(canBag())L.push('Bolsillos y equipo');L.push('Música','Efectos','Controles','Pantalla completa');if(scene!=='title'&&S)L.push('Volver al título');return L;}
+function pauseItems(){const L=['Continuar'];L.push('Música','Efectos','Controles','Pantalla completa');if(scene!=='title'&&S)L.push('Volver al título');return L;}
 function openPause(){PAUSE={sel:0,ctl:false};sfx.sel();}
 function pauseUpdate(){const P=PAUSE;
   if(P.ctl){if(hit('a')||hit('b')||hit('menu')){P.ctl=false;sfx.sel();}return;}
