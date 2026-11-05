@@ -2204,7 +2204,7 @@ function openKeypad(){
   if(!S.flags.pedro)return say(['Pedro está parado delante de la puerta.']);
   UI={kind:'keypad',d:[0,0,0,0,0],p:0,msg:''};sfx.sel();
 }
-const priceMult=()=>(S.flags.distrust?1.5:1)*(1+.25*((S.lv||1)-1));
+const priceMult=()=>(S.flags.distrust?1.5:1)*(1+.18*((S.lv||1)-1));
 // armas, abrigos, accesorios y la vitamina C suben con el nivel; la comida y los remedios no
 const price=(b,id)=>{const it=id&&IT[id],cons=it&&(it.t==='food'||it.t==='med')&&id!=='vitamina';return Math.ceil(b*(cons?(S.flags.distrust?1.5:1):priceMult()));};
 const menuOpts=()=>['Bolsillos','Objetos clave','Equipo','Notas'].concat(S.party.includes('ivan')?['Hablar con Iván']:[]).concat(S.party.includes('silvestre')?['Hablar con Silvestre']:[]).concat(S.party.includes('geronimo')?['Hablar con Gerónimo']:[]).concat(['Salir al título','Cerrar']);
