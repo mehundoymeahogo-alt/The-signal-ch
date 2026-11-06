@@ -4213,7 +4213,7 @@ function startBattle(ids,opts){
       :opts.ivan?['Iván no se mueve de la puerta del laboratorio.']
       :foes.length>1?['¡'+foes[0].def.name+' y '+foes[1].def.name+' aparecen en el pasillo!']:[(/^(Pelota|Raqueta|Valla)/.test(foes[0].def.name)?'¡Una ':'¡Un ')+foes[0].def.name+' aparece en el pasillo!'];
     if(!opts.boss&&!opts.tuto&&!opts.shadow&&!opts.ivan&&S.map===MP.PASILLO&&rnd()<.01){const d=ri(6,7);S.hp=Math.max(0,S.hp-d);B.casing={t:0};intro.push('¡Un casquillo de bala perdido entra rodando por el piso, se para solo... y te dispara!','Perdiste '+d+' PV. El casquillo se va rodando como si nada.');}
-    if(opts.shadow&&opts.weird){B.shadow=true;intro.length=0;intro.push('La Sombra te corta el paso.','Ya no tiene tu forma. Tiene la forma de todo lo que hiciste.','(No le podés ganar. Andá a DESINTONIZAR → Huir.)');}
+    if(opts.shadow&&opts.weird){B.shadow=true;B.weird=true;intro.length=0;intro.push('La Sombra te corta el paso.','Ya no tiene tu forma. Tiene la forma de todo lo que hiciste.','(No le podés ganar. Andá a DESINTONIZAR → Huir.)');}
     else if(opts.shadow){B.shadow=true;intro.length=0;intro.push('Tu cordura se terminó.','Algo negro se despega de tu sombra y se para delante tuyo.','(No le podés ganar. Andá a DESINTONIZAR → Huir y corré a tu departamento.)');}
     if(S.eq.acc==='d20'&&!opts.boss&&!opts.tuto&&!opts.shadow&&!opts.ivan&&rnd()<1/20){foes.forEach(f=>f.calm=Math.max(f.calm,f.def.need));intro.push('¡VEINTE NATURAL! El D20 brilla en tu bolsillo.',foes.length>1?'Ninguno de los dos tiene ganas de pelear.':foes[0].def.name+' no tiene ganas de pelear.');}
     bSay(intro,()=>{if(S.hp<=0)return gameOver('hp');toMenu();});
@@ -4367,10 +4367,13 @@ function enemyTurn(){
     else if(n>=10){const a=P5[ri(0,4)];let b=P5[ri(0,4)];while(b===a)b=P5[ri(0,4)];B.pats=[a,b];}
     else B.pats=[P5[(n-1)%5]];
     B.dur=12;
-  }else if(B.shadow){B.pats=B.turn%2?['sombraManos']:['sombraManos','sombraOjos'];B.dur=12;}
+  }else if(B.shadow){B.esc=B.weird?Math.max(0,B.turn-1):0;B.pats=B.esc>=2||!(B.turn%2)?['sombraManos','sombraOjos']:['sombraManos'];B.dur=12;}
   else{const act=alive().filter(f=>!(f.calm>=f.def.need));
     if(!act.length){const a=alive(),nm=a.map(f=>f.def.name).join(' y ');B.state='text';return bSay([nm+(a.length>1?' ya no quieren pelear.':' ya no quiere pelear.'),pick(['Te mira tranquilo. Está esperando que lo dejes ir.','Se queda quieto, contento. No te ataca.','Ya no hay nada que esquivar.'])],()=>toMenu());}
-    B.pats=act.map(f=>f.def.pats[ri(0,f.def.pats.length-1)]);B.dur=12;}
+    B.pats=act.map(f=>f.def.pats[ri(0,f.def.pats.length-1)]);B.combo=false;
+    if(!B.tuto&&B.turn>=3&&rnd()<.3){const pool=[...new Set(act.flatMap(f=>f.def.pats))];
+      if(pool.length>=2){for(let i=pool.length-1;i>0;i--){const j=ri(0,i);[pool[i],pool[j]]=[pool[j],pool[i]];}B.pats=pool.slice(0,Math.min(3,act.length+1));B.combo=true;}}
+    B.dur=12;}
 }
 const WARN_T=.95;
 const PSIDE={penal:'down',tiki:'all',triple:'lr',pique:'lr',saque:'up',peloteo:'lr',vallas:'jump',posta:'all',relato:'lr',partido:'goal',tubos:'up',reactivo:'up',confeti:'up',marcha:'lr',corcho:'up',cascos:'up',rebote:'up',estatica:'up',morse:'right',fuego:'lr',botas:'up',mira:'aim',minas:'floor',firmes:'lr',retirada:'up',sombraManos:'down',sombraOjos:'all'};
@@ -4419,16 +4422,16 @@ const PAT={
   mira(dt,df,b){if(!B.mira)B.mira={x:b.x+b.w/2,y:b.y+b.h/2};const m=B.mira;{const dx=B.soul.x+3-m.x,dy=B.soul.y+3-m.y,d=Math.hypot(dx,dy),st=82.8*1.1*2.4*dt;if(d<=st){m.x+=dx;m.y+=dy;}else{m.x+=dx/d*st;m.y+=dy/d*st;}}if(acc('mira',dt,.2433/df))B.bul.push({x:m.x-6,y:m.y-6,vx:0,vy:0,w:12,h:12,warn:.1875,life:.25,k:'hp',dr:'shot'});},
   minas(dt,df,b){if(acc('minas',dt,.15/df)){const cs=12,gx=ri(0,Math.floor(b.w/cs)-1),gy=ri(0,Math.floor(b.h/cs)-1);B.bul.push({x:b.x+gx*cs+2,y:b.y+gy*cs+2,vx:0,vy:0,w:cs-2,h:cs-2,warn:.6,life:.4,k:'hp',dr:'mine'});}},
   firmes(dt,df,b){if(acc('firmes',dt,.5/df)){const L=rnd()<.5;B.bul.push({x:L?b.x-34:b.x+b.w+2,y:b.y+6+ri(0,6)*11,vx:(L?1:-1)*50*df,vy:0,w:32,h:7,k:'cor',dr:'text'});}},
-  sombraManos(dt,df,b){if(acc('sombraManos',dt,.5/df))B.bul.push({x:b.x+rnd()*(b.w-6),y:b.y+b.h+2,vx:0,vy:-(42+rnd()*18)*df,w:6,h:11,k:'hp',dr:'hand'});},
-  sombraOjos(dt,df,b){if(acc('sombraOjos',dt,.9/df)){const e=ri(0,3),x=e===0?b.x-6:e===1?b.x+b.w+2:b.x+rnd()*b.w,y=e===2?b.y-6:e===3?b.y+b.h+2:b.y+rnd()*b.h,dx=B.soul.x-x,dy=B.soul.y-y,l=Math.hypot(dx,dy)||1;B.bul.push({x,y,vx:dx/l*48*df,vy:dy/l*48*df,w:5,h:5,k:'hp',dr:'eye'});}},
+  sombraManos(dt,df,b){if(acc('sombraManos',dt,.5/df/(1+.3*Math.min(B.esc||0,6))))B.bul.push({x:b.x+rnd()*(b.w-6),y:b.y+b.h+2,vx:0,vy:-(42+rnd()*18)*df,w:6,h:11,k:'hp',dr:'hand'});},
+  sombraOjos(dt,df,b){if(acc('sombraOjos',dt,.9/df/(1+.3*Math.min(B.esc||0,6)))){const e=ri(0,3),x=e===0?b.x-6:e===1?b.x+b.w+2:b.x+rnd()*b.w,y=e===2?b.y-6:e===3?b.y+b.h+2:b.y+rnd()*b.h,dx=B.soul.x-x,dy=B.soul.y-y,l=Math.hypot(dx,dy)||1;B.bul.push({x,y,vx:dx/l*48*df,vy:dy/l*48*df,w:5,h:5,k:'hp',dr:'eye'});}},
   retirada(dt,df,b){if(acc('retirada',dt,1.2))B.bul.push({x:b.x+rnd()*(b.w-4),y:b.y-6,vx:0,vy:24,w:4,h:4,k:'hp'});}
 };
 function updDodge(dt){
   B.dt+=dt;const b=BD;
   const mx=(keys.right?1:0)-(keys.left?1:0),my=(keys.down?1:0)-(keys.up?1:0);
   const grav=B.pats.includes('vallas'),my2=grav?0:my,nrm=(mx&&my2)?.7071:1,spd=82.8*(keys.b?.7:1);B.soul.x=clamp(B.soul.x+mx*spd*nrm*dt,b.x+2,b.x+b.w-8);B.soul.y=clamp(B.soul.y+my2*spd*nrm*dt,b.y+2,b.y+b.h-8);
-  if(grav){const fl=b.y+b.h-8;B.svy=(B.svy||0)+400*dt;if(keys.up&&B.soul.y>=fl-.5)B.svy=-158;B.soul.y=Math.min(fl,Math.max(b.y+2,B.soul.y+B.svy*dt));if(B.soul.y>=fl)B.svy=0;}
-  if(B.dt>WARN_T&&B.dt<B.dur-.4){const df=(B.tuto?1:1.3)*(B.pats.length>1?.7:1)*(B.boss?1+(B.attacks/15)*.4:1);const n0=B.bul.length;for(const p of B.pats)PAT[p](dt,df,b);if(B.lessT&&B.bul.length>n0){const nw=B.bul.splice(n0);for(const u of nw)if(rnd()>=.25)B.bul.push(u);}if(B.pats.length>1&&B.bul.length>n0){const nw=B.bul.splice(n0);for(const u of nw){if(u.keep){B.bul.push(u);continue;}B.thin=(B.thin||0)+.3;if(B.thin>=1){B.thin-=1;continue;}B.bul.push(u);}}}
+  if(grav){const fl=b.y+b.h-8;B.svy=(B.svy||0)+(B.svy<0&&keys.up?360:1000)*dt;if(keys.up&&B.soul.y>=fl-.5)B.svy=-190;B.soul.y=Math.min(fl,Math.max(b.y+2,B.soul.y+B.svy*dt));if(B.soul.y>=fl)B.svy=0;}
+  if(B.dt>WARN_T&&B.dt<B.dur-.4){const df=(B.tuto?1:1.3)*(B.pats.length>1&&!B.weird?.7:1)*(B.boss?1+(B.attacks/15)*.4:1)*(B.esc?1+.16*Math.min(B.esc,8):1);const n0=B.bul.length;for(const p of B.pats)PAT[p](dt,df,b);if(B.lessT&&B.bul.length>n0){const nw=B.bul.splice(n0);for(const u of nw)if(rnd()>=.25)B.bul.push(u);}if(B.pats.length>1&&!B.weird&&B.bul.length>n0){const nw=B.bul.splice(n0);for(const u of nw){if(u.keep){B.bul.push(u);continue;}B.thin=(B.thin||0)+(B.combo?(B.pats.length>=3?.6:.5):.3);if(B.thin>=1){B.thin-=1;continue;}B.bul.push(u);}}}
   B.inv-=dt;
   const sx=B.soul.x+1,sy=B.soul.y+1;
   for(const u of B.bul){
@@ -4441,7 +4444,7 @@ function updDodge(dt){
       B.inv=(S.eq.armor&&IT[S.eq.armor].inv)||1.4;B.screen=6;
       if(u.k==='cor'){loseCor(6);sfx.cor();}
       else if(S.party.includes('arana')&&S.spiderHP>0&&!B.tuto&&rnd()<.2){S.spiderHP=Math.max(0,S.spiderHP-3);sfx.hurt();B.pops.push({fi:0,txt:S.spiderHP>0?'ARAÑA -3':'LA ARAÑA SE ESCONDE',miss:1,t:0});}
-      else{const atk=Math.max(2,...alive().map(f=>f.def.atk)),d=Math.min(MAX_HIT,Math.max(1,Math.round(atk-defVal()*.5)));S.hp=Math.max(0,S.hp-d);sfx.hurt();}
+      else{const e=B.esc||0,atk=Math.max(2,...alive().map(f=>f.def.atk))+2*e,d=Math.min(MAX_HIT+2*e,Math.max(1,Math.round(atk-defVal()*.5)));S.hp=Math.max(0,S.hp-d);sfx.hurt();}
       if(S.hp<=0)return B.tuto?tutoLose():gameOver('hp');
       if(S.cor<=0&&!B.shadow)return shadowStart();
     }
@@ -4855,9 +4858,9 @@ function renderBattle(t){
       if(!(B.inv>0&&Math.floor(t*20)%2)){const s=B.soul;ctx.fillStyle=B.pats.includes('vallas')?'#5aa8ff':'#e3a849';ctx.beginPath();ctx.moveTo(s.x+3,s.y-1);ctx.lineTo(s.x+7,s.y+3);ctx.lineTo(s.x+3,s.y+7);ctx.lineTo(s.x-1,s.y+3);ctx.closePath();ctx.fill();ctx.fillStyle='#fff3d6';ctx.fillRect(s.x+2,s.y+2,2,2);}
       ctx.restore();
       if(B.felix){ctx.fillStyle='rgba(8,10,20,.8)';ctx.fillRect(96,6,128,14);ctx.strokeStyle='#e3a849';ctx.strokeRect(96.5,6.5,127,13);txt('FÉLIX '+(B.fgoals||0)+'  ·  '+(B.goals||0)+' VOS',160,16,'#e6e8ef',11,'center',true);}
-      if(B.dt<WARN_T){const sides=[...new Set(B.pats.map(p=>PSIDE[p]||'up'))],on=Math.floor(t*10)%2;txt(sides.map(x=>PSIDETXT[x]).join('  '),160,b.y-6,on?'#ff5a3a':'#e3a849',12,'center',true);
+      if(B.dt<WARN_T){const sides=[...new Set(B.pats.map(p=>PSIDE[p]||'up'))],on=Math.floor(t*10)%2;txtFit(sides.map(x=>PSIDETXT[x]).join('  '),160,b.y-6,on?'#ff5a3a':'#e3a849',12,'center',300);if(B.combo||B.esc)txt(B.combo?'¡ATAQUE COMBINADO!':'¡MÁS RÁPIDO!',160,b.y-18,on?'#e3a849':'#ff5a3a',11,'center',true);
         if(on){ctx.fillStyle='#ff5a3a';for(const sd of sides){if(sd==='up'||sd==='all')for(let i=0;i<3;i++)txt('▼',b.x+b.w*(i+1)/4,b.y+12,'#ff5a3a',10,'center');if(sd==='down'||sd==='all')for(let i=0;i<3;i++)txt('▲',b.x+b.w*(i+1)/4,b.y+b.h-4,'#ff5a3a',10,'center');if(sd==='lr'||sd==='left'||sd==='all')txt('▶',b.x+8,b.y+b.h/2+4,'#ff5a3a',12,'center');if(sd==='lr'||sd==='right'||sd==='all')txt('◀',b.x+b.w-8,b.y+b.h/2+4,'#ff5a3a',12,'center');if(sd==='aim')txt('◎',b.x+b.w/2,b.y+b.h/2+5,'#ff5a3a',16,'center');if(sd==='floor')txt('✕ ✕ ✕',b.x+b.w/2,b.y+b.h/2+4,'#ff5a3a',12,'center');}}}
-      else txt(B.felix?'Llevá la pelota al arco de la izquierda':B.pats.includes('vallas')?'Saltá con ↑':B.boss?'Ataque '+B.attacks:B.shadow?'No le podés ganar. Huí.':(B.corSeen||(B.corSeen=B.bul.some(u=>u.k==='cor')))?'Esquivá. Lo violeta te come la cordura.':'Esquivá.',160,b.y-6,'#767c92',10,'center');break;}
+      else txt(B.felix?'Llevá la pelota al arco de la izquierda':B.pats.includes('vallas')?'Mantené ↑: salto más alto':B.boss?'Ataque '+B.attacks:B.shadow?(B.esc?'Cada turno es peor. Huí.':'No le podés ganar. Huí.'):(B.corSeen||(B.corSeen=B.bul.some(u=>u.k==='cor')))?'Esquivá. Lo violeta te come la cordura.':'Esquivá.',160,b.y-6,'#767c92',10,'center');break;}
   }
   ctx.restore();
   const yy=203,nm=(S.pro?'VALENTÍN':S.name.toUpperCase())+'  LV '+S.lv;
