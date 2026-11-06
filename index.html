@@ -4303,8 +4303,11 @@ function updBattle(dt){
       const n=list.length;
       if(hit('b')){B.state='menu';break;}
       if(!n)break;
-      if(hit('left')||hit('up')){B.sub=(B.sub+n-1)%n;sfx.sel();}
-      if(hit('right')||hit('down')){B.sub=(B.sub+1)%n;sfx.sel();}
+      // grilla de dos columnas: ◀▶ (A/D) cambia de columna, ▲▼ (W/S) cambia de fila
+      if(hit('left')){B.sub=(B.sub+n-1)%n;sfx.sel();}
+      if(hit('right')){B.sub=(B.sub+1)%n;sfx.sel();}
+      if(hit('down')){const rows=Math.ceil(n/2);let r=Math.floor(B.sub/2)+1;if(r>=rows)r=0;B.sub=Math.min(n-1,r*2+B.sub%2);sfx.sel();}
+      if(hit('up')){const rows=Math.ceil(n/2);let r=Math.floor(B.sub/2)-1;if(r<0)r=rows-1;B.sub=Math.min(n-1,r*2+B.sub%2);sfx.sel();}
       if(hit('a')){sfx.ok();
         if(B.state==='act'&&list[B.sub].sil){const L=list[B.sub].run(B.foes[B.target]);if(!S.flags.silHintFree){S.flags.silHintFree=1;L.push('(Pedirle una pista a Silvestre no gasta tu turno.)');}bSay(L,()=>{menuCore();B.menu=1;});}
         else if(B.state==='act'){const f=B.foes[B.target],was=f.calm>=f.def.need,c0=f.calm,L=list[B.sub].run(f);{const bl=foeTalkAct(f,c0,was);if(bl)L.push(bl);}if(!f.def.boss&&!was&&f.calm>=f.def.need)L.push(f.def.name+(S.pro?' ya no quiere pelear. Lo podés perdonar.':' ya no quiere pelear. Lo podés desintonizar.'));afterPlayer(L,false);}
