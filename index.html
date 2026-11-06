@@ -1906,7 +1906,7 @@ function nicoTalk(){
     {l:'Charlar',f(){S.flags.nicoTalk=1;nicoChat();}},
     {l:'Nada',f(){}}].concat(S.flags.ivanDead?[{l:'...',f(){nicoKill();}}]:[])}]);
 }
-function nicoKill(){say([{who:'Nicolás',t:'...¿Qué? ¿Por qué me mirás así?'},{who:'Nicolás',t:'Escuché ruidos en el 4B. Pensé que era Iván con sus experimentos.'},{who:'Nicolás',t:'Era Iván, ¿no? ...No era Iván.'},{t:'Nicolás retrocede contra los estantes. No tiene a dónde ir: nunca pudo salir del kiosco.',choices:[{l:'Hacerlo',f(){say([{t:'Pasás por encima del mostrador.',on(){sfx.stat();AU.nz(.6,.25);}},'Los estantes se vienen abajo. Pilas, velas, fideos, una caja de soldaditos de plomo.',{who:'Nicolás',t:'Abierto... las veinticuatro... horas...'},{t:'El kiosco se queda en silencio.',on(){S.flags.nicoDead=1;setGeno(2);}},'Uno de los soldaditos sigue marchando en el piso, sin llave, hasta que se cae.']);}},{l:'No',f(){say([{who:'Nicolás',t:'...Andate. Por favor. Te lo regalo todo, pero andate.'}]);}}]}]);}
+function nicoKill(){say([{who:'Nicolás',t:'...¿Qué? ¿Por qué me mirás así?'},{who:'Nicolás',t:'Escuché ruidos en el 4B. Pensé que era Iván con sus experimentos.'},{who:'Nicolás',t:'Era Iván, ¿no? ...No era Iván.'},{t:'Nicolás retrocede contra los estantes. No tiene a dónde ir: nunca pudo salir del kiosco.',choices:[{l:'Hacerlo',f(){say([{t:'Pasás por encima del mostrador.',on(){sfx.stat();AU.nz(.6,.25);}},'Los estantes se vienen abajo. Pilas, velas, fideos, una caja de soldaditos de plomo.',{who:'Nicolás',t:'Abierto... las veinticuatro... horas...'},{t:'El kiosco se queda en silencio.',on(){S.flags.nicoDead=1;S.flags.nicoPM=priceLive();S.flags.nicoDis=S.flags.distrust?1:0;setGeno(2);}},'Uno de los soldaditos sigue marchando en el piso, sin llave, hasta que se cae.']);}},{l:'No',f(){say([{who:'Nicolás',t:'...Andate. Por favor. Te lo regalo todo, pero andate.'}]);}}]}]);}
 function voidDoor(x,y){
   VOID=true;
   const c=hallData().cash,first=!!c&&c[0]===x&&c[1]===y&&!S.flags.voidCash;
@@ -2232,9 +2232,12 @@ function openKeypad(){
   if(!S.flags.pedro)return say(['Pedro está parado delante de la puerta.']);
   UI={kind:'keypad',d:[0,0,0,0,0],p:0,msg:''};sfx.sel();
 }
-const priceMult=()=>(S.flags.distrust?1.5:1)*(1+.18*((S.lv||1)-1));
+const priceLive=()=>(S.flags.distrust?1.5:1)*(1+.18*((S.lv||1)-1));
+// Si Nico ya no está, los precios quedan congelados en lo que valían cuando murió (Ginés no los sube).
+const priceFreeze=()=>{if(!S.flags.nicoDead)return null;if(S.flags.nicoPM==null){S.flags.nicoPM=priceLive();S.flags.nicoDis=S.flags.distrust?1:0;}return S.flags.nicoPM;};
+const priceMult=()=>{const f=priceFreeze();return f!=null?f:priceLive();};
 // armas, abrigos, accesorios y la vitamina C suben con el nivel; la comida y los remedios no
-const price=(b,id)=>{const it=id&&IT[id],cons=it&&(it.t==='food'||it.t==='med')&&id!=='vitamina';return Math.ceil(b*(cons?(S.flags.distrust?1.5:1):priceMult()));};
+const price=(b,id)=>{const it=id&&IT[id],cons=it&&(it.t==='food'||it.t==='med')&&id!=='vitamina',fz=priceFreeze()!=null,dis=fz?S.flags.nicoDis:S.flags.distrust;return Math.ceil(b*(cons?(dis?1.5:1):priceMult()));};
 const menuOpts=()=>['Bolsillos','Objetos clave','Equipo','Notas'].concat(S.party.includes('ivan')?['Hablar con Iván']:[]).concat(S.party.includes('silvestre')?['Hablar con Silvestre']:[]).concat(S.party.includes('geronimo')?['Hablar con Gerónimo']:[]).concat(['Salir al título','Cerrar']);
 function itemOpts(id){const t=IT[id].t;return(t==='food'||t==='med')?['Usar','Mirar','Tirar']:t==='key'?['Mirar']:['Equipar','Mirar','Tirar'];}
 function itemIdx(mode){const out=[];S.items.forEach((id,i)=>{if((IT[id].t==='key')===(mode==='k'))out.push(i);});return out;}
