@@ -1378,7 +1378,7 @@ MAPS[MP.FOYER5]={title:'Teatro del Quinto · hall',theme:'teatro',rows:[
   '#,,,,,,,....,,,,,,,#',
   '#########ΞΞ#########'],
   zone:()=>'El hall del teatro',
-  npcs:[{id:'brian5',x:3,y:6,dir:'left',look:LOOK.brian,vis:()=>!!S.flags.c5trap,talk(){say([{who:'Brian',t:c3Next('brT',['Me dijeron que había una función. Que me apurara. No hay nadie.','¿Viste a Den? Siempre me espera despierta. Hoy no estaba.','Diez horas en la cámara de frío del frigorífico. Llego y está Den. Siempre está Den.','...¿Por qué me mirás así?'])}]);}}],
+  npcs:[{id:'felix5',x:12,y:7,dir:'down',look:LOOK.felix,vis:()=>(S.flags.c5kit||0)>=2,talk(){c5FelixTalk();}},{id:'brian5',x:3,y:6,dir:'left',look:LOOK.brian,vis:()=>!!S.flags.c5trap,talk(){say([{who:'Brian',t:c3Next('brT',['Me dijeron que había una función. Que me apurara. No hay nadie.','¿Viste a Den? Siempre me espera despierta. Hoy no estaba.','Diez horas en la cámara de frío del frigorífico. Llego y está Den. Siempre está Den.','...¿Por qué me mirás así?'])}]);}}],
   lights:t=>[[10,3.6,96+Math.sin(t*1.3)*3,.8],[3.5,1.6,40,.55],[17.5,1.6,40,.5]],
   over(t){if(S.map!==MP.FOYER5)return;drawChandelier(10*T,3*T,t);},
   act(ch,x,y){
@@ -1387,7 +1387,7 @@ MAPS[MP.FOYER5]={title:'Teatro del Quinto · hall',theme:'teatro',rows:[
       case 'Ђ':if(S.canal===12)return c12Door();return say([c3Next('cabL',['Una puerta de chapa: "CABINA DE SONIDO". Arriba, la lamparita de GRABANDO está prendida.','Por la ventanita se ven dos carretes girando solos. De ahí salen las grabaciones de la orquesta.','Pegás la oreja a la chapa. Adentro, la orquesta afina. Hace veinte años que afina.','Cerrada. No tiene cerradura de este lado.'])]);
       case 'D':if(x===14)return goMap(MP.PASILLO5,2,9,'up');return goMap(MP.SALA5,x,15,'up');
       case 'Ξ':return say([{t:'La puerta de metal por la que entraste. Del lado de adentro no tiene teclado.',choices:[{l:'Volver al rellano',f(){goMap(MP.PUERTA5,4,2,'down');}},{l:'Quedarse',f(){}}]}]);
-      case 'Д':return say(['La boletería. Detrás del vidrio hay un rollo de entradas sin cortar.','Un cartelito: "HOY: FUNCIÓN ÚNICA · 21 HS". Está ahí hace años.']);
+      case 'Д':return c5Phone();
       case 'Я':return say([c3Next('guarL',['El guardarropa. Cuarenta abrigos de otra época. Nadie vino a buscarlos.','Un tapado de piel tiene el ticket 13 colgado. El 13 está escrito a mano, encima de otro número.','En el bolsillo de un sobretodo hay arroz. Como en un casamiento.'])]);
       case 'Г':{AU.t(1760,.5,'sine',.04);AU.t(2640,.4,'sine',.02,0,.02);return say(S.flags.timbre?['Ding.','"¡Enseguida lo atiendo!" Misma voz. Misma pausa. Mismo crujido de cinta.']:(S.flags.timbre=1,['Tocás la campanita del guardarropa.','Desde algún parlante, una grabación contesta: "¡Enseguida lo atiendo!"','Nadie viene.']));}
       case 'Ц':return say([c3Next('colL',['Una columna de mármol. Es de verdad. Está fría.','En la columna alguien rayó palitos, de a cinco. Contás hasta cien y dejás de contar.'])]);
@@ -1681,6 +1681,7 @@ function c5Grate(){const F=S.flags;C5GV=true;
       {who:'Ciro',t:'Silvestre, el del 3, hace estaño con cualquier metal blando. Tubos de órgano. Los plomos de un piano. Un platillo de bronce.'},
       {who:'Ciro',t:'En el piso hay de todo eso. Juntá tres piezas, que Silvestre las funda, y volvé acá con el estaño.'},
       {who:'Ciro',t:'Pero apurate. Cada vez me cuesta más acordarme de cómo me llamo.'},'(Tenés diez minutos.)');
+    if(c5PacOK()&&S.party.includes('silvestre'))L.push({who:'Silvestre',t:'(desde atrás, en el caño) Bajar a mi taller y volver por el ducto nos come el tiempo.'},{who:'Silvestre',t:'Si hubiera un teléfono en este teatro, le pido a alguien que me suba el crisol.'});
     return say(L,()=>{if(!F.c5run){F.c5run=1;F.c5ms=600000;sfx.cor();}});}
   const p=F.c5ms!=null?F.c5ms/600000:1,n=['tubo','plomos','platillo'].filter(has).length;
   return say([{who:'Ciro',t:p>.7?c3Next('ciA',['Seguís ahí. Bien. Hablame, que si no me olvido.','Hace frío. La guitarra se desafina con el frío.']):p>.35?c3Next('ciB',['¿Cómo era tu nombre? No. El mío. ¿Cómo era el mío?','Den se ríe cuando toco. Se ríe con mi risa.']):c3Next('ciC',['Ciro. Ciro. Ciro. Ciro. Ciro.','La guitarra toca sola. Yo ya no toco. ¿O sí?','Apurate. Por favor. Apurate.'])},
@@ -2013,9 +2014,34 @@ function c5HidUnder(t){const F2=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w
   if(open){F2('#050404',x+1,y+1,T-2,T-1);F2('rgba(255,214,140,.35)',x+3,y+4,T-6,T-5);F2('#4a4a52',x-6,y+4,6,12);F2('#6a6a72',x-6,y+4,6,1);return;}
   F2('#0c0c10',x,y,T,T);F2('#4a4e56',x+1,y+1,T-2,T-2);for(let k=0;k<3;k++){F2('#2a2c32',x+1,y+3+k*4,T-2,1);F2(['#c8c0b0','#a89070','#d8d0c0'][k],x+3+k*3,y+k*4,4,3);}
   if(!S.flags.c5rescued){const a=.25+.15*Math.sin(t*2.7);ctx.fillStyle=`rgba(255,214,140,${a})`;ctx.fillRect(x+1,y+T-1,T-2,1);}}
+
+/* ---------- pacifista: el teléfono de la boletería, Félix sube el crisol ---------- */
+const c5PacOK=()=>S.chapter===3&&routeName()==='SINTONÍA'&&!c5Hard();
+const c5Pieces=()=>['tubo','plomos','platillo'].every(has);
+function c5Phone(){const F=S.flags,base=['La boletería. Detrás del vidrio hay un rollo de entradas sin cortar y un cartelito: "HOY: FUNCIÓN ÚNICA · 21 HS".','Sobre el mostrador hay un teléfono negro, de disco. Levantás el tubo: tiene tono.'];
+  if(!c5PacOK()||F.c5rescued||has('estano')||F.c5late||(F.c5ciro||0)<2||F.c5fight)return say(base.concat(['No sabés a quién llamar. Colgás.']));
+  if(F.c5kit)return say(base.concat([F.c5kit===1?'Félix ya está en camino. Colgás.':'Ya no hace falta llamar a nadie. Colgás.']));
+  if(!S.party.includes('silvestre'))return say(base.concat(['Silvestre sabría a quién llamar. Pero está en su taller, en el 3A.']));
+  F.c5kit=1;F.c5kitT=0;for(let i=0;i<7;i++)AU.t(i%2?420:480,.07,'square',.015,0,.15+i*.16);
+  say(base.concat([{who:'Silvestre',t:'¡Un teléfono! ¿Anda? A ver...'},'Silvestre marca un número de memoria. El disco vuelve despacio después de cada número.',
+    {who:'Silvestre',t:'¿Félix? Soy yo, el del 3A. No, no me pasó nada. Escuchá.'},
+    {who:'Silvestre',t:'En mi taller, abajo del banco, hay un crisol y un soldador grande. Traémelos al quinto. Por el ducto de lo de Pedro.'},
+    {who:'Silvestre',t:'Cuando llegues a la puerta de metal, golpeá. Te abrimos.'},
+    {who:'Félix',t:'(por el tubo, a los gritos) ¡Y AHÍ VA FÉLIX, ENCARANDO EL DUCTO CON EL CRISOL BAJO EL BRAZO! ¡NO LA PARA NADIE!'},
+    {who:'Silvestre',t:'Va a tardar un rato. Mientras tanto, conseguí lo que falta.'},'(Félix va a tardar unos minutos en llegar al hall.)']));}
+function c5KitTick(dt){const F=S.flags;if(!F.c5kit)return;
+  if(F.c5kit===1){F.c5kitT=(F.c5kitT||0)+dt*1000;if(F.c5kitT>=150000)F.c5kit=2;}
+  if(scene!=='map'||DLG||PENDING.length||(S.map===MP.FRIGO5&&DEN))return;
+  if(F.c5kit===2&&!F.c5kitMsg&&isTeatMap()&&S.map!==MP.CANO5){F.c5kitMsg=1;AU.t(180,.3,'square',.03);AU.t(140,.3,'square',.03,0,.25);return say(['Lejos, en el hall, alguien golpea la puerta de metal. Tres golpes, como un relator pidiendo la palabra.',{who:'Silvestre',t:'Llegó Félix. Vamos al hall.'}]);}
+  if(F.c5kit===3&&c5Pieces()&&!has('estano')&&S.party.includes('silvestre'))c5MeltHere();}
+function c5FelixTalk(){const F=S.flags;
+  if(F.c5kit===2){F.c5kit=3;sfx.item();return say([{who:'Félix',t:'¡Y LLEGÓ! ¡Después de un ducto lleno de tierra, de arañas y de un ventilador que casi me rapa!'},{who:'Félix',t:'Tomá, Silvestre. El crisol y el soldador grande. Pesan como un arquero.'},{who:'Silvestre',t:'Gracias, Félix. Te debo una.'},{who:'Félix',t:'Me debés tres. Pero quién cuenta.'}].concat(c5Pieces()?[]:[{who:'Silvestre',t:'Cuando tengas las tres piezas, fundo acá mismo. Tubo de órgano, plomos de piano y un platillo.'}]),()=>{if(c5Pieces())c5MeltHere();});}
+  return say([{who:'Félix',t:c3Next('fx5',['Esto parece un estadio vacío. Me da más miedo que un clásico sin hinchada.','Si hay que relatar algo, avisame. Tengo la garganta caliente.','Me quedo acá cuidando la puerta. Nadie entra sin que yo lo relate.'])}]);}
+function c5MeltHere(){const F=S.flags;if(has('estano')||!c5Pieces())return;S.items=S.items.filter(i=>!['tubo','plomos','platillo'].includes(i));sfx.item();
+  say(['Silvestre arma el crisol en el piso, sobre unas baldosas flojas, y prende el soldador grande.',{who:'Silvestre',t:'¿Metal de órgano? ¿Bronce de platillo? ¿Plomo de teclas? Esto es estaño de primera. Bah, casi.'},'Funde el tubo, los plomos y el platillo, y cuela todo en varillas finitas que humean.',{who:'Silvestre',t:'Listo. Con esto cortás los barrotes de la rejilla y los volvemos a soldar. Nadie se va a dar cuenta.'},gotLine('estano')]);}
 /* ---------- reloj de 10 minutos ---------- */
 function c5Tick(dt){if(!S||S.pro||S.chapter!==3)return;try{catTick(dt);}catch(e){}try{denTick(dt);}catch(e){}
-  const F=S.flags;if(!F.c5m15){F.c5m15=1;if(S.left5!=null&&S.left5>0)S.left5--;}
+  const F=S.flags;c5KitTick(dt);if(!F.c5m15){F.c5m15=1;if(S.left5!=null&&S.left5>0)S.left5--;}
   if(F.c5bossNext&&scene==='map'&&S.map===MP.FRIGO5&&!DLG&&!PENDING.length&&!F.c5fight){F.c5bossNext=0;c5BossStart();}if(F.c5run&&!F.c5late&&!PAUSE&&(scene==='map'||scene==='battle')){F.c5ms-=dt*1000;if(F.c5ms<=0){F.c5ms=0;F.c5run=0;F.c5late=1;sfx.cor();if(scene==='map')PENDING.push('A lo lejos, la guitarra de los caños se corta de golpe.','Después vuelve, desafinada, repitiendo una sola nota.','(Se terminó el tiempo. Ya no se puede sacar a Ciro por los caños.)');}}}
 function c5Hud(){const F=S&&S.flags;if(!F||S.chapter!==3||!F.c5run||F.c5late||scene!=='map')return;const s=Math.ceil(F.c5ms/1000),m=Math.floor(s/60),ss=s%60,low=s<=60;
   ctx.fillStyle='rgba(6,8,20,.7)';ctx.fillRect(W-74,24,66,16);txt('⏱ '+m+':'+String(ss).padStart(2,'0'),W-12,36,low&&Math.floor(performance.now()/250)%2?'#ff5a3a':'#e3a849',12,'right',true);}
@@ -3123,6 +3149,7 @@ function drawUI(){
         if(has('llavei')&&!F.c5pipeOK)n.push('Con la llave inglesa de Silvestre, sacá la tapa del empalme de caños y metete.');
         if(F.c5pipeOK&&(F.c5ciro||0)<2)n.push('Por adentro del caño se llega a una rejilla arriba del cuarto donde está Ciro.'+(has('pua')?' Dejale caer la púa: así te va a creer.':' No le cree a nadie: hay que llevarle algo suyo.'));
         if((F.c5ciro||0)>=2&&!has('estano'))n.push('Para sacar a Ciro hace falta estaño. Llevale a Silvestre (taller del 3A) tres piezas: tubo de órgano (set de Selene), plomos (piano de Ciro) y platillo (cámara de frío). Tenés '+['tubo','plomos','platillo'].filter(has).length+' de 3.');
+        if((F.c5ciro||0)>=2&&!has('estano')&&c5PacOK()){if(!F.c5kit&&S.party.includes('silvestre'))n.push('Atajo: en la boletería del hall hay un teléfono. Silvestre puede pedirle a Félix que le suba el crisol.');if(F.c5kit===1)n.push('Félix está subiendo por el ducto con el crisol. Mientras, conseguí las piezas.');if(F.c5kit===2)n.push('Félix llegó: está en el hall.');if(F.c5kit===3)n.push('Silvestre tiene el crisol: funde ni bien tengas las tres piezas.');}
         if(has('estano'))n.push('Tenés el estaño. Volvé a la rejilla del caño: cortás los barrotes, sacás a Ciro y soldás todo de nuevo.');
         if(F.c5run){const s2=Math.ceil(F.c5ms/1000);n.push('Ciro aguanta poco: quedan '+Math.floor(s2/60)+':'+String(s2%60).padStart(2,'0')+'.');}}if(F.c5late&&!F.c5fight)n.push('Se acabó el tiempo. A Ciro solo se lo saca enfrentando a Brian y Den.');
       if(F.c5grabQ&&!F.grabMel)n.push('La cámara de frío se abre con la melodía que tararea Den. Hay que grabarla, escondido atrás del perchero.');if(F.c5stairs)n.push('La escalera de servicio de la sala baja directo al rellano entre el 4 y el 3.');
