@@ -357,7 +357,7 @@ function chapInfo(){let d=S;if(scene==='title'||!d){try{const j=localStorage.get
   const title=pre?'PRÓLOGO · FEBRERO DE 2025':'CAPÍTULO '+n+' · '+name,plate=pre?'Prólogo · VHS':'Capítulo '+n+' · VHS';
   try{const el=document.getElementById('chapPlate');if(el&&el.textContent!==plate)el.textContent=plate;}catch(e){}return{n,title,plate};}
 function hasSave(){try{return !!localStorage.getItem(SAVE);}catch(e){return false;}}
-function loadLS(){try{const s=localStorage.getItem(SAVE);if(!s)return false;S=JSON.parse(s);SNAP=s;return true;}catch(e){return false;}}
+function loadLS(){try{const s=localStorage.getItem(SAVE);if(!s)return false;S=JSON.parse(s);if(S.flags&&S.flags.cap2&&S.flags.trueGeno&&!S.flags.tgAbort&&!S.flags.tgFall&&tgBroken())S.flags.tgFall=1;SNAP=s;return true;}catch(e){return false;}}
 function clearSave(){try{localStorage.removeItem(SAVE);}catch(e){}}
 const markClosed=()=>{try{if(S&&!S.pro)localStorage.setItem(CLOSED,String(Date.now()));}catch(e){}};
 addEventListener('pagehide',markClosed);
@@ -1741,7 +1741,8 @@ function pedroEnter2(){
   return say(S.party.includes('silvestre')?[{who:'Silvestre',t:'¿Escuchás? Voces.'},{who:'Silvestre',t:'Vienen de ahí arriba. De esa rejilla. Esa rejilla ayer no estaba.'}]:['Se escuchan voces. Vienen de una rejilla en la pared que no recordás.']);
 }
 function chapterCor(k){if(S.flags['corRec'+k])return;S.flags['corRec'+k]=1;if(S.maxCor>=100){S.flags['corGain'+k]=0;return;}const b=S.maxCor;S.maxCor=Math.min(100,S.maxCor+10);const g=S.maxCor-b;S.cor=Math.min(S.maxCor,S.cor+g);S.flags['corGain'+k]=g;}
-function endChapter2(){chapterCor(2);if(S.flags.trueGeno&&!S.flags.tgAbort&&!(S.flags.estefDead&&S.flags.geroDead))S.flags.tgFall=1;S.flags.cap2=1;saveLS();transition(1.4,()=>{scene='end';EN={t:0,ch:2};});}
+function tgBroken(){return !!(S.flags.silvPaid||S.flags.ch2Sp||S.flags.felix==='spare');}
+function endChapter2(){chapterCor(2);if(S.flags.trueGeno&&!S.flags.tgAbort&&(tgBroken()||!(S.flags.estefDead&&S.flags.geroDead&&S.flags.silvDead)))S.flags.tgFall=1;S.flags.cap2=1;saveLS();transition(1.4,()=>{scene='end';EN={t:0,ch:2};});}
 function drawEnd2(t){
   ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
   txt('FIN DEL CAPÍTULO 2',W/2,62,'#e6e8ef',26,'center',true);txt('EL TERCER PISO',W/2,80,'#9aa0b4',12,'center');
@@ -2316,7 +2317,7 @@ function drawUI(){
   const u=UI;if(!u)return;
   if(u.kind==='menu'||u.kind==='pockets'||u.kind==='itemopt'||u.kind==='equip'||u.kind==='notes'){
     panel(8,8,123,Math.max(154,92+menuOpts().length*11));
-    txt(S.name.toUpperCase(),16,22,'#e3a849',13);
+    txtFit(S.name.toUpperCase(),16,22,'#e3a849',13,'left',110);
     txt('LV '+S.lv+'   $'+S.pesos,16,35,'#e6e8ef',11);
     {ctx.font=FONT(11);const lx=16+Math.max(ctx.measureText('PV').width,ctx.measureText('COR').width)+4;ctx.font=FONT(10);const hs=S.hp+'/'+maxHP(),cs=S.cor+'/'+S.maxCor,rw=Math.max(ctx.measureText(hs).width,ctx.measureText(cs).width),bw=Math.max(20,124-rw-5-lx);
     txt('PV',16,48,'#9aa0b4',11);bar(lx,42,bw,6,S.hp,maxHP(),'#e3a849','#4a1d1d');txt(hs,124,48,'#e6e8ef',10,'right');
@@ -4033,7 +4034,7 @@ function updName(){
       if(up==='SANS'){sfx.buzz();n.msg='nope.';return;}
       if(CAST.includes(up)&&up!=='VALEN'&&up!=='VALENTIN'){sfx.buzz();n.msg=CASTMSG[up]||'Ese nombre ya está ocupado.';}
       else{n.ask={sel:0};sfx.ok();}
-    }else if(n.name.length<8){n.name+=k;sfx.blip();}
+    }else if(n.name.length<15){n.name+=k;sfx.blip();}
   }
 }
 function acceptName(){const n=NE,up=n.name;
@@ -4372,7 +4373,7 @@ function endBattle(){
     S[LK]=Math.max(0,S[LK]||0);
     if(S.spares===0&&S.kills>=5)setGeno(1);
     if(S.flags.pedroNo&&!uniHas('cascoU')){const c=B.foes.find(f=>f.id==='casco'&&(f.dead||f.spared));if(c){uniGive('cascoU');L.push(c.spared?'Antes de irse flotando, el Casco vacío se te posa en la cabeza un segundo. Después se queda ahí. Te queda justo.':'El Casco vacío cae al piso y rueda hasta tus pies. Ya no flota. Lo agarrás.','Agarraste: '+IT.cascoU.n+'.');}}
-    if(B.ivanFight&&B.foes[0].dead){S.flags.ivanDead=1;S.flags.trueGeno=1;setGeno(2);L.push('El edificio se queda en silencio. Esta vez, de verdad.');}
+    if(B.ivanFight&&B.foes[0].dead){S.flags.ivanDead=1;S.flags.trueGeno=1;if(S.chapter===2&&tgBroken())S.flags.tgFall=1;setGeno(2);L.push('El edificio se queda en silencio. Esta vez, de verdad.');}
     S.left=Math.max(0,S.left);
     S.pesos+=pesos;
     if(xp){S.xp+=xp;L.push('Ganaste '+xp+' EXP y $'+pesos+'.');}else if(pesos)L.push('Te ganaste $'+pesos+' por las buenas.');
@@ -4386,6 +4387,7 @@ function endBattle(){
     if(!B.boss&&LK==='left'&&S.left===0&&!S.flags.empty){S.flags.empty=1;if(S.kills>=15)PENDING.push('El pasillo quedó en silencio. Ya no queda nadie.');
       if(S.spares===0&&S.kills>=15){S.flags.ivanGone=1;if(S.party.includes('ivan')){S.party=S.party.filter(x=>x!=='ivan');PENDING.push({who:'Iván',t:'...Ya está. No queda nadie.'},{who:'Iván',t:'Yo pensé que el peligro estaba afuera.'},{who:'Iván',t:'No me sigas. Por favor.'},'Iván sale corriendo. Escuchás la puerta del 4B cerrarse con llave.');}}}
   }
+  if(S.chapter===2&&!S.flags.trueGeno&&!B.fled&&B.foes.some(f=>f.spared))S.flags.ch2Sp=1;
   if(S.flags.trueGeno&&!S.flags.tgAbort&&!S.flags.tgFall&&S.chapter===2&&!B.fled&&B.foes.some(f=>f.spared)){S.flags.tgAbort=1;WEIRDNEXT=true;}
   const onEnd=B.onEnd;
   const finish=()=>{transition(.6,()=>{scene='map';encCd=7;B=null;onEnd&&onEnd();});};
@@ -4734,11 +4736,12 @@ function renderBattle(t){
   }
   ctx.restore();
   const yy=203,nm=(S.pro?'VALENTÍN':S.name.toUpperCase())+'  LV '+S.lv;
-  txt(nm,14,yy,'#e6e8ef',12);
-  ctx.font=FONT(12);const nx=14+ctx.measureText(nm).width+8;
-  {let x=nx;const w12=s=>{ctx.font=FONT(12);return ctx.measureText(s).width;},w11=s=>{ctx.font=FONT(11);return ctx.measureText(s).width;},hs=S.hp+'/'+maxHP();
-  txt('PV',x,yy,'#9aa0b4',12);x+=w12('PV')+3;bar(x,yy-7,40,7,S.hp,maxHP(),'#e3a849','#4a1d1d');x+=44;txt(hs,x,yy,'#e6e8ef',11);x+=w11(hs)+9;
-  if(!S.pro){txt('COR',x,yy,'#9aa0b4',12);x+=w12('COR')+3;bar(x,yy-7,36,7,S.cor,S.maxCor,'#a78bfa','#251d3a');x+=40;txt(String(S.cor),x,yy,'#e6e8ef',11);}}
+  {const w12=s=>{ctx.font=FONT(12);return ctx.measureText(s).width;},w11=s=>{ctx.font=FONT(11);return ctx.measureText(s).width;},hs=S.hp+'/'+maxHP();
+  const rest=8+w12('PV')+3+44+w11(hs)+9+(S.pro?0:w12('COR')+3+40+w11(String(S.cor)));let nz=12;ctx.font=FONT(nz);while(nz>10&&14+ctx.measureText(nm).width+rest>W-4){nz--;ctx.font=FONT(nz);}
+  const nmw=ctx.measureText(nm).width,over=Math.max(0,14+nmw+rest-(W-4)),pb=Math.max(22,40-Math.ceil(over*.55)),cb=Math.max(18,36-Math.ceil(over*.45));txt(nm,14,yy,'#e6e8ef',nz);
+  let x=14+nmw+(over?6:8);
+  txt('PV',x,yy,'#9aa0b4',12);x+=w12('PV')+3;bar(x,yy-7,pb,7,S.hp,maxHP(),'#e3a849','#4a1d1d');x+=pb+4;txt(hs,x,yy,'#e6e8ef',11);x+=w11(hs)+(over?6:9);
+  if(!S.pro){txt('COR',x,yy,'#9aa0b4',12);x+=w12('COR')+3;bar(x,yy-7,cb,7,S.cor,S.maxCor,'#a78bfa','#251d3a');x+=cb+4;txt(String(S.cor),x,yy,'#e6e8ef',11);}}
   if(!B.tuto){const tg=[S.party.includes('ivan')?'IVÁN':'',S.party.includes('silvestre')?'SILVESTRE':'',S.party.includes('geronimo')?'GERÓNIMO':'',S.party.includes('arana')?'ARAÑA '+S.spiderHP+'/'+S.spiderMax:''].filter(Boolean).join(' · ');if(tg)txt('EQUIPO: '+tg,14,yy-11,'#7cff9a',10);}
   const labels=['PELEAR','ACTUAR','OBJETO',S.pro?'PERDONAR':'DESINTONIZAR'],canSpare=!B.boss&&spareables().length>0;
   labels.forEach((l,i)=>{const x=14+i*74,y=210,w=70,h=20,sel=B.state==='menu'&&B.menu===i;
