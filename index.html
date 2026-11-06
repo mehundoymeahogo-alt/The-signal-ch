@@ -1680,10 +1680,10 @@ function c5Grate(){const F=S.flags;C5GV=true;
       {who:'Ciro',t:'Hay que cortar los barrotes y después volver a soldarlos, que no se note nada. Para eso hace falta estaño.'},
       {who:'Ciro',t:'Silvestre, el del 3, hace estaño con cualquier metal blando. Tubos de órgano. Los plomos de un piano. Un platillo de bronce.'},
       {who:'Ciro',t:'En el piso hay de todo eso. Juntá tres piezas, que Silvestre las funda, y volvé acá con el estaño.'},
-      {who:'Ciro',t:'Pero apurate. Cada vez me cuesta más acordarme de cómo me llamo.'},'(Tenés diez minutos.)');
+      {who:'Ciro',t:'Pero apurate. Cada vez me cuesta más acordarme de cómo me llamo.'},'(Tenés siete minutos.)');
     if(c5PacOK()&&S.party.includes('silvestre'))L.push({who:'Silvestre',t:'(desde atrás, en el caño) Bajar a mi taller y volver por el ducto nos come el tiempo.'},{who:'Silvestre',t:'Si hubiera un teléfono en este teatro, le pido a alguien que me suba el crisol.'});
-    return say(L,()=>{if(!F.c5run){F.c5run=1;F.c5ms=600000;sfx.cor();}});}
-  const p=F.c5ms!=null?F.c5ms/600000:1,n=['tubo','plomos','platillo'].filter(has).length;
+    return say(L,()=>{if(!F.c5run){F.c5run=1;F.c5ms=C5TIME;sfx.cor();}});}
+  const p=F.c5ms!=null?F.c5ms/C5TIME:1,n=['tubo','plomos','platillo'].filter(has).length;
   return say([{who:'Ciro',t:p>.7?c3Next('ciA',['Seguís ahí. Bien. Hablame, que si no me olvido.','Hace frío. La guitarra se desafina con el frío.']):p>.35?c3Next('ciB',['¿Cómo era tu nombre? No. El mío. ¿Cómo era el mío?','Den se ríe cuando toco. Se ríe con mi risa.']):c3Next('ciC',['Ciro. Ciro. Ciro. Ciro. Ciro.','La guitarra toca sola. Yo ya no toco. ¿O sí?','Apurate. Por favor. Apurate.'])},
     n>=3?'(Tenés las tres piezas. Llevalas al taller de Silvestre, en el 3, para que las funda.)':'(Piezas para el estaño: '+n+' de 3. Tubo de órgano, plomos de piano, platillo de bronce.)']);
 }
@@ -2039,9 +2039,10 @@ function c5FelixTalk(){const F=S.flags;
   return say([{who:'Félix',t:c3Next('fx5',['Esto parece un estadio vacío. Me da más miedo que un clásico sin hinchada.','Si hay que relatar algo, avisame. Tengo la garganta caliente.','Me quedo acá cuidando la puerta. Nadie entra sin que yo lo relate.'])}]);}
 function c5MeltHere(){const F=S.flags;if(has('estano')||!c5Pieces())return;S.items=S.items.filter(i=>!['tubo','plomos','platillo'].includes(i));sfx.item();
   say(['Silvestre arma el crisol en el piso, sobre unas baldosas flojas, y prende el soldador grande.',{who:'Silvestre',t:'¿Metal de órgano? ¿Bronce de platillo? ¿Plomo de teclas? Esto es estaño de primera. Bah, casi.'},'Funde el tubo, los plomos y el platillo, y cuela todo en varillas finitas que humean.',{who:'Silvestre',t:'Listo. Con esto cortás los barrotes de la rejilla y los volvemos a soldar. Nadie se va a dar cuenta.'},gotLine('estano')]);}
-/* ---------- reloj de 10 minutos ---------- */
+/* ---------- reloj de 7 minutos ---------- */
+const C5TIME=420000;
 function c5Tick(dt){if(!S||S.pro||S.chapter!==3)return;try{catTick(dt);}catch(e){}try{denTick(dt);}catch(e){}
-  const F=S.flags;c5KitTick(dt);if(!F.c5m15){F.c5m15=1;if(S.left5!=null&&S.left5>0)S.left5--;}
+  const F=S.flags;c5KitTick(dt);if(F.c5ms>C5TIME)F.c5ms=C5TIME;if(!F.c5m15){F.c5m15=1;if(S.left5!=null&&S.left5>0)S.left5--;}
   if(F.c5bossNext&&scene==='map'&&S.map===MP.FRIGO5&&!DLG&&!PENDING.length&&!F.c5fight){F.c5bossNext=0;c5BossStart();}if(F.c5run&&!F.c5late&&!PAUSE&&(scene==='map'||scene==='battle')){F.c5ms-=dt*1000;if(F.c5ms<=0){F.c5ms=0;F.c5run=0;F.c5late=1;sfx.cor();if(scene==='map')PENDING.push('A lo lejos, la guitarra de los caños se corta de golpe.','Después vuelve, desafinada, repitiendo una sola nota.','(Se terminó el tiempo. Ya no se puede sacar a Ciro por los caños.)');}}}
 function c5Hud(){const F=S&&S.flags;if(!F||S.chapter!==3||!F.c5run||F.c5late||scene!=='map')return;const s=Math.ceil(F.c5ms/1000),m=Math.floor(s/60),ss=s%60,low=s<=60;
   ctx.fillStyle='rgba(6,8,20,.7)';ctx.fillRect(W-74,24,66,16);txt('⏱ '+m+':'+String(ss).padStart(2,'0'),W-12,36,low&&Math.floor(performance.now()/250)%2?'#ff5a3a':'#e3a849',12,'right',true);}
@@ -2073,7 +2074,7 @@ function teatroAmb(){if(!S||scene!=='map'||!AU.c||AU.m||!isTeatMap()||OPT.mus===
   if(!F.c5ciroDead&&!F.c5rescued&&!F.c5ciroOut&&S.map!==MP.SELENE5){GUIT_T-=1/60;if(GUIT_T<=0){
     const d=S.map===MP.CANO5?Math.hypot(S.x-13,S.y-5)*.5:S.map===MP.PASILLO5?Math.hypot(S.x-26,S.y-0):S.map===MP.FRIGO5?Math.hypot(S.x-11,S.y-1)*.6:S.map===MP.SALA5?18:S.map===MP.HABIT5?14:30;
     const vol=.03*(OPT.mus/8)*Math.max(.04,1-d/24)*(F.c5late?.7:1),seq=F.c5late?[220]:[220,261.6,329.6,392,329.6,261.6,246.9,293.7,349.2,293.7,246.9,196];
-    const f=seq[GUIT_I%seq.length]*(F.c5late?1:1+Math.sin(GUIT_I*.37)*.003*(F.c5ciro>=2?(1-(F.c5ms||600000)/600000)*6:1));GUIT_T=F.c5late?1.4:.36;GUIT_I++;
+    const f=seq[GUIT_I%seq.length]*(F.c5late?1:1+Math.sin(GUIT_I*.37)*.003*(F.c5ciro>=2?(1-(F.c5ms||C5TIME)/C5TIME)*6:1));GUIT_T=F.c5late?1.4:.36;GUIT_I++;
     AU.t(f,.9,'triangle',vol);AU.t(f*2,.25,'square',vol*.12);if(S.canal===27&&GUIT_I%2)AU.t(seq[(GUIT_I+5)%seq.length]*.997,.8,'triangle',vol*.55,0,.19);}}
   else if(S.canal===27&&S.map===MP.PASILLO5){GUIT_T-=1/60;if(GUIT_T<=0){GUIT_T=.72;GUIT_I++;const d=Math.hypot(S.x-26,S.y);AU.t([196,246.9,293.7,246.9,220,261.6][GUIT_I%6],.9,'triangle',.02*(OPT.mus/8)*Math.max(.04,1-d/24));}}
   if(S.map===MP.FRIGO5&&!frigoLit()||S.map===MP.CANO5)return;
