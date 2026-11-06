@@ -1322,7 +1322,7 @@ MAPS[MP.PUERTA5]={title:'Rellano · piso 5',theme:'rellano',rows:[
   act(ch){
     switch(ch){
       case 'ξ':return say([{t:'La escalera de mano baja al ducto.',choices:[{l:'Bajar',f(){goMap(MP.DUCTO,31,2,'down');}},{l:'Quedarse',f(){}}]}]);
-      case 'Ξ':if(S.chapter===3)return goMap(MP.FOYER5,9,8,'up');return say(['Una puerta enorme de metal, remachada. En el medio hay un teclado numérico.'].concat(!S.party.includes('silvestre')?['El teclado es igual al de mantenimiento. La misma marca. El mismo modelo.']:[]).concat(S.party.includes('silvestre')&&!S.flags.p5Hint?[{who:'Silvestre',t:'Es el mismo teclado que el de mantenimiento. Misma marca, mismo modelo.'},{who:'Silvestre',t:'El degenerado ese usa el mismo código para todo. Te apuesto lo que quieras.'}]:[]),()=>{S.flags.p5Hint=1;openPad(S.code3,()=>{sfx.item();say(['Clic. La luz se pone verde.','La puerta se abre despacio, como si pesara una tonelada.','Del otro lado hay una luz blanca. Y una guitarra. Y muchas voces que se callan al mismo tiempo.'],endChapter2);});});
+      case 'Ξ':if(S.chapter===3&&c3Open())return goMap(MP.FOYER5,9,8,'up');return say(['Una puerta enorme de metal, remachada. En el medio hay un teclado numérico.'].concat(!S.party.includes('silvestre')?['El teclado es igual al de mantenimiento. La misma marca. El mismo modelo.']:[]).concat(S.party.includes('silvestre')&&!S.flags.p5Hint?[{who:'Silvestre',t:'Es el mismo teclado que el de mantenimiento. Misma marca, mismo modelo.'},{who:'Silvestre',t:'El degenerado ese usa el mismo código para todo. Te apuesto lo que quieras.'}]:[]),()=>{S.flags.p5Hint=1;openPad(S.code3,()=>{sfx.item();say(['Clic. La luz se pone verde.','La puerta se abre despacio, como si pesara una tonelada.','Del otro lado hay una luz blanca. Y una guitarra. Y muchas voces que se callan al mismo tiempo.'],endChapter2);});});
     }
   }};
 /* ===== Capítulo 3 · El quinto piso: el teatro ===== */
@@ -1914,13 +1914,27 @@ function pedroEnter2(){
 function chapterCor(k){if(S.flags['corRec'+k])return;S.flags['corRec'+k]=1;if(S.maxCor>=100){S.flags['corGain'+k]=0;return;}const b=S.maxCor;S.maxCor=Math.min(100,S.maxCor+10);const g=S.maxCor-b;S.cor=Math.min(S.maxCor,S.cor+g);S.flags['corGain'+k]=g;}
 function tgBroken(){return !!(S.flags.silvPaid||S.flags.ch2Sp||S.flags.felix==='spare');}
 function endChapter2(){chapterCor(2);if(S.flags.trueGeno&&!S.flags.tgAbort&&(tgBroken()||!(S.flags.estefDead&&S.flags.geroDead&&S.flags.silvDead)))S.flags.tgFall=1;S.flags.cap2=1;saveLS();transition(1.4,()=>{scene='end';EN={t:0,ch:2};});}
+// Acceso privado al capítulo 3 (en prueba): sólo con el código del autor.
+const C3K='piso13_c3acc';
+function c3Hash(c){let h=2166136261;for(const ch of 'senal:'+c){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)>>>0;}return h;}
+function c3Open(){try{return localStorage.getItem(C3K)==='1815946508';}catch(e){return false;}}
+function c3PadUpd(){const u=EN.pad;
+  if(hit('left')){u.p=(u.p+7)%8;sfx.sel();}if(hit('right')){u.p=(u.p+1)%8;sfx.sel();}
+  if(hit('up')){u.d[u.p]=(u.d[u.p]+1)%10;sfx.beep();}if(hit('down')){u.d[u.p]=(u.d[u.p]+9)%10;sfx.beep();}
+  if(hit('b')){EN.pad=null;return;}
+  if(hit('a')){const h=c3Hash(u.d.join(''));if(h===1815946508){try{localStorage.setItem(C3K,String(h));}catch(e){}EN.pad=null;sfx.item();EN.ok=1.5;}else{sfx.buzz();u.msg='Código incorrecto.';}}}
+function drawC3Pad(){const u=EN.pad;ctx.fillStyle='rgba(0,0,0,.85)';ctx.fillRect(0,0,W,H);panel(30,62,260,104,'#e3a849');txt('ACCESO',160,80,'#e3a849',12,'center');
+  for(let i=0;i<8;i++){const x=64+i*24;ctx.strokeStyle=u.p===i?'#e3a849':'#3a3e50';ctx.lineWidth=1;ctx.strokeRect(x+.5,92.5,20,26);txt(String(u.d[i]),x+10,112,'#7cff9a',18,'center');}
+  txtFit('▲▼ número · ◀▶ mover · Z probar · X salir',160,136,'#9aa0b4',10,'center',250);if(u.msg)txt(u.msg,160,152,'#e8505b',11,'center');}
 function drawEnd2(t){
   ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
   txt('FIN DEL CAPÍTULO 2',W/2,62,'#e6e8ef',26,'center',true);txt('EL TERCER PISO',W/2,80,'#9aa0b4',12,'center');
   if(EN.t>.8){const L=['Félix (la relatora): '+(S.flags.felix==='spare'?'perdonada':'eliminada'),'Vecinos: '+S.kills+' eliminados · '+S.spares+' perdonados','LV '+S.lv+' · $'+S.pesos+' · Día '+S.day,'Equipo: '+(['ivan','silvestre','geronimo','arana'].filter(p=>S.party.includes(p)).map(p=>({ivan:'Iván',silvestre:'Silvestre',geronimo:'Gerónimo',arana:'la araña'})[p]).join(', ')||'nadie')].concat(S.flags.tgAbort?['Algo te sigue, piso por piso.']:[]).concat(S.flags.corGain2>0?['Cordura máxima recuperada: +'+S.flags.corGain2+' ('+S.maxCor+'/100)']:[]).concat(['RUTA: '+routeName()]);
     L.forEach((l,i)=>txtFit(l,W/2,104+i*12,i===L.length-1?'#e3a849':'#c9ccd8',11,'center',W-14));}
-  if(EN.t>1.6)txt('Sigue: Capítulo 3 · El quinto piso',W/2,186,'#e3a849',14,'center');
-  if(EN.t>2&&Math.floor(t*2)%2)txt('Z para seguir',W/2,214,'#767c92',11,'center');
+  const op=c3Open();if(EN.t>1.6)txt(op?'Sigue: Capítulo 3 · El quinto piso':'Capítulo 3 · Próximamente',W/2,186,'#e3a849',14,'center');
+  if(EN.t>2&&Math.floor(t*2)%2)txt(op?'Z para seguir':'Z para volver al título',W/2,214,'#767c92',11,'center');
+  if(EN.ok>0){EN.ok-=1/60;txt('Acceso concedido',W/2,200,'#7cff9a',11,'center');}
+  if(EN.pad)drawC3Pad();
 }
 
 
@@ -5238,7 +5252,7 @@ function routeName(){if(S.flags.ivanDead)return S.flags.tgAbort?'ESTÁTICA':S.fl
 function endChapter(){chapterCor(1);S.flags.cap1=1;saveLS();transition(1.2,()=>{scene='end';EN={t:0};});}
 function continueGame(){
   if(!loadLS())return transition(.8,newGame);
-  if(S.flags.cap2&&S.chapter!==3){transition(.8,()=>{scene='end';EN={t:0,ch:2};});return;}
+  if(S.flags.cap2&&(S.chapter!==3||!c3Open())){transition(.8,()=>{scene='end';EN={t:0,ch:2};});return;}
   if(S.flags.cap1&&!S.chapter){transition(.8,()=>{scene='end';EN={t:0};});return;}
   transition(.8,()=>{
     scene='map';P.moving=false;mapTitleT=2.6;if(FOLS().length)placeFollower();
@@ -5330,7 +5344,8 @@ function update(dt){
       if(hit('a')){sfx.ok();if(GO.sel===0)transition(.9,rewind);else transition(.9,()=>{scene='title';TS.sel=0;});}break;}
     case 'pdeath':{PD.t+=dt;if(PD.t<3)break;if(hit('up')||hit('down')){PD.sel=1-PD.sel;sfx.sel();}
       if(hit('a')){sfx.ok();if(PD.sel===0)transition(1,newGame);else transition(1,()=>{scene='title';TS.sel=0;});}break;}
-    case 'end':{EN.t+=dt;if(EN.t>2&&hit('a')){if(EN.ch===2)startChapter3();else startChapter2();}break;}
+    case 'end':{EN.t+=dt;if(EN.ch===2&&EN.pad){c3PadUpd();break;}if(EN.ch===2&&EN.t>1&&hit('b')){EN.xn=(EN.xn||0)+1;if(EN.xn>=3){EN.xn=0;EN.pad={d:[0,0,0,0,0,0,0,0],p:0,msg:''};sfx.sel();}break;}
+      if(EN.t>2&&hit('a')){if(EN.ch===2){if(c3Open())startChapter3();else transition(1,()=>{scene='title';TS={sel:0};});}else startChapter2();}break;}
   }
 }
 function vhsOn(){return !((scene==='map'||scene==='battle')&&S&&S.pro)&&scene!=='intro'&&scene!=='pdeath';}
