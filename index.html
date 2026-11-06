@@ -2791,11 +2791,51 @@ function drawTile(ch,px,py,tx,ty,th,t){
       ctx.fillStyle='#2a2626';ctx.beginPath();ctx.moveTo(X-2,Y+24);ctx.lineTo(X+40,Y);ctx.lineTo(X+82,Y+24);ctx.fill();ctx.fillStyle='#1a1616';ctx.fillRect(X-2,Y+22,84,3);
       for(const wx of [10,56]){ctx.fillStyle='#d8d4c4';ctx.fillRect(X+wx,Y+38,14,12);ctx.fillStyle='#9a968a';for(let k=0;k<4;k++)ctx.fillRect(X+wx+1,Y+40+k*3,12,1);ctx.fillStyle='#5a3e26';ctx.fillRect(X+wx-1,Y+37,16,2);}
       ctx.fillStyle=S.flags.casa4?'#050404':'#4a2a1e';ctx.fillRect(X+33,Y+54,14,26);if(!S.flags.casa4){ctx.fillStyle='#c9a34a';ctx.fillRect(X+44,Y+66,2,2);ctx.fillStyle='#8a8a8a';ctx.fillRect(X+38,Y+64,4,5);}break;}
-    case ')':{if(tileAt(tx+1,ty)===')'||tileAt(tx,ty+1)===')')break;const X=px-T,Y=py-2*T;ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(X+2,Y+44,30,4);ctx.fillStyle='#7a5434';ctx.fillRect(X,Y+4,30,42);ctx.fillStyle='#6a4628';for(let xx=0;xx<30;xx+=4)ctx.fillRect(X+xx,Y+4,1,42);ctx.fillStyle='#4a3424';ctx.fillRect(X-1,Y,32,5);
-      ctx.fillStyle='#2a1a10';ctx.fillRect(X+22,Y+18,8,20);ctx.fillStyle='#9a9a9a';ctx.fillRect(X+23,Y+27,1,2);break;}
-    case '(':{if(tileAt(tx+1,ty)==='('||tileAt(tx,ty+1)==='(')break;const X=px-T,Y=py-T;ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(X+2,Y+28,30,4);ctx.fillStyle='#d8b840';ctx.fillRect(X,Y+2,30,28);ctx.fillStyle='#b89a30';for(let yy=2;yy<30;yy+=5)ctx.fillRect(X,Y+yy,30,1);ctx.fillStyle='#8a8a86';ctx.fillRect(X+4,Y-8,4,12);
-      ctx.fillStyle='#2a1a10';ctx.fillRect(X+22,Y+10,8,18);const g=Math.sin(t*5)>0;ctx.fillStyle=g?'#ff8a2a':'#c85a1a';for(let k=0;k<3;k++)ctx.fillRect(X+23,Y+13+k*4,6,1);
-      for(let k=0;k<3;k++){const ph=(t*.6+k*.33)%1;ctx.fillStyle=`rgba(220,220,220,${.3*(1-ph)})`;ctx.beginPath();ctx.arc(X+6,Y-10-ph*10,2+ph*2,0,7);ctx.fill();}break;}
+    case ')':{if(tileAt(tx+1,ty)===')'||tileAt(tx,ty+1)===')')break;const X=px-T,Y=py-2*T,F=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(X+x,Y+y,w,h);};
+      // cuarto de herramientas: tablones, techo de chapa y la puerta entreabierta
+      ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(X+1,Y+45,32,4);
+      ctx.fillStyle=LG_(X,0,X+30,0,[[0,'#5a3c24'],[.5,'#7a5434'],[1,'#4e3420']]);ctx.fillRect(X,Y+12,30,34);
+      for(let xx=0;xx<30;xx+=5){F('#3a2616',xx,12,1,34);F('rgba(255,220,170,.08)',xx+1,12,1,34);}
+      for(let k=0;k<5;k++){const h=hash(k,77);F('#4a3018',2+h%26,16+(h>>5)%26,2,1);}
+      F('rgba(60,90,40,.45)',0,41,30,5);F('rgba(60,90,40,.3)',3,38,6,3);
+      // techo de chapa acanalada visto desde arriba
+      F('#4a4e54',-2,0,34,13);for(let xx=-1;xx<32;xx+=3){F('#5e646a',xx,0,1,13);F('#33373c',xx+1,0,1,13);}
+      F('rgba(150,80,40,.5)',4,3,6,4);F('rgba(150,80,40,.4)',20,7,5,3);F('#2a2c30',-2,12,34,2);F('rgba(0,0,0,.35)',-2,14,34,2);
+      // ventanita con telarañas
+      F('#2a1a10',4,20,9,8);F('#14181e',5,21,7,6);F('rgba(120,140,160,.25)',5,21,3,2);ctx.strokeStyle='rgba(220,220,220,.35)';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(X+5,Y+21);ctx.lineTo(X+9,Y+25);ctx.moveTo(X+5,Y+24);ctx.lineTo(X+8,Y+21);ctx.stroke();
+      // puerta entreabierta: adentro, oscuridad
+      F('#2a1c12',20,20,10,26);F('#050403',21,21,8,25);
+      if(!S.flags.pala&&Math.sin(t*.7)>.93){F('rgba(230,230,210,.55)',23,30,1,1);F('rgba(230,230,210,.55)',26,30,1,1);}
+      ctx.fillStyle='#6a4a2e';ctx.beginPath();ctx.moveTo(X+21,Y+21);ctx.lineTo(X+25,Y+19);ctx.lineTo(X+25,Y+44);ctx.lineTo(X+21,Y+46);ctx.fill();F('#4a3220',24,19,1,25);
+      F('#9a9a9a',22,28,1,2);F('#3a3a3a',22,24,2,1);F('#3a3a3a',22,41,2,1);F('#8a8a80',27,32,2,3);F('#5a5a54',27,31,2,1);
+      // rastrillo apoyado afuera
+      ctx.strokeStyle='#6a4a2a';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(X+16,Y+46);ctx.lineTo(X+18,Y+22);ctx.stroke();F('#7a7a76',15,20,7,1);for(let k=0;k<4;k++)F('#7a7a76',15+k*2,21,1,2);
+      F('#e8e0c8',9,14,10,4);F('#2a2420',10,15,8,1);F('#2a2420',10,16,6,1);break;}
+    case '(':{if(tileAt(tx+1,ty)==='('||tileAt(tx,ty+1)==='(')break;const X=px-T,Y=py-T,F=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(X+x,Y+y,w,h);},g=.7+.3*Math.sin(t*5+Math.sin(t*1.7)*2);
+      // sala de la caldera: revoque amarillo descascarado, techo de losa, chimenea y la rejilla caliente
+      ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(X+1,Y+29,32,4);
+      ctx.fillStyle=LG_(X,0,X+30,0,[[0,'#a88a30'],[.4,'#d8b840'],[1,'#9a7c28']]);ctx.fillRect(X,Y+8,30,22);
+      for(let yy=11;yy<30;yy+=5)F('rgba(120,90,30,.35)',0,yy,30,1);
+      // revoque caído: se ven los ladrillos
+      F('#8a3a24',3,16,9,7);for(let k=0;k<3;k++){F('#5a2414',3,18+k*2,9,1);F('#5a2414',5+(k%2)*3,16+k*2,1,2);}F('rgba(240,220,160,.5)',2,15,11,1);
+      F('rgba(60,40,20,.35)',13,9,2,10);F('rgba(60,40,20,.25)',18,9,1,6);
+      // losa del techo
+      F('#7a7670',-1,0,32,9);F('#8e8a84',-1,0,32,1);F('#5a5650',-1,8,32,1);F('rgba(0,0,0,.3)',-1,9,32,2);for(let k=0;k<5;k++){const h=hash(k,91);F('#6a6660',h%28,1+(h>>5)%6,2,1);}
+      // chimenea de chapa
+      F('#3a3c40',4,-10,5,12);F('#5a5e64',4,-10,1,12);F('#2a2c30',3,-11,7,2);F('#2a2c30',4,-4,5,1);
+      // caño que entra a la casa
+      F('#5a5e64',-3,12,4,3);F('#7a7e84',-3,12,4,1);F('#3a3c40',0,11,2,5);
+      // puerta de chapa con rejilla que brilla
+      F('#2a2c30',20,11,10,19);F('#4a4e54',21,12,8,17);F('#3a3e44',21,12,1,17);
+      for(let k=0;k<4;k++){F('#1a1a1c',22,14+k*3,6,2);ctx.fillStyle='rgba(255,'+(110+k*15)+',40,'+(.85*g)+')';ctx.fillRect(X+22,Y+15+k*3,6,1);}
+      F('#9a9a9a',27,23,1,2);
+      ctx.fillStyle='rgba(255,130,50,'+(.16*g)+')';ctx.beginPath();ctx.ellipse(X+25,Y+31,9,3,0,0,7);ctx.fill();
+      // cartel de peligro
+      ctx.fillStyle='#e8c830';ctx.beginPath();ctx.moveTo(X+16,Y+12);ctx.lineTo(X+19,Y+17);ctx.lineTo(X+13,Y+17);ctx.fill();F('#111',15.5,13.5,1,2);F('#111',15.5,16,1,.8);
+      // humo
+      for(let k=0;k<4;k++){const ph=(t*.5+k*.25)%1;ctx.fillStyle='rgba(200,200,205,'+(.32*(1-ph))+')';ctx.beginPath();ctx.arc(X+6.5+Math.sin(ph*4+k)*2,Y-12-ph*14,2+ph*3,0,7);ctx.fill();}
+      // calor que ondula sobre la rejilla
+      if(Math.sin(t*3)>0){ctx.fillStyle='rgba(255,200,150,.08)';ctx.fillRect(X+21+Math.sin(t*7)*1,Y+6,8,5);}break;}
     case ']':{ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(px+1,py+13,15,3);ctx.fillStyle='#8a5a34';ctx.fillRect(px+2,py+5,12,9);ctx.fillStyle='#5a3a22';ctx.beginPath();ctx.moveTo(px,py+6);ctx.lineTo(px+8,py-1);ctx.lineTo(px+16,py+6);ctx.fill();ctx.fillStyle='#120a06';ctx.beginPath();ctx.arc(px+8,py+11,3,Math.PI,0);ctx.fill();ctx.fillRect(px+5,py+11,6,3);
       ctx.fillStyle='#8a8a90';ctx.fillRect(px+12,py+13,4,2);ctx.fillStyle='#5a7aa8';ctx.fillRect(px+13,py+13,2,1);break;}
     case '[':{ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(px+1,py+13,15,3);ctx.fillStyle='#5a3e26';ctx.fillRect(px+7,py-2,3,16);
