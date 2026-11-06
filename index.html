@@ -360,7 +360,17 @@ function chapInfo(){let d=S;if(scene==='title'||!d){try{const j=localStorage.get
   try{const el=document.getElementById('chapPlate');if(el&&el.textContent!==plate)el.textContent=plate;}catch(e){}return{n,title,plate};}
 function hasSave(){try{return !!localStorage.getItem(SAVE);}catch(e){return false;}}
 function loadLS(){try{const s=localStorage.getItem(SAVE);if(!s)return false;S=JSON.parse(s);if(S.flags&&S.flags.cap2&&S.flags.trueGeno&&!S.flags.tgAbort&&!S.flags.tgFall&&tgBroken())S.flags.tgFall=1;SNAP=s;return true;}catch(e){return false;}}
-function clearSave(){try{localStorage.removeItem(SAVE);}catch(e){}}
+function clearSave(){try{localStorage.removeItem(SAVE);localStorage.removeItem(CHAPK);}catch(e){}}
+// Guardado del comienzo de cada capítulo, para poder reiniciarlo desde el título
+const CHAPK='piso13_capini';
+function saveChapStart(ch){try{localStorage.setItem(CHAPK,JSON.stringify({ch,s:JSON.stringify(S)}));}catch(e){}}
+function chapStart(){try{const j=JSON.parse(localStorage.getItem(CHAPK)||'null');if(!j||!j.ch||!j.s)return null;if(j.ch===3&&!(typeof c3Open==='function'&&c3Open()))return null;return j;}catch(e){return null;}}
+const CHAPNAME={1:'EL CUARTO PISO',2:'EL TERCER PISO',3:'EL QUINTO PISO'};
+function restartChapter(){const c=chapStart();if(!c)return;let cur=null;try{cur=JSON.parse(localStorage.getItem(SAVE)||'null');}catch(e){}
+  S=JSON.parse(c.s);if(cur&&cur.maxCor!=null&&cur.maxCor<S.maxCor){S.maxCor=cur.maxCor;S.cor=Math.min(S.cor,S.maxCor);}
+  SNAP=JSON.stringify(S);saveLS();B=null;DLG=null;UI=null;CHASE=null;
+  transition(1,()=>{scene='map';P.moving=false;mapTitleT=2.6;if(FOLS().length)placeFollower();snapshot();
+    say(['CAPÍTULO '+c.ch+' · '+CHAPNAME[c.ch],'Rebobinás la cinta hasta el principio del capítulo.'].concat(cur&&cur.maxCor!=null&&cur.maxCor<JSON.parse(c.s).maxCor?['Lo que perdiste de cordura máxima no vuelve.']:[]));});}
 const markClosed=()=>{try{if(S&&!S.pro)localStorage.setItem(CLOSED,String(Date.now()));}catch(e){}};
 addEventListener('pagehide',markClosed);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)markClosed();});
@@ -1466,7 +1476,7 @@ function tobiasTalk(){
   return say([{who:'Tobías',t:c3Next('tobN',['La llave de la cabina la tenía el sonidista. Se fue con la orquesta.','A veces subo al telar a mirar desde arriba. Desde ahí la sala parece llena.','¿Viste que en la sala no hay fila 13? Mirá los numeritos: pasa de la 12 a la 14.','Dolores no duerme. La escuché caminar toda la noche con la linterna apagada.','Cuando sepa qué hacer con tu cinta, te aviso. Vos no te vayas lejos.'])}]);}
 function startChapter3(){
   S.chapter=3;saveLS();
-  transition(1.2,()=>{scene='map';S.map=MP.FOYER5;S.x=9;S.y=8;S.dir='up';P.moving=false;mapTitleT=2.6;if(FOLS().length)placeFollower();visitZone();snapshot();
+  transition(1.2,()=>{scene='map';S.map=MP.FOYER5;S.x=9;S.y=8;S.dir='up';P.moving=false;mapTitleT=2.6;if(FOLS().length)placeFollower();visitZone();snapshot();saveChapStart(3);
     const L=['CAPÍTULO 3 · EL QUINTO PISO','La puerta de metal se cierra detrás tuyo con un golpe que retumba en todo el piso.','No hay pasillo. No hay departamentos.','Alguien tiró abajo las paredes del quinto piso y adentro armó un teatro.','Las voces que se escuchaban desde el rellano se cortaron todas juntas. Como cuando se termina una cinta.'];
     if(c3Empty())L.push('Las luces están prendidas, pero no hay nadie. Sólo un disco que gira en algún lado.');
     if(S.party.includes('ivan'))L.push({who:'Iván',t:'Esto no figura en ningún plano del edificio. Y yo los tengo todos.'});
@@ -1953,7 +1963,7 @@ function relato3(ch){if(S.canal!==3||S.pro||S.map!==MP.DEPTO)return;const l=RELA
 const QUIZ86={d:'IMPOSIBLE',q:'¿En qué minuto fue el segundo gol de Diego contra Inglaterra en el 86?',o:['51','55','60'],a:1,s:'...Ni idea. Mi viejo dice que justo ahí se fue al baño. Estás solo, che.'};
 function startChapter2(){
   S.chapter=2;if(S.left3==null)S.left3=20;saveLS();
-  transition(1.2,()=>{scene='map';S.map=MP.ESCALERA;S.x=5;S.y=5;S.dir='up';P.moving=false;mapTitleT=2.6;if(FOLS().length)placeFollower();snapshot();
+  transition(1.2,()=>{scene='map';S.map=MP.ESCALERA;S.x=5;S.y=5;S.dir='up';P.moving=false;mapTitleT=2.6;if(FOLS().length)placeFollower();snapshot();saveChapStart(2);
     say(['CAPÍTULO 2 · EL TERCER PISO','La puerta de la escalera se cierra detrás tuyo.','La escalera que sube está tapada de escombros. La que baja, no.','De abajo llega un ruido raro: pasos que corren en círculos, y alguien que relata.']);});
 }
 
@@ -4514,7 +4524,7 @@ function drawName(t){
 function begin1995(){
   S.name=cap(NE.name);NE=null;
   transition(1,()=>{
-    scene='map';P.moving=false;mapTitleT=2.6;visitZone();snapshot();
+    scene='map';P.moving=false;mapTitleT=2.6;visitZone();snapshot();saveChapStart(1);
     const L=['Estás en un departamento que no conocés. Pero es tuyo: lo sabés como se saben las cosas en los sueños.','Te llamás '+S.name+'. Eso sí lo sabés.'];
     if(S.wake==='bells')L.push('Todavía te zumban los oídos por las campanadas.');
     if(S.canal===95)L.push('En el bolsillo tenés una foto. No te acordás de habértela guardado.');
@@ -5265,7 +5275,7 @@ let IN=null,TS={sel:0};
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
-function titleOpts(){const o=hasSave()?['CONTINUAR','NUEVA PARTIDA']:['NUEVA PARTIDA'];if(cheatsOn())o.push('TRUCOS');return o;}
+function titleOpts(){const o=hasSave()?(chapStart()?['CONTINUAR','REINICIAR CAPÍTULO','NUEVA PARTIDA']:['CONTINUAR','NUEVA PARTIDA']):['NUEVA PARTIDA'];if(cheatsOn())o.push('TRUCOS');return o;}
 function newGame(){clearSave();SNAP=null;S=newState();if(cheatsOn()&&CHEAT.canal)S.canal=CHEAT.canal;IN={i:0,shown:0};TVON=false;CUT=null;if(cheatsOn()&&CHEAT.skip){startWake();return;}scene='intro';}
 
 /* ================= main ================= */
@@ -5317,7 +5327,7 @@ function update(dt){
   if(TR){TR.t+=dt;if(!TR.fired&&TR.t>=TR.dur/2){TR.fired=true;TR.mid();}if(TR.t>=TR.dur)TR=null;for(const k in pressed)pressed[k]=false;return;}
   switch(scene){
     case 'title':{
-      if(TS.confirm){if(hit('up')||hit('down')){TS.csel=1-TS.csel;sfx.sel();}if(hit('b')){TS.confirm=false;break;}if(hit('a')){sfx.ok();TS.confirm=false;if(TS.csel===0)transition(.8,newGame);}break;}
+      if(TS.confirm){if(hit('up')||hit('down')){TS.csel=1-TS.csel;sfx.sel();}if(hit('b')){TS.confirm=false;break;}if(hit('a')){sfx.ok();const rc=TS.confirm==='cap';TS.confirm=false;if(TS.csel===0){if(rc)restartChapter();else transition(.8,newGame);}}break;}
       if(TS.cheat){const c=TS.cheat;
         if(hit('up')){c.i=(c.i+2)%3;sfx.sel();}if(hit('down')){c.i=(c.i+1)%3;sfx.sel();}
         const l=hit('left'),r=hit('right');
@@ -5329,7 +5339,7 @@ function update(dt){
       const opts=titleOpts();if(TS.sel>=opts.length)TS.sel=0;
       {const d=['up','down','left','right'].find(k=>pressed[k]);if(d){TS.code=((TS.code||[]).concat(d)).slice(-8);if(TS.code.join()==='up,up,down,down,left,right,left,right'&&!cheatsOn()){try{localStorage.setItem('piso13_trucos','1');}catch(e){}CHEAT.on=true;sfx.item();TS.code=[];}}}
       if(hit('up')){TS.sel=(TS.sel+opts.length-1)%opts.length;sfx.sel();}if(hit('down')){TS.sel=(TS.sel+1)%opts.length;sfx.sel();}
-      if(hit('a')){sfx.ok();const o=opts[TS.sel];if(o==='TRUCOS'){TS.cheat={i:0};}else if(o==='CONTINUAR')continueGame();else if(hasSave()){TS.confirm=true;TS.csel=1;}else transition(.8,newGame);}break;}
+      if(hit('a')){sfx.ok();const o=opts[TS.sel];if(o==='TRUCOS'){TS.cheat={i:0};}else if(o==='CONTINUAR')continueGame();else if(o==='REINICIAR CAPÍTULO'){TS.confirm='cap';TS.csel=1;}else if(hasSave()){TS.confirm=true;TS.csel=1;}else transition(.8,newGame);}break;}
     case 'intro':{const s=INTRO[IN.i];if(IN.shown<s.length){IN.shown=Math.min(s.length,IN.shown+dt*32);if(hit('a'))IN.shown=s.length;}
       else if(hit('a')){IN.i++;IN.shown=0;if(IN.i>=INTRO.length)transition(1,()=>{scene='map';S.map=MP.CASA;S.x=24;S.y=16;S.dir='up';mapTitleT=2.6;say(['Tu cumpleaños número 19.','La casa está llena. Hay música, papas fritas y una torta que todavía nadie se animó a cortar.','Gerónimo te hace señas desde el living, a tu izquierda.','(Moverse: flechas. Hablar: Z.)']);});}break;}
     case 'map':updMap(dt);break;
@@ -5364,7 +5374,7 @@ function render(t){
         const rows=['CANAL: '+(CHEAT.canal?'◀ '+CHEAT.canal+' ▶':'◀ ALEATORIO ▶'),'SALTAR EL PRÓLOGO: '+(CHEAT.skip?'SÍ':'NO'),'VOLVER'];
         rows.forEach((o,i)=>txt((i===c.i?'▶ ':'  ')+o,56,162+i*15,i===c.i?'#e3a849':'#c9ccd8',13));
         txt('←→ cambia · Z: canales con secreto',W/2,212,'#6b7096',10,'center');}
-      else if(TS.confirm){txt('¿Empezar de cero? Se borra la partida guardada.',W/2,148,'#e8505b',12,'center');['SÍ, EMPEZAR DE CERO','NO'].forEach((o,i)=>txt((i===TS.csel?'▶ ':'  ')+o,W/2-60,170+i*16,i===TS.csel?'#e3a849':'#c9ccd8',14));}
+      else if(TS.confirm){const rc=TS.confirm==='cap',cs=rc&&chapStart();if(rc){txt('¿Volver al principio del capítulo '+(cs?cs.ch:'')+'?',W/2,140,'#e8505b',12,'center');txt('Se pierde lo que hiciste desde ahí.',W/2,154,'#e8505b',12,'center');}else txt('¿Empezar de cero? Se borra la partida guardada.',W/2,148,'#e8505b',12,'center');(rc?['SÍ, REINICIAR CAPÍTULO','NO']:['SÍ, EMPEZAR DE CERO','NO']).forEach((o,i)=>txt((i===TS.csel?'▶ ':'  ')+o,W/2-60,170+i*16,i===TS.csel?'#e3a849':'#c9ccd8',14));}
       else opts.forEach((o,i)=>txt((i===TS.sel?'▶ ':'  ')+o,W/2-46,148+i*15,i===TS.sel?'#e3a849':(o==='TRUCOS'?'#8a8fb0':'#c9ccd8'),15));
       if(!TS.cheat){let sw=false;try{sw=localStorage.getItem('piso13_switch')==='1';}catch(e){}txt(sw?'Grabación encontrada. No debiste tocarlo.':'Grabación encontrada. Contenido perturbador.',W/2,206,'#6b7096',11,'center');}break;}
     case 'intro':{
