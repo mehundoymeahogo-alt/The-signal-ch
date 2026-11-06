@@ -1980,7 +1980,8 @@ function c5BattleEnd(L){const bd=B.foes,br=bd.find(f=>f.id==='brian'),dn=bd.find
   if(!B.c5bd){const p=bd.find(f=>f.id==='piano');if(p){if(p.spared){S.flags.c5piano='spare';if(S.canal===88){ELI_I=0;for(let i=0;i<20;i++){const f=ELISA[i];if(f)AU.t(f,.32,'triangle',.05,0,i*.24);}L.push('Antes de cerrarse, el piano toca "Para Elisa". Esta vez no se equivoca.');}L.push('El Piano de cola se cierra despacio. Una tecla suelta cae a tus pies.',gotLine('teclaS'));}else if(p.dead){S.flags.c5piano='kill';L.push('Entre las astillas queda una tecla partida. Todavía vibra.',gotLine('teclaD'));}}return;}
   S.flags.c5fight=1;S.flags.c5run=0;
   if(br)S.flags.c5brian=br.spared?'spare':br.dead?'dead':'';
-  if(dn&&dn.dead)S.flags.c5den='dead';
+  if(dn&&dn.dead){S.flags.c5den='dead';L.push('Den cae sin hacer ruido, como algo que no pesa nada.','Cuando te acercás, no hay sangre. En el piso hay un maniquí de vidriera, de yeso, con una peluca negra torcida.','La sonrisa está pintada. Muy prolija. Demasiado ancha.');
+    if(br&&br.spared)L.push({who:'Brian',t:'...¿Den?'},'Brian se arrodilla al lado del maniquí y le acomoda la peluca. No dice nada más.');}
 }
 function c5AfterFight(){const F=S.flags;
   if(c5TG())return say(['Ciro está contra la pared de la celda, abrazando la guitarra.',{who:'Ciro',t:'No. No, no, no. Vos no. Vos sos el del cumpleaños. Vos no podés ser esto.'},'Tus manos no pueden con la reja. Pero en el estante de Brian hay productos de limpieza industrial.','Los mezclás en un balde. El aire se pone amarillo y pica en los ojos.',{who:'Ciro',t:'¡Esperá! ¡El código! Está en una cinta... en mi habitación, abajo del colchón...'},{who:'Ciro',t:'Ya está. Ya te lo dije. Por favor.'},'Tirás el balde adentro de la celda.','...','La guitarra suena una última vez, sola, cuando cae al piso.'],()=>{F.c5ciroDead=1;F.c5cintaLoc=1;S.kills++;});
