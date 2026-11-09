@@ -2827,6 +2827,7 @@ function giftAt(x,y){
   say([{t:'Un regalo envuelto. De: '+g[0]+'. '+g[1],choices:[{l:'Abrirlo',f(){S.flags[k]=1;sfx.item();say(g[2]);}},{l:'Después',f(){}}]}]);
 }
 const GENOK='piso13_geno';
+const FINVK='piso13_finV';function finVMem(){try{return +localStorage.getItem(FINVK)||0;}catch(e){return 0;}}
 function genoMem(){try{return +localStorage.getItem(GENOK)||0;}catch(e){return 0;}}
 function drawGift(x,y,t){ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(x+3,y+13,11,3);if(S.flags.giftOpen){ctx.fillStyle='#d8d0c0';ctx.fillRect(x+2,y+10,12,3);ctx.fillStyle='#555';ctx.fillRect(x+4,y+11,6,1);return;}ctx.fillStyle='#d8d0c0';ctx.fillRect(x+3,y+5,10,9);ctx.fillStyle='#777';for(let k=0;k<4;k++)ctx.fillRect(x+4,y+6+k*2,8,1);ctx.fillStyle='#c83a3a';ctx.fillRect(x+7,y+5,2,9);ctx.fillRect(x+3,y+8,10,2);ctx.fillRect(x+5,y+3,2,2);ctx.fillRect(x+9,y+3,2,2);}
 let RAIN=null,FLASH=0,THUNDER_T=0;
@@ -2888,6 +2889,7 @@ function isiTalk(){
   const g=genoMem();
   if(g>=2&&!S.flags.isiGeno)pre.push(I('Valen. Pará. No te acerques tan rápido.'),I('Soñé que esta noche ya pasó. Muchas veces.'),I('En el sueño vos no mirabas el cielo. Mirabas a la gente. Contándola.'),{t:'Isidoro se ríe, pero no le sale.',on(){S.flags.isiGeno=1;}},I('...Perdón. Debe ser el vino. Vení, sentate igual.'));
   else if(g>=1&&!S.flags.isiGeno)pre.push(I('...Valen.'),I('¿Nunca sentiste que todo esto ya lo viviste? La torta, la radio, el cielo.'),I('A veces siento que todo se repite. Y que cada vez sale un poquito peor.'),{t:'Isidoro te mira un segundo de más.',on(){S.flags.isiGeno=1;}},I('No sé. No me gusta cómo me estás mirando. Como si ya supieras cómo termina.'));
+  if(finVMem()&&!S.flags.isiV)pre.push(I('¿Sabés de qué me acordé hoy? De cuando éramos chicos y escondías las figuritas en el depósito del inodoro.'),I('Para que nadie las encontrara. Salían todas mojadas, pero nunca nadie las encontró.'),{t:'Isidoro sonríe mirando el pasto.',on(){S.flags.isiV=1;}},I('Siempre guardaste las cosas importantes en el mismo lugar. No cambiás más.'),I('...No sé por qué me acordé de eso ahora.'));
   say(pre.concat([I(g?'Bueno. Vení, sentate en el tronco. Desde acá se ve todo el cielo.':'Valen. Vení, sentate en el tronco. Desde acá se ve todo el cielo.'),{t:'Isidoro palmea el tronco de al lado.',choices:[
     {l:'Sentarme',f(){S.x=29;S.y=27;S.dir='right';S.sit=true;P.moving=false;isiChat();}},
     {l:'Todavía no',f(){say([I('Dale, acá te espero. Pero no tardes, que el cielo está raro.')]);}}]}]));
