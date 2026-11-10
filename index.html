@@ -2074,7 +2074,7 @@ function startChapter3(){
 function endChapter3(){chapterCor(3);S.flags.cap3=1;saveLS();transition(1.4,()=>{scene='end';EN={t:0,ch:3};});}
 function drawEnd3(t){
   ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
-  txt('FIN DEL CAPÍTULO 3',W/2,62,'#e6e8ef',26,'center',true);txt('EL QUINTO PISO',W/2,80,'#9aa0b4',12,'center');
+  txt('FIN DEL CAPÍTULO 3',W/2,62,'#e6e8ef',26,'center',true);txt('EL QUINTO PISO',W/2,80,'#9aa0b4',12,'center');if(EN.t>.8)drawCT(3);
   if(EN.t>.8){const F=S.flags,L=['Ciro: '+(F.c5ciroDead?'eliminado':F.c5rescued?'rescatado por los caños':'liberado'),'Den: '+(F.c5trap?'encerrada':'eliminada')+' · Brian: '+(F.c5brian==='spare'?'perdonado':F.c5brian==='dead'?'eliminado':'sin pelear'),'Selene: '+(F.c5selDead?'eliminada':F.c5gato===-1?'no te perdona':'te espera en su set'),'LV '+S.lv+' · $'+S.pesos+' · Día '+S.day].concat(F.corGain3>0?['Cordura máxima +'+F.corGain3]:[]).concat(['RUTA: '+routeName()]);
     L.forEach((l,i)=>txtFit(l,W/2,104+i*12,i===L.length-1?'#e3a849':'#c9ccd8',11,'center',W-14));}
   if(EN.t>1.6)txt('Capítulo 4 · Próximamente',W/2,186,'#e3a849',14,'center');
@@ -2547,7 +2547,7 @@ function drawC3Pad(){const u=EN.pad;ctx.fillStyle='rgba(0,0,0,.85)';ctx.fillRect
   txtFit('▲▼ número · ◀▶ mover · Z probar · X salir',160,136,'#9aa0b4',10,'center',250);if(u.msg)txt(u.msg,160,152,'#e8505b',11,'center');}
 function drawEnd2(t){
   ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
-  txt('FIN DEL CAPÍTULO 2',W/2,62,'#e6e8ef',26,'center',true);txt('EL TERCER PISO',W/2,80,'#9aa0b4',12,'center');
+  txt('FIN DEL CAPÍTULO 2',W/2,62,'#e6e8ef',26,'center',true);txt('EL TERCER PISO',W/2,80,'#9aa0b4',12,'center');if(EN.t>.8)drawCT(2);
   if(EN.t>.8){const L=['Félix (la relatora): '+(S.flags.felix==='spare'?'perdonada':'eliminada'),'Vecinos: '+S.kills+' eliminados · '+S.spares+' perdonados','LV '+S.lv+' · $'+S.pesos+' · Día '+S.day,'Equipo: '+(['ivan','silvestre','geronimo','arana'].filter(p=>S.party.includes(p)).map(p=>({ivan:'Iván',silvestre:'Silvestre',geronimo:'Gerónimo',arana:'la araña'})[p]).join(', ')||'nadie')].concat(S.flags.tgAbort?['Algo te sigue, piso por piso.']:[]).concat(S.flags.corGain2>0?['Cordura máxima recuperada: +'+S.flags.corGain2+' ('+S.maxCor+'/100)']:[]).concat(['RUTA: '+routeName()]);
     L.forEach((l,i)=>txtFit(l,W/2,104+i*12,i===L.length-1?'#e3a849':'#c9ccd8',11,'center',W-14));}
   const op=c3Open();if(EN.t>1.6)txt(op?'Sigue: Capítulo 3 · El quinto piso':'Capítulo 3 · Próximamente',W/2,186,'#e3a849',14,'center');
@@ -6553,7 +6553,7 @@ function render(t){
       if(EN.ch===2){drawEnd2(t);break;}
       ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
       txt('FIN DEL CAPÍTULO 1',W/2,62,'#e6e8ef',26,'center',true);
-      txt('EL CUARTO PISO',W/2,80,'#9aa0b4',12,'center');
+      txt('EL CUARTO PISO',W/2,80,'#9aa0b4',12,'center');if(EN.t>.8)drawCT(1);
       if(EN.t>.8){const lines=['Pedro (el militar): '+(S.flags.pedro==='spare'?'perdonado':'eliminado'),'Vecinos del pasillo: '+S.kills+' eliminados · '+S.spares+' perdonados','LV '+S.lv+' · $'+S.pesos+' · Día '+S.day+' · '+hhmm(S.min),'Equipo: '+([S.party.includes('ivan')?'Iván':'',S.party.includes('arana')?'la araña':''].filter(Boolean).join(' y ')||'nadie')].concat(S.flags.ivanDead?['Iván: eliminado'+(S.flags.nicoDead?' · Nicolás: eliminado':'')]:[]).concat(S.flags.corGain1>0?['Cordura máxima recuperada: +'+S.flags.corGain1+' ('+S.maxCor+'/100)']:[]).concat(['RUTA: '+routeName()]);lines.forEach((l,i)=>txtFit(l,W/2,104+i*12,i===lines.length-1?(S.flags.ivanDead||routeName()==='INTERFERENCIA'?'#e8505b':'#e3a849'):'#c9ccd8',11,'center',W-14));}
       if(EN.t>1.6)txt('Sigue: Capítulo 2 · El tercer piso',W/2,186,'#e3a849',14,'center');
       if(EN.t>2&&Math.floor(t*2)%2)txt('Z para seguir',W/2,214,'#767c92',11,'center');
@@ -6580,11 +6580,18 @@ function render(t){
     if(scene==='map'&&S&&!S.pro&&!DLG&&!UI)txt(stamp(),12,H-8,'rgba(230,232,239,.75)',11,'left',true);
   }
 }
+/* ---------- cronómetro invisible: cuánto tarda cada capítulo ---------- */
+function ctKey(){return S.pro?'p':(S.chapter||1);}
+function ctTick(dt){if(!S||PAUSE||QUIT||scene==='title'||scene==='end'||scene==='intro'||document.hidden)return;S.ct=S.ct||{};const k=ctKey();S.ct[k]=(S.ct[k]||0)+dt*1000;}
+function fmtT(ms){const m=Math.round((ms||0)/60000);if(m<60)return m+' min';return Math.floor(m/60)+' h '+String(m%60).padStart(2,'0')+' min';}
+function drawCT(ch){const c=S.ct||{},tot=Object.values(c).reduce((a,b)=>a+b,0),L=ch===1?'Prólogo: '+fmtT(c.p)+' · Capítulo 1: '+fmtT(c[1]):'Este capítulo: '+fmtT(c[ch]);
+  txtFit(ch===1?L:L+' · Total: '+fmtT(tot),W/2,93,'#767c92',10,'center',W-14);}
 function loop(now){
   if(now-last<15){requestAnimationFrame(loop);return;}
   const dt=Math.min(.05,(now-last)/1000);last=now;playT+=dt;
   if(SCARE){try{scareUpdate(dt);if(SCARE)scareRender(playT);}catch(e){console.error(e);}for(const k in pressed)pressed[k]=false;requestAnimationFrame(loop);return;}
   try{update(dt);}catch(e){console.error(e);}
+  try{ctTick(dt);}catch(e){}
   try{musTick();}catch(e){}
   try{render(playT);}catch(e){console.error(e);ctx.setTransform(1,0,0,1,0,0);}
   for(const k in pressed)pressed[k]=false;
