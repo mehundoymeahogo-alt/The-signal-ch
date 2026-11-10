@@ -1681,12 +1681,16 @@ function gatoTalk(){
   return say(['Pionono te mira de reojo. Tiene una llave en el collar.','Estirás la mano. Se escapa.']);
 }
 let CATCD=0;
+// los gatos se suben a las butacas, a las sillas de la orquesta, a la baranda del foso y al borde del escenario
+const catWalk=t=>walk(t)||'БЬЪФ'.includes(t);
 function catTick(dt){const m=MAPS[MP.SALA5],n=m.npcs.find(q=>q.id==='gato');if(!n||!n.vis()||S.map!==MP.SALA5)return;
   if(c5Gen()||S.flags.tgAbort)return;
   CATCD-=dt;if(CATCD>0||n._mv)return;const d=Math.abs(n.x-S.x)+Math.abs(n.y-S.y);
-  if(d>3){CATCD=.4;if(rnd()<.15){const D=[[1,0],[-1,0],[0,1],[0,-1]][ri(0,3)],nx=n.x+D[0],ny=n.y+D[1];if(walk(tileAt(nx,ny))&&!(nx===S.x&&ny===S.y)){n._mv={fx:n.x,fy:n.y,p:0};n.x=nx;n.y=ny;}}return;}
-  CATCD=.17;let best=null,bd=-1;for(const [a,b] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=n.x+a,ny=n.y+b;if(!walk(tileAt(nx,ny))||(nx===S.x&&ny===S.y)||(ny===15&&(nx===9||nx===10)))continue;const dd=Math.abs(nx-S.x)+Math.abs(ny-S.y)+rnd()*.6;if(dd>bd){bd=dd;best=[nx,ny];}}
-  if(best){n._mv={fx:n.x,fy:n.y,p:0};n.dir=best[0]>n.x?'right':best[0]<n.x?'left':best[1]>n.y?'down':'up';n.x=best[0];n.y=best[1];
+  if(d>3){CATCD=.4;if(rnd()<.15){const D=[[1,0],[-1,0],[0,1],[0,-1]][ri(0,3)],nx=n.x+D[0],ny=n.y+D[1];if(catWalk(tileAt(nx,ny))&&!(nx===S.x&&ny===S.y)){n._mv={fx:n.x,fy:n.y,p:0};n.x=nx;n.y=ny;}}return;}
+  CATCD=.17;let best=null,bd=-1;const d0=Math.abs(n.x-S.x)+Math.abs(n.y-S.y);for(const [a,b] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=n.x+a,ny=n.y+b;if(!catWalk(tileAt(nx,ny))||(nx===S.x&&ny===S.y)||(ny===15&&(nx===9||nx===10)))continue;
+    /* si quedó acorralado, se escurre por al lado tuyo: los gatos siempre encuentran por dónde */const dd=Math.abs(nx-S.x)+Math.abs(ny-S.y)+rnd()*.6+(n._last&&n._last[0]===nx&&n._last[1]===ny?-1.2:0);if(dd>bd){bd=dd;best=[nx,ny];}}
+  if((!best||bd<d0)&&d0<=1){/* acorralado contra una pared: salta por arriba tuyo al otro lado */const jx=S.x+(S.x-n.x),jy=S.y+(S.y-n.y);if(catWalk(tileAt(jx,jy)))best=[jx,jy];}
+  if(best){n._last=[n.x,n.y];n._mv={fx:n.x,fy:n.y,p:0};n.dir=best[0]>n.x?'right':best[0]<n.x?'left':best[1]>n.y?'down':'up';n.x=best[0];n.y=best[1];
     S.flags.c5chase=(S.flags.c5chase||0)+1;
     if(S.flags.c5chase===28&&!S.flags.c5hint){S.flags.c5hint=1;
       if(S.party.includes('silvestre'))PENDING.push({who:'Silvestre',t:'Pará, pará. Así no lo vas a agarrar nunca.'},{who:'Silvestre',t:'A un gato no se lo persigue: se le tiende una trampa. Una caja y algo que huela fuerte.'},{who:'Silvestre',t:'Al lado del foso hay una caja. Estefanía, la del 3C, siempre tiene sardinas. Trabaja de moza: le sobra de todo.'});
