@@ -412,8 +412,8 @@ const defVal=()=>S.eq.armor?IT[S.eq.armor].def:0;
 const atkVal=()=>(S.eq.weapon?IT[S.eq.weapon].dmg:4)+(S.lv-1)*2;
 function dmgMult(){let m=1;const a=S.eq.acc&&IT[S.eq.acc];if(a&&a.dmgx)m*=a.dmgx;if(S.eq.weapon&&IT[S.eq.weapon].k==='rango'&&S.eq.armor==='chaqueta')m*=1.25;return m;}
 // ── Cordura baja: la cabeza rota sintoniza lo escondido ──
-// Con menos de 60 de cordura, los secretos del mapa empiezan a titilar; con menos de 40 se ve un ojo dibujado
-// y se escuchan susurros; con menos de 20 se ven desde cualquier punto del mapa, con un "acá" garabateado.
+// Con menos de 45 de cordura, los secretos del mapa empiezan a titilar; con menos de 30 se ve un ojo dibujado
+// y se escuchan susurros; con menos de 15 se ven desde cualquier punto del mapa, con un "acá" garabateado.
 const CSEC=[
   {m:'DEPTO',ch:'S',ok:()=>!S.flags.sofaCash},
   {m:'DEPTO',ch:'K',ok:()=>S.flags.knife&&!S.flags.breadCash},
@@ -426,7 +426,7 @@ const CSEC=[
   {m:'SALA5',ch:'Щ',ok:()=>S.canal===74&&!S.flags.lamas74},
   {m:'PASILLO5',xy:[19,8],ok:()=>S.canal===5&&!S.flags.cat5Seen},
 ];
-function corSenseLv(){if(!S||S.pro)return 0;return S.cor<20?3:S.cor<40?2:S.cor<60?1:0;}
+function corSenseLv(){if(!S||S.pro)return 0;return S.cor<15?3:S.cor<30?2:S.cor<45?1:0;}
 const CSEC_R=[0,3,6,99];
 function csecPos(e){if(e.xy)return e.xy;let rows=null;try{rows=MAPS[MP[e.m]].rows;}catch(_){}if(!rows)return null;for(let y=0;y<rows.length;y++){const x=rows[y].indexOf(e.ch);if(x>=0)return[x,y];}return null;}
 function corSecrets(){const lv=corSenseLv();if(!lv)return[];const R=CSEC_R[lv],out=[];
