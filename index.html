@@ -5537,9 +5537,9 @@ function doMercy(k){
   if(B.boss){const f=B.foes[0];return afterPlayer([pedroCalm(f)?'Intentás desintonizarlo. Pedro no baja la guardia todavía. Aguantá.':'Pedro no baja la guardia. Parece que solo responde a órdenes.'],false);}
   const sp=spareables();
   if(!sp.length)return afterPlayer(['Nadie quiere irse todavía.'],false);
-  const L=[];sp.forEach(f=>{f.spared=true;L.push(...f.def.spare);});sfx.item();
+  const L=[];sp.forEach(f=>{f.spared=true;L.push(f.def.spare[0]);});sfx.item();
   if(!alive().length)return bSay(L,()=>endBattle());
-  afterPlayer(L,false);
+  afterPlayer(L,false,true);
 }
 const pick=a=>a[(rnd()*a.length)|0];
 function ivanAction(attacked){
@@ -5550,6 +5550,7 @@ function ivanAction(attacked){
   if(attacked){const a=alive();if(a.length){const f=a[(rnd()*a.length)|0],d=f.id==='sombra'?1:6;f.hp=Math.max(0,f.hp-d);f.shake=4;B.pops.push({fi:B.foes.indexOf(f),txt:String(d),t:0});
     const L=pick(['Iván tira un tubo de ensayo.','Iván le revolea un erlenmeyer.','Iván le tira un frasco que hace "pfff".','Iván grita "¡ácido!" y tira algo que, sinceramente, es agua.'])+' ('+d+' de daño)';
     if(f.hp<=0){f.dead=true;return[L].concat(f.def.kill);}return[L];}}
+  if(rnd()<.7)return[];
   return[pick(['Iván observa y anota algo en una libretita.','Iván se acomoda los lentes y mide al enemigo con una regla.','Iván murmura: "Interesante. Muy interesante. Horrible, pero interesante."','Iván se esconde un poco atrás tuyo. Para observar mejor, dice.','Iván anota la hora exacta. "Para el informe."'])];
 }
 function spiderAction(attacked){
@@ -5566,9 +5567,11 @@ function poisonTick(){
     if(f.hp<=0){f.dead=true;L.push('El veneno termina con '+f.def.name+'.',...f.def.kill);}else L.push('El veneno le saca 3 de vida a '+f.def.name+'.');}}
   return L;
 }
-function afterPlayer(lines,attacked){
+function afterPlayer(lines,attacked,quiet){
   B.sub=0;
-  const L=lines.concat(ivanAction(attacked),geroAction(),spiderAction(attacked),B.boss?bossQuotes():[]);
+  // si después de actuar ya se puede perdonar a todos los que quedan, no hay otro ataque ni charla del equipo: perdonás en el turno siguiente
+  const al=alive();if(!attacked&&!B.boss&&!B.shadow&&!B.tuto&&al.length&&al.every(f=>f.id!=='pedro'&&f.calm>=f.def.need))return bSay(lines.length?lines:['...'],menuCore);
+  const L=quiet?lines.slice():lines.concat(ivanAction(attacked),geroAction(),spiderAction(attacked),B.boss?bossQuotes():[]);
   if(!L.length)return alive().length?enemyTurn():endBattle();
   bSay(L,()=>{if(!alive().length)endBattle();else enemyTurn();});
 }
