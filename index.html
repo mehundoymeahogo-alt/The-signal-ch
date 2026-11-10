@@ -95,10 +95,10 @@ document.addEventListener('fullscreenchange',()=>{fsBtn.textContent=document.ful
 document.getElementById('quit').addEventListener('click',()=>{AU.un();askQuit();cv.focus();});
 
 /* ================= audio ================= */
-const AU={c:null,m:false,master:null,
+const AU={c:null,m:false,master:null,wet:0,
   un(){try{if(!this.c){this.c=new(window.AudioContext||window.webkitAudioContext)();this.master=this.c.createGain();this.master.gain.value=this.m?0:.6;this.master.connect(this.c.destination);this.fx=this.c.createGain();this.fx.connect(this.master);this.mus=this.c.createGain();this.mus.connect(this.master);applyVol();const o=this.c.createOscillator(),g=this.c.createGain();o.type='sine';o.frequency.value=55;g.gain.value=.014;o.connect(g);g.connect(this.fx);o.start();}if(this.c.state==='suspended')this.c.resume();}catch(e){}},
-  t(f,d,type,v,f2,delay){if(!this.c||this.m)return;const o=this.c.createOscillator(),g=this.c.createGain(),n=this.c.currentTime+(delay||0);o.type=type||'square';o.frequency.setValueAtTime(f,n);if(f2)o.frequency.exponentialRampToValueAtTime(f2,n+d);g.gain.setValueAtTime(v||.04,n);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(g);g.connect(this.fx||this.master);o.start(n);o.stop(n+d+.05);},
-  nz(d,v){if(!this.c||this.m)return;const b=this.c.createBuffer(1,Math.floor(this.c.sampleRate*d),this.c.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=(rnd()*2-1)*(1-i/a.length);const s=this.c.createBufferSource(),g=this.c.createGain();s.buffer=b;g.gain.value=v||.08;s.connect(g);g.connect(this.fx||this.master);s.start();},
+  t(f,d,type,v,f2,delay){if(!this.c||this.m)return;const o=this.c.createOscillator(),g=this.c.createGain(),n=this.c.currentTime+(delay||0);o.type=type||'square';o.frequency.setValueAtTime(f,n);if(f2)o.frequency.exponentialRampToValueAtTime(f2,n+d);g.gain.setValueAtTime(v||.04,n);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(g);g.connect(this.fx||this.master);if(this.wet&&ATM.send){const w=this.c.createGain();w.gain.value=this.wet;g.connect(w);w.connect(ATM.send);}o.start(n);o.stop(n+d+.05);},
+  nz(d,v){if(!this.c||this.m)return;const b=this.c.createBuffer(1,Math.floor(this.c.sampleRate*d),this.c.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=(rnd()*2-1)*(1-i/a.length);const s=this.c.createBufferSource(),g=this.c.createGain();s.buffer=b;g.gain.value=v||.08;s.connect(g);g.connect(this.fx||this.master);if(this.wet&&ATM.send){const w=this.c.createGain();w.gain.value=this.wet;g.connect(w);w.connect(ATM.send);}s.start();},
   scream(d,v){if(!this.c||this.m)return;const c=this.c,n=c.currentTime,V=v||1;
     const out=c.createGain();out.gain.setValueAtTime(.0001,n);out.gain.exponentialRampToValueAtTime(V,n+.015);out.gain.setValueAtTime(V,n+d*.65);out.gain.exponentialRampToValueAtTime(.0001,n+d);
     const sh=c.createWaveShaper(),cu=new Float32Array(2048);for(let i=0;i<2048;i++){const x=i/1024-1;cu[i]=Math.tanh(x*7);}sh.curve=cu;
@@ -2965,6 +2965,116 @@ function ambStart(k){const p=AMBP[k],c=AU.c;if(!c||!p)return;try{
   AMB={k,g,nodes};AMB_T=1.5+rnd()*2;}catch(e){AMB=null;}}
 function ambTick(){const w=AU.c?ambWant():null;if(AMB&&AMB.k!==w)ambStop();if(w&&!AMB)ambStart(w);
   if(AMB&&!AU.m){AMB_T-=1/60;if(AMB_T<=0){const p=AMBP[AMB.k];AMB_T=p.ev[0]+rnd()*(p.ev[1]-p.ev[0]);try{AMBE[p.evs[rnd()*p.evs.length|0]]();}catch(e){}}}}
+/* ================= atmósfera: reverb por lugar, sonido espacial, camas y eventos ================= */
+// Cada lugar tiene su sala (reverb), una cama de fondo (aire + zumbidos) y eventos sueltos
+// que suenan desde algún lado (paneo y distancia). Con la cordura baja aparecen susurros y golpes cerca.
+const ATM={bus:null,send:null,rev:null,revG:null,roomK:null,bed:null,bedK:null,t:5};
+const ROOMS={apt:[1,3.2,.5,.2],hall:[2,2.6,.45,.32],stair:[3.4,2.1,.35,.45],pista:[4,1.9,.4,.42],duct:[.7,2.4,.8,.38],theatre:[4.8,1.7,.3,.5],frigo:[1.3,3,.6,.28],casa:[1.1,3,.5,.16],out:[.5,4,.6,.06]};
+function atmInit(){const c=AU.c;if(!c||ATM.bus)return!!ATM.bus;try{
+  ATM.bus=c.createGain();ATM.bus.connect(AU.fx||AU.master);
+  ATM.send=c.createGain();ATM.rev=c.createConvolver();ATM.revG=c.createGain();ATM.revG.gain.value=.3;
+  ATM.send.connect(ATM.rev);ATM.rev.connect(ATM.revG);ATM.revG.connect(AU.fx||AU.master);atmRoom('apt');}catch(e){ATM.bus=null;}return!!ATM.bus;}
+function atmIR(dur,decay,bright){const c=AU.c,len=Math.floor(c.sampleRate*dur),b=c.createBuffer(2,len,c.sampleRate);
+  for(let ch=0;ch<2;ch++){const a=b.getChannelData(ch);let lp=0;for(let i=0;i<len;i++){const x=i/len;lp+=((rnd()*2-1)-lp)*(bright*(1-x*.7));a[i]=lp*Math.pow(1-x,decay);}
+    for(let r=0;r<8;r++){const k=Math.floor(c.sampleRate*(.004+rnd()*.06));if(k<len)a[k]+=(rnd()<.5?-1:1)*.5*(1-r/8);}}
+  return b;}
+function atmRoom(k){if(!ATM.rev||ATM.roomK===k)return;ATM.roomK=k;const p=ROOMS[k]||ROOMS.apt;try{ATM.rev.buffer=atmIR(p[0],p[1],p[2]);ATM.revG.gain.setTargetAtTime(p[3],AU.c.currentTime,.4);}catch(e){}}
+const atmWet=()=>(ROOMS[ATM.roomK]||ROOMS.apt)[3];
+let NZL=null;function nzLong(){if(NZL||!AU.c)return NZL;const c=AU.c,len=c.sampleRate*2,b=c.createBuffer(1,len,c.sampleRate),a=b.getChannelData(0);for(let i=0;i<len;i++)a[i]=rnd()*2-1;return NZL=b;}
+// salida espacial: P={p: paneo -1..1, d: distancia 0..1}; lejos = más apagado, más bajo y más reverb
+function atmOut(P){const c=AU.c,g=c.createGain(),lp=c.createBiquadFilter(),dg=c.createGain(),sg=c.createGain(),d=Math.max(0,Math.min(1,P&&P.d!=null?P.d:.5));
+  lp.type='lowpass';lp.frequency.value=16000*Math.pow(.1,d);dg.gain.value=1-d*.7;sg.gain.value=.2+d*.9;g.connect(lp);
+  if(c.createStereoPanner){const pn=c.createStereoPanner();pn.pan.value=Math.max(-1,Math.min(1,P&&P.p||0));lp.connect(pn);pn.connect(dg);pn.connect(sg);}else{lp.connect(dg);lp.connect(sg);}
+  dg.connect(ATM.bus);sg.connect(ATM.send);return g;}
+function aT(f,d,ty,v,f2,dl,P,att){if(!AU.c||AU.m||!ATM.bus)return;try{const c=AU.c,n=c.currentTime+(dl||0),o=c.createOscillator(),g=c.createGain();o.type=ty||'sine';o.frequency.setValueAtTime(f,n);if(f2)o.frequency.exponentialRampToValueAtTime(f2,n+d);
+  if(att){g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(v,n+att);}else g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(g);g.connect(atmOut(P));o.start(n);o.stop(n+d+.05);}catch(e){}}
+function aN(d,v,ft,f,q,dl,P,att,f2){if(!AU.c||AU.m||!ATM.bus)return;try{const c=AU.c,n=c.currentTime+(dl||0),s=c.createBufferSource(),fl=c.createBiquadFilter(),g=c.createGain();s.buffer=nzLong();s.loop=true;
+  fl.type=ft||'bandpass';fl.frequency.setValueAtTime(f,n);if(f2)fl.frequency.exponentialRampToValueAtTime(f2,n+d);fl.Q.value=q||1;
+  if(att){g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(v,n+att);}else g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.0001,n+d);
+  s.connect(fl);fl.connect(g);g.connect(atmOut(P));s.start(n,rnd()*1.5);s.stop(n+d+.05);}catch(e){}}
+const atmP=()=>({p:rnd()*1.8-.9,d:.35+rnd()*.55});
+const ATME={
+  drip(P){const f=1200+rnd()*700;aT(f,.07,'sine',.05,f*.5,0,P);if(rnd()<.6)aT(f*.92,.06,'sine',.022,f*.5,.32+rnd()*.35,P);},
+  pipeKnock(P){const n=2+(rnd()*3|0);for(let i=0;i<n;i++){const dl=i*(.13+rnd()*.12);aN(.14,.09,'bandpass',180+rnd()*50,9,dl,P);aT(70,.2,'sine',.05,52,dl,P);}},
+  pipeGroan(P){const f=65+rnd()*30;aT(f,2.8,'sawtooth',.012,f*.78,0,P,.7);aN(2.6,.03,'bandpass',f*3,6,0,P,.8,f*2.1);},
+  creak(P){const n=10+(rnd()*14|0),f=450+rnd()*550;let t=0;for(let i=0;i<n;i++){t+=.035+(1-i/n)*.07*rnd();aN(.03,.45,'bandpass',f*(1+i*.012),14,t,P);}},
+  stepsUp(){const n=4+(rnd()*5|0),p0=rnd()*1.2-.6,dir=rnd()<.5?1:-1;for(let i=0;i<n;i++){const q={p:p0+dir*i*.13,d:.6};aT(52,.17,'sine',.12,36,i*.5,q);aN(.09,.05,'lowpass',170,1,i*.5,q);}},
+  stepsHall(){const n=5+(rnd()*6|0),s=rnd()<.5?-1:1;for(let i=0;i<n;i++){const q={p:s*(1-i/n*1.5),d:.75-i/n*.25};aN(.04,.06,'bandpass',2500,3,i*.45,q);aN(.07,.05,'lowpass',250,1,i*.45+.01,q);}},
+  doorFar(P){aN(.03,.08,'bandpass',3000,6,0,P);aN(.03,.06,'bandpass',2300,6,.07,P);aT(58,.55,'sine',.13,38,.42,P);aN(.25,.1,'lowpass',280,1,.42,P);},
+  tvWall(P){const q={p:P.p,d:.85},n=12+(rnd()*18|0);let t=0;for(let i=0;i<n;i++){const d=.07+rnd()*.15;aN(d,.11,'bandpass',480+rnd()*380,5,t,q,.02);aN(d,.06,'bandpass',1300+rnd()*900,6,t,q,.02);t+=d+rnd()*.07+(rnd()<.12?.35:0);}
+    if(rnd()<.3)for(let i=0;i<16;i++)aN(.05,.05,'bandpass',1900,2,t+.2+i*.06+rnd()*.03,q);},
+  radioFar(P){const q={p:P.p,d:.82},sc=[392,440,494,523,587,523,494,440],o=rnd()*8|0;for(let i=0;i<8;i++)aT(sc[(i+o)%8],.28,'square',.015,0,i*.32,q);aN(2.7,.035,'bandpass',1400,1,0,q,.2);},
+  elevator(P){const q={p:P.p,d:.78};aT(210,2.8,'sawtooth',.006,250,0,q,.8);aN(2.8,.025,'bandpass',600,2,0,q,.8);aT(48,.6,'sine',.1,34,2.9,q);aN(.3,.05,'lowpass',200,1,2.9,q);},
+  carPass(){const s=rnd()<.5?1:-1;for(let i=0;i<9;i++){const x=i/8,b=Math.sin(x*Math.PI);aN(.7,.006+.03*b,'lowpass',280+b*800,1,i*.42,{p:s*(x*2-1)*.9,d:.8-b*.25},.25);}aT(72,3.8,'sawtooth',.004,60,0,{p:0,d:.85},1.4);},
+  dogFar(P){const q={p:P.p,d:.9},n=2+(rnd()*3|0);for(let i=0;i<n;i++){const dl=i*(.34+rnd()*.16);aT(520,.14,'sawtooth',.04,320,dl,q);aN(.14,.065,'bandpass',900,3,dl,q);}},
+  flicker(P){const n=3+(rnd()*5|0);for(let i=0;i<n;i++){const dl=i*.09+rnd()*.06;aT(100,.06,'square',.012,0,dl,P);aN(.04,.03,'bandpass',4000,2,dl,P);}},
+  whisper(){const q={p:rnd()<.5?-.9:.9,d:.22},n=6+(rnd()*10|0);let t=0;for(let i=0;i<n;i++){const d=.06+rnd()*.14;aN(d,.035,'bandpass',2800+rnd()*2400,4,t,q,.02);t+=d+rnd()*.05;}},
+  breath(){const q={p:rnd()*1.6-.8,d:.2};aN(1.1,.03,'bandpass',700,.8,0,q,.5);aN(1.3,.022,'bandpass',520,.8,1.5,q,.6);},
+  clock(P){for(let i=0;i<10;i++)aN(.015,.1,'bandpass',i%2?3200:2600,10,i*.5,P);},
+  wind(){aN(4.2,.05,'bandpass',280+rnd()*200,1.5,0,{p:rnd()*1.6-.8,d:.5},1.7,700+rnd()*400);},
+  metalPop(P){aN(.25,.08,'bandpass',1800+rnd()*2400,30,0,{p:P.p,d:.2+rnd()*.5});aT(110,.3,'sine',.05,70,0,P);},
+  scratch(P){const n=8+(rnd()*10|0);for(let i=0;i<n;i++)aN(.05,.04,'bandpass',2500+rnd()*2500,2,i*.07+rnd()*.03,P);},
+  knockMetal(P){for(let i=0;i<3;i++){aT(320,.4,'triangle',.03,300,i*.5,P);aN(.06,.06,'bandpass',1500,8,i*.5,P);}},
+  voicesFar(P){ATME.tvWall({p:P.p,d:.95});},
+  seatClack(P){aN(.03,.1,'bandpass',2200,4,0,P);aT(140,.12,'sine',.08,90,.01,P);},
+  rigging(P){const n=6+(rnd()*6|0),f=250+rnd()*120;for(let i=0;i<n;i++)aN(.08,1,'bandpass',f*(1-i*.02),18,i*.11+rnd()*.03,{p:P.p,d:.6});},
+  tuneA(P){const q={p:P.p,d:.8};aT(440,3,'triangle',.024,0,0,q,.8);aT(880,2.6,'sine',.006,0,.2,q,.8);if(rnd()<.5)aT(441.3,2.5,'sawtooth',.0045,0,.6,q,1);},
+  applause(){for(let i=0;i<55;i++)aN(.02,.016+.08*Math.sin(i/55*Math.PI),'bandpass',1600+rnd()*1500,3,i*.03+rnd()*.03,{p:rnd()*1.8-.9,d:.9});},
+  chain(P){const n=4+(rnd()*5|0);for(let i=0;i<n;i++)aT(2400+rnd()*1600,.12,'triangle',.018,0,i*.08+rnd()*.05,P);},
+  iceCrack(P){for(let i=0;i<5;i++)aN(.02,.05,'highpass',3000,1,i*.04+rnd()*.06,P);},
+  compressor(P){const q={p:P.p,d:.55};aT(60,3.5,'sawtooth',.012,58,0,q,1);aT(120,3.5,'sine',.008,0,0,q,1);aN(.2,.08,'lowpass',200,1,3.4,q);},
+  hookSwing(P){for(let i=0;i<4;i++)aN(.25,.2,'bandpass',700-i*60,12,i*.9,{p:Math.sin(i)*.6,d:.5});},
+  cough(P){const q={p:P.p,d:.85};aN(.12,.15,'bandpass',700,2,0,q);aN(.14,.125,'bandpass',600,2,.2,q);},
+  sneaker(P){const q={p:P.p,d:.7};aT(2200,.08,'sine',.024,2600,0,q);aT(2400,.06,'sine',.016,1900,.12,q);},
+  paFeed(){aT(1650,1.4,'sine',.018,1720,0,{p:0,d:.85},.3);},
+  whistle(P){const q={p:P.p,d:.95};aT(2100,.25,'sine',.03,2300,0,q);aT(2300,.4,'sine',.024,2000,.3,q);},
+  rustle(P){aN(.8,.02,'highpass',2500,1,0,P,.2);},
+  cricket(P){const f=4200+rnd()*500,n=3+(rnd()*4|0),q={p:P.p,d:.4+rnd()*.4};for(let k=0;k<n;k++)for(let i=0;i<3;i++)aT(f,.012,'sine',.024,0,k*.32+i*.025,q);},
+  frog(P){const q={p:P.p,d:.6};for(let i=0;i<2;i++)aT(180,.12,'square',.012,140,i*.2,q);},
+  windLeaves(P){aN(3,.03,'highpass',1800,.7,0,{p:P.p,d:.4},1.2);},
+  fridge(P){ATME.compressor({p:P.p,d:.6});},
+  knockNear(){const q={p:rnd()<.5?-.7:.7,d:.1};for(let i=0;i<3;i++){aN(.06,.12,'lowpass',400,1,i*.32,q);aT(90,.12,'sine',.08,60,i*.32,q);}}
+};
+const BED_APT={n:['lowpass',220,.7,.03,.05],h:[[50,'sine',.006],[100,'sine',.0025],[150,'sine',.0009]]};
+const ATMA={
+  apt4:{room:'apt',bed:BED_APT,ev:[6,14],e:['tvWall','tvWall','pipeKnock','stepsUp','stepsUp','clock','carPass','dogFar','drip','creak','doorFar','elevator','fridge']},
+  apt3:{room:'apt',bed:BED_APT,ev:[6,14],e:['tvWall','radioFar','pipeKnock','stepsUp','creak','drip','doorFar','clock','fridge']},
+  hall:{room:'hall',bed:{n:['bandpass',420,.6,.025,.07],h:[[100,'sawtooth',.0022],[50,'sine',.004],[200,'sine',.0008]]},ev:[5,11],e:['doorFar','stepsHall','stepsHall','flicker','elevator','tvWall','pipeKnock','radioFar','creak','dogFar']},
+  pista:{room:'pista',bed:{n:['lowpass',160,.7,.032,.03],h:[[45,'sine',.008],[45.4,'sine',.006],[7200,'sine',.0006]]},ev:[6,13],e:['cough','sneaker','paFeed','creak','whistle','stepsHall','wind','rustle']},
+  duct:{room:'duct',bed:{n:['bandpass',900,1.2,.03,.2],h:[[120,'triangle',.002],[63,'sine',.006]]},ev:[3,8],e:['metalPop','metalPop','scratch','knockMetal','voicesFar','drip','breath']},
+  theatre:{room:'theatre',bed:{n:['lowpass',260,.7,.03,.04],h:[[55,'sine',.004]]},ev:[7,15],e:['seatClack','rigging','tuneA','creak','applause','stepsHall','doorFar','whisper']},
+  frigo:{room:'frigo',bed:{n:['lowpass',400,.7,.02,.06],h:[[60,'sawtooth',.003],[120,'sine',.003],[240,'sine',.0012],[48,'sine',.008]]},ev:[5,11],e:['chain','chain','iceCrack','compressor','drip','hookSwing']},
+  casaOut:{room:'out',bed:{n:['lowpass',500,.7,.012,.08],h:[]},ev:[2.5,6],e:['cricket','cricket','cricket','frog','dogFar','windLeaves','carPass']},
+  casaIn:{room:'casa',bed:null,ev:[14,26],e:['clock','creak','fridge']},
+  stair:{room:'stair',bed:null,ev:null},
+  c12:{room:'apt',bed:null,ev:null}
+};
+function atmArea(){if(!S||scene!=='map'||SCARE)return null;const m=S.map;
+  if(S.pro)return m===MP.CASA?(OUT_IN(S.x*T+8,S.y*T+8)?'casaIn':'casaOut'):null;
+  if([MP.DEPTO,MP.IVAN,MP.NICO,MP.PEDRO].includes(m))return'apt4';
+  if([MP.FELIX,MP.ESTEF,MP.SILV,MP.GERO,MP.MANT,MP.GINES].includes(m))return'apt3';
+  if(m===MP.PASILLO)return'hall';if(m===MP.PISO3)return'pista';if(m===MP.DUCTO||m===MP.CANO5)return'duct';
+  if(m===MP.ESCALERA||m===MP.PUERTA5||m===MP.REMOTO)return'stair';if(m===MP.FRIGO5)return'frigo';if(m===MP.CUARTO12)return'c12';
+  if(isTeatMap())return'theatre';return null;}
+function atmBedStop(){const b=ATM.bed;ATM.bed=null;ATM.bedK=null;if(!b)return;try{const n=AU.c.currentTime;b.g.gain.cancelScheduledValues(n);b.g.gain.setTargetAtTime(0,n,.4);setTimeout(()=>{b.nodes.forEach(x=>{try{x.stop();}catch(e){}});try{b.g.disconnect();}catch(e){}},2500);}catch(e){}}
+function atmBedStart(k,p){const c=AU.c;try{const g=c.createGain(),nodes=[];g.gain.value=0;g.connect(ATM.bus);const sg=c.createGain();sg.gain.value=.35;g.connect(sg);sg.connect(ATM.send);g.gain.setTargetAtTime(1,c.currentTime,.9);
+  const len=c.sampleRate*4,b=c.createBuffer(2,len,c.sampleRate);for(let ch=0;ch<2;ch++){const a=b.getChannelData(ch);let l=0;for(let i=0;i<len;i++){l=l*.92+(rnd()*2-1)*.08;a[i]=l*3.2;}}
+  const src=c.createBufferSource(),f=c.createBiquadFilter(),ng=c.createGain();src.buffer=b;src.loop=true;f.type=p.n[0];f.frequency.value=p.n[1];f.Q.value=p.n[2];ng.gain.value=p.n[3];src.connect(f);f.connect(ng);ng.connect(g);src.start();nodes.push(src);
+  const lo=c.createOscillator(),lg=c.createGain();lo.frequency.value=p.n[4];lg.gain.value=p.n[3]*.5;lo.connect(lg);lg.connect(ng.gain);lo.start();nodes.push(lo);
+  const lo2=c.createOscillator(),lg2=c.createGain();lo2.frequency.value=p.n[4]*.37;lg2.gain.value=p.n[1]*.25;lo2.connect(lg2);lg2.connect(f.frequency);lo2.start();nodes.push(lo2);
+  p.h.forEach(([fr,ty,v])=>{const o=c.createOscillator(),og=c.createGain();o.type=ty;o.frequency.value=fr;o.detune.value=rnd()*6-3;og.gain.value=v;o.connect(og);og.connect(g);o.start();nodes.push(o);});
+  g.gain.cancelScheduledValues(c.currentTime);g.gain.setValueAtTime(0,c.currentTime);g.gain.setTargetAtTime(.75,c.currentTime,.9);ATM.bed={g,nodes};ATM.bedK=k;}catch(e){ATM.bed=null;}}
+function atmTick(){if(!AU.c||!atmInit())return;
+  const a=atmArea(),A=a&&ATMA[a],quiet=AU.m||!A||(typeof ambWant==='function'&&ambWant());
+  if(A)atmRoom(A.room);
+  const bk=quiet||!A.bed?null:a;if(ATM.bedK!==bk){atmBedStop();if(bk)atmBedStart(bk,A.bed);}
+  if(quiet||!A.ev||CUT)return;
+  ATM.t-=1/60;if(ATM.t>0)return;ATM.t=A.ev[0]+rnd()*(A.ev[1]-A.ev[0]);
+  let k=A.e[rnd()*A.e.length|0];if(!S.pro&&S.cor<40&&rnd()<(40-S.cor)/70)k=['whisper','breath','knockNear'][rnd()*3|0];
+  try{ATME[k](atmP());}catch(e){}}
+// los eventos de los lugares sin música (escalera, rellano, la pieza escondida) también suenan en el espacio
+Object.assign(AMBE,{drip:()=>ATME.drip(atmP()),pipe:()=>ATME.pipeGroan(atmP()),steps:()=>ATME.stepsHall(),flicker:()=>ATME.flicker(atmP()),wind:()=>ATME.wind(),
+  creakM:()=>ATME.creak({p:rnd()*1.6-.8,d:.3}),breath:()=>ATME.breath(),chain:()=>ATME.chain(atmP()),slam:()=>ATME.doorFar({p:rnd()*1.6-.8,d:.75}),stepsUp:()=>ATME.stepsUp()});
 function secretDone(){try{return localStorage.getItem('piso13_secreto')==='1';}catch(e){return false;}}
 function drawCake(x,y,t){ctx.fillStyle='rgba(0,0,0,.4)';ctx.beginPath();ctx.ellipse(x+8,y+14,7,2,0,0,7);ctx.fill();ctx.fillStyle='#e8e0d0';ctx.fillRect(x+2,y+7,12,7);ctx.fillStyle='#8a5a3a';ctx.fillRect(x+2,y+10,12,2);ctx.fillStyle='#f0a0b8';ctx.fillRect(x+2,y+7,12,1);if(!S.flags.cakeBlown)for(let k=0;k<5;k++){ctx.fillStyle='#d8d8f0';ctx.fillRect(x+3+k*2.5,y+4,1,3);ctx.fillStyle=Math.sin(t*9+k)>0?'#ffd040':'#ff8a30';ctx.fillRect(x+3+k*2.5,y+2,1,2);}}
 function cakeTalk(){if(S.flags.cakeBlown)return say(['La torta sigue ahí. Las velas apagadas todavía echan humo.']);say(['Una torta de cumpleaños en el piso de tu habitación. Diecinueve velas, todas prendidas.','La cera no gotea. No hay nadie más.',{t:'Alguien escribió con dulce de leche: "FELIZ CUMPLE".',choices:[{l:'Soplar las velas',f(){S.flags.cakeBlown=1;AU.nz(.5,.05);say(['Soplás. Las diecinueve velas se apagan juntas.','Del otro lado de la pared, alguien aplaude. Despacio.']);}},{l:'Dejarla',f(){}}]}]);}
@@ -4801,7 +4911,7 @@ function musWant(){if(SCARE)return null;if(S&&!S.pro&&S.flags.ivanDead&&S.flags.
 /* ================= pasos y ambiente ================= */
 let NZB=null,STEPN=0,AMB2_T=12;
 function nzBuf(){if(NZB||!AU.c)return NZB;const c=AU.c,b=c.createBuffer(1,c.sampleRate*.25,c.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=rnd()*2-1;return NZB=b;}
-function nzHit(f,q,v,d,delay,type){if(!AU.c||AU.m)return;try{const c=AU.c,n=c.currentTime+(delay||0),src=c.createBufferSource(),fl=c.createBiquadFilter(),g=c.createGain();src.buffer=nzBuf();fl.type=type||'bandpass';fl.frequency.value=f;fl.Q.value=q;g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.0001,n+d);src.connect(fl);fl.connect(g);g.connect(AU.fx||AU.master);src.start(n,rnd()*.15);src.stop(n+d+.02);}catch(e){}}
+function nzHit(f,q,v,d,delay,type){if(!AU.c||AU.m)return;try{const c=AU.c,n=c.currentTime+(delay||0),src=c.createBufferSource(),fl=c.createBiquadFilter(),g=c.createGain();src.buffer=nzBuf();fl.type=type||'bandpass';fl.frequency.value=f;fl.Q.value=q;g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.0001,n+d);src.connect(fl);fl.connect(g);g.connect(AU.fx||AU.master);if(AU.wet&&ATM.send){const w=c.createGain();w.gain.value=AU.wet;g.connect(w);w.connect(ATM.send);}src.start(n,rnd()*.15);src.stop(n+d+.02);}catch(e){}}
 function surfaceAt(){const ch=tileAt(S.x,S.y),m=S.map;
   if(m===MP.CASA)return ch==='g'||ch==='l'?'grass':ch==='-'?'gravel':'tile';
   if(m===MP.DUCTO)return 'metal';if(m===MP.PISO3)return 'rubber';if(m===MP.ESCALERA||m===MP.PUERTA5||m===MP.REMOTO)return 'stone';
@@ -4818,8 +4928,8 @@ function stepSound(kind,v,delay){const alt=(STEPN++%2)?1.08:.94;v=v||1;
     case 'concrete':nzHit(1100*alt,2,.055*v,.05,delay);break;
     case 'metal':AU.t(380*alt,.12,'triangle',.03*v,300,delay);AU.t(760*alt,.08,'sine',.012*v,0,delay);nzHit(2400,4,.03*v,.05,delay);break;
   }}
-function stepTick(){if(!S||scene!=='map'||!AU.c)return;const k=surfaceAt(),run=keys&&(keys.ShiftLeft||keys.ShiftRight);stepSound(k,run?1.2:1);if(FOLS().length)stepSound(k,.55,.14);}
-function amb2Tick(){if(!S||scene!=='map'||!AU.c||AU.m)return;AMB2_T-=1/60;if(AMB2_T>0)return;AMB2_T=14+rnd()*18;const m=S.map;
+function stepTick(){if(!S||scene!=='map'||!AU.c)return;const k=surfaceAt(),run=keys&&(keys.ShiftLeft||keys.ShiftRight);AU.wet=ATM.send?atmWet()*.9:0;try{stepSound(k,run?1.2:1);if(FOLS().length)stepSound(k,.55,.14);}finally{AU.wet=0;}}
+function amb2Tick(){return;if(!S||scene!=='map'||!AU.c||AU.m)return;AMB2_T-=1/60;if(AMB2_T>0)return;AMB2_T=14+rnd()*18;const m=S.map;
   if(S.pro&&m===MP.CASA){if(!OUT_IN(pX()+8,pY()+8)){for(let k=0;k<3+(rnd()*4|0);k++)AU.t(4300+rnd()*300,.03,'sine',.008,0,k*.09);if(rnd()<.2)setTimeout(()=>{AU.t(420,.12,'square',.012,300);AU.t(400,.14,'square',.01,280,.25);},400);}return;}
   if(S.pro)return;
   if(m===MP.PASILLO||m===MP.PISO3){const r=rnd();
@@ -4831,7 +4941,7 @@ function amb2Tick(){if(!S||scene!=='map'||!AU.c||AU.m)return;AMB2_T-=1/60;if(AMB
   else if(m===MP.DEPTO||m===MP.ESTEF||m===MP.GERO||m===MP.SILV){if(rnd()<.5)for(let k=0;k<4;k++)AU.t(1000,.012,'square',.006,0,k);else nzHit(400,1,.025,.6);}
 }
 let CHAPT=0;
-function musTick(){if(++CHAPT%60===0)try{chapInfo();}catch(e){}try{amb2Tick();}catch(e){}try{teatroAmb();}catch(e){}try{c5Tick(1/60);}catch(e){}rainTick();try{windSound(performance.now()/1000);}catch(e){}ambTick();try{p3dTick(1/60);}catch(e){console.error(e);}const w=musWant();if(S&&!S.pro&&scene==='map'&&S.map===MP.PISO3)musLoad('rain');if(MUS.cur&&MUS.cur!==w)musStop();if(w){musLoad(w);musStart(w);}if(MUS.src&&AU.c&&AU.c.currentTime>MUS.src.next-1.5)musIter(Math.max(MUS.src.next,AU.c.currentTime+.02),false);}
+function musTick(){if(++CHAPT%60===0)try{chapInfo();}catch(e){}try{atmTick();}catch(e){}try{AU.wet=ATM.send&&isTeatMap()?.55:0;teatroAmb();}catch(e){}finally{AU.wet=0;}try{c5Tick(1/60);}catch(e){}rainTick();try{windSound(performance.now()/1000);}catch(e){}ambTick();try{p3dTick(1/60);}catch(e){console.error(e);}const w=musWant();if(S&&!S.pro&&scene==='map'&&S.map===MP.PISO3)musLoad('rain');if(MUS.cur&&MUS.cur!==w)musStop();if(w){musLoad(w);musStart(w);}if(MUS.src&&AU.c&&AU.c.currentTime>MUS.src.next-1.5)musIter(Math.max(MUS.src.next,AU.c.currentTime+.02),false);}
 /* ================= el interruptor ================= */
 let SCARE=null;
 function startScare(){DLG=null;UI=null;SCARE={t:0,stage:0};AU.t(220,.05,'square',.05);}
