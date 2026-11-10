@@ -239,8 +239,8 @@ toma12:{n:'Carrete "Toma 12"',t:'key',d:'Cinta de carrete abierto. Adentro está
   auris:{n:'Auriculares de Félix',t:'acc',corRes:.3,d:'Los auriculares de la relatora. No sale nada del cable. La cordura baja un 30% menos.'},
   patito:{n:'Patito de goma',t:'key',d:'Amarillo. Hace "cuic". Lo tenías en la mano antes de despertar.'}
 };
-const SHOP_T=[[['sanguche',15],['jean',60],['palo',45],['gomera',40],['destornillador',65],['tijera',50],['walkman',55],['alfajor',25],['vitamina',70]],
-  [['sanguche',15],['cuero',110],['llave',95],['honda',85],['punzon',92],['trincheta',90],['walkman',55],['alfajor',25],['vitamina',70]]];
+const SHOP_T=[[['sanguche',15],['jean',60],['palo',45],['gomera',40],['destornillador',65],['tijera',50],['walkman',55],['alfajor',25],['vitamina',84]],
+  [['sanguche',15],['cuero',110],['llave',95],['honda',85],['punzon',92],['trincheta',90],['walkman',55],['alfajor',25],['vitamina',84]]];
 // Nico renueva armas y abrigos a medida que llegás a pisos nuevos (por ahora: el 4 y el 3)
 // venta: Nico te compra armas, abrigos y accesorios al 90% de su precio original
 const ITVAL={teclaS:90,teclaD:90,cuchillo:40,pala:70,batT:180,rompeviento:25,chaqueta:100,manto:120,collar:90,diente:120,anillo:110,d20:60,crono:80,auris:60};
@@ -249,6 +249,7 @@ const sellVal=id=>Math.floor(baseVal(id)*.9);
 const sellList=()=>S.items.map((id,i)=>({id,i})).filter(o=>{const t=IT[o.id].t;return t==='weapon'||t==='armor'||t==='acc';});
 const shopTier=()=>Math.min(SHOP_T.length-1,(S.flags.cap1||S.chapter>=2)?1:0);
 let SHOP=SHOP_T[0];
+const VIT_MAX=3; // la vitamina C da mucha ventaja: Nico tiene 3 en total, para toda la partida
 const XPT=[0,20,50,90,140,200,270,350,440,540,650,770,900,1040,1190,1350,1520,1700,1890,2090];
 const CAST=['IVAN','ISIDORO','ISI','GERONIMO','AUGUSTO','SELENE','SILVESTRE','MANUEL','ROMAN','MATIAS','MILAGROS','SOFIA','BRIAN','FELIX','ESTEFANIA','ANGELINA','ANGIE','PEDRO','MAXIMO','NICOLAS','BIANCA','TOMAS','VALENTINO','JOAQUIN','CIRO','CATALINA','DEN'];
 
@@ -3114,7 +3115,8 @@ function uiUpdate(){
       if(hit('a')){const[id,b]=SHOP[u.i],p=price(b,id);
         if(S.pesos<p){sfx.buzz();u.msg='No te alcanza.';}
         else if(pocketCount()>=POCKET){sfx.buzz();u.msg='No tenés lugar en los bolsillos.';}
-        else{S.pesos-=p;S.items.push(id);sfx.coin();u.msg='Compraste: '+IT[id].n+'.';}}
+        else if(id==='vitamina'&&(S.flags.vitB||0)>=VIT_MAX){sfx.buzz();u.msg=(S.flags.nicoDead?'Ginés':'Nicolás')+': "Se me acabaron, pibe."';}
+        else{S.pesos-=p;S.items.push(id);if(id==='vitamina')S.flags.vitB=(S.flags.vitB||0)+1;sfx.coin();u.msg='Compraste: '+IT[id].n+'.'+(id==='vitamina'?' (Quedan '+(VIT_MAX-S.flags.vitB)+'.)':'');}}
       break;}
     case 'keypad':{
       if(hit('left')){u.p=(u.p+4)%5;sfx.sel();}if(hit('right')){u.p=(u.p+1)%5;sfx.sel();}
@@ -3205,7 +3207,7 @@ function drawUI(){
       L.forEach((o,i)=>{const y=40+i*10.6;if(y>132)return;txt((u.i===i?'▸ ':'  ')+IT[o.id].n,24,y,u.i===i?'#e3a849':'#c9ccd8',11);txt('$'+sellVal(o.id),294,y,'#7cff9a',11,'right');});
       if(L[u.i])wrap('Te lo compra al 90% de lo que vale nuevo. '+IT[L[u.i].id].d,270,10).slice(0,2).forEach((l,i)=>txt(l,26,138+i*10,'#9aa0b4',10));
       txt(u.msg||'Z vender · X salir',26,158,'#767c92',10);}
-    else SHOP.forEach(([id,b],i)=>{const y=40+i*(SHOP.length>8?10.6:12);txt((u.i===i?'▸ ':'  ')+IT[id].n,24,y,u.i===i?'#e3a849':'#c9ccd8',11);txt('$'+price(b,id),294,y,'#e6e8ef',11,'right');});
+    else SHOP.forEach(([id,b],i)=>{const y=40+i*(SHOP.length>8?10.6:12);txt((u.i===i?'▸ ':'  ')+IT[id].n,24,y,u.i===i?'#e3a849':'#c9ccd8',11);const ago=id==='vitamina'&&(S.flags.vitB||0)>=VIT_MAX;txt(ago?'AGOTADO':'$'+price(b,id),294,y,ago?'#5a6070':'#e6e8ef',11,'right');if(id==='vitamina'&&!ago)txt('x'+(VIT_MAX-(S.flags.vitB||0)),236,y,'#767c92',10,'right');});
     if(!u.tab){const id=SHOP[u.i][0],it=IT[id];wrap(it.d+(it.t==='weapon'?' '+critText(it.k):''),270,10).slice(0,2).forEach((l,i)=>txt(l,26,138+i*10,'#9aa0b4',10));}
     if(!u.tab)txt(u.msg||'Z comprar · ◀▶ vender · X salir',26,158,'#767c92',10);
   }
@@ -5546,7 +5548,8 @@ function ivanAction(attacked){
   if(!S.party.includes('ivan')||B.tuto)return[];
   const mh=maxHP();
   B.ivCd=(B.ivCd||0)-1;
-  if(S.hp<mh*.4&&B.ivCd<=0&&(B.ivN||0)<3){const h=6+Math.floor(S.lv/2);B.ivCd=3;B.ivN=(B.ivN||0)+1;S.hp=Math.min(mh,S.hp+h);return[pick(['Iván te alcanza un frasco de su laboratorio.','Iván te tira un frasquito: "¡Tomá, no preguntes qué tiene!"','Iván te pone una gasa con algo que huele a menta y a cable quemado.','Iván: "Respirá. Tomá esto. Funcionó con las ratas."'])+' (+'+h+' PV)'];}
+  if(S.hp<mh*.75&&S.hp>=mh*.5&&B.ivCd<=0&&rnd()<.25){const h=4+Math.floor(S.lv/3);B.ivCd=2;S.hp=Math.min(mh,S.hp+h);return[pick(['Iván te pega una curita en el brazo sin preguntar.','Iván te pasa un algodón con alcohol. Arde, pero ayuda.','Iván: "Quieto. Esto es un raspón, nada más."'])+' (+'+h+' PV)'];}
+  if(S.hp<mh*.5&&B.ivCd<=0&&(B.ivN||0)<4){const h=8+Math.floor(S.lv/2);B.ivCd=2;B.ivN=(B.ivN||0)+1;S.hp=Math.min(mh,S.hp+h);return[pick(['Iván te alcanza un frasco de su laboratorio.','Iván te tira un frasquito: "¡Tomá, no preguntes qué tiene!"','Iván te pone una gasa con algo que huele a menta y a cable quemado.','Iván: "Respirá. Tomá esto. Funcionó con las ratas."'])+' (+'+h+' PV)'];}
   if(attacked){const a=alive();if(a.length){const f=a[(rnd()*a.length)|0],d=f.id==='sombra'?1:6;f.hp=Math.max(0,f.hp-d);f.shake=4;B.pops.push({fi:B.foes.indexOf(f),txt:String(d),t:0});
     const L=pick(['Iván tira un tubo de ensayo.','Iván le revolea un erlenmeyer.','Iván le tira un frasco que hace "pfff".','Iván grita "¡ácido!" y tira algo que, sinceramente, es agua.'])+' ('+d+' de daño)';
     if(f.hp<=0){f.dead=true;return[L].concat(f.def.kill);}return[L];}}
