@@ -425,10 +425,14 @@ const CSEC=[
   {m:'FOYER5',ch:'Ђ',ok:()=>S.canal===12&&!S.flags.r12done},
   {m:'SALA5',ch:'Щ',ok:()=>S.canal===74&&!S.flags.lamas74},
   {m:'PASILLO5',xy:[19,8],ok:()=>S.canal===5&&!S.flags.cat5Seen},
+  {m:'FOYER5',ch:'Я',ok:()=>!S.flags.c5guarCash},
+  {m:'FOYER5',ch:'Ы',ok:()=>!S.flags.c5bancoCash},
+  {m:'SALA5',ch:'И',last:1,ok:()=>!S.flags.c5timbalCash},
+  {m:'PASILLO5',ch:'Ϲ',ok:()=>!S.flags.c5baulAlf},
 ];
 function corSenseLv(){if(!S||S.pro)return 0;return S.cor<15?3:S.cor<30?2:S.cor<45?1:0;}
 const CSEC_R=[0,3,6,99];
-function csecPos(e){if(e.xy)return e.xy;let rows=null;try{rows=MAPS[MP[e.m]].rows;}catch(_){}if(!rows)return null;for(let y=0;y<rows.length;y++){const x=rows[y].indexOf(e.ch);if(x>=0)return[x,y];}return null;}
+function csecPos(e){if(e.xy)return e.xy;let rows=null;try{rows=MAPS[MP[e.m]].rows;}catch(_){}if(!rows)return null;for(let y=0;y<rows.length;y++){const x=e.last?rows[y].lastIndexOf(e.ch):rows[y].indexOf(e.ch);if(x>=0)return[x,y];}return null;}
 function corSecrets(){const lv=corSenseLv();if(!lv)return[];const R=CSEC_R[lv],out=[];
   for(const e of CSEC){if(MP[e.m]!==S.map)continue;let ok=false;try{ok=e.ok();}catch(_){}if(!ok)continue;const p=csecPos(e);if(!p)continue;const d=Math.hypot(p[0]-S.x,p[1]-S.y);if(d<=R)out.push({x:p[0],y:p[1],d,R});}
   return out;}
@@ -1437,10 +1441,12 @@ MAPS[MP.FOYER5]={title:'Teatro del Quinto · hall',theme:'teatro',rows:[
       case 'D':if(x===14)return goMap(MP.PASILLO5,2,9,'up');return goMap(MP.SALA5,x,15,'up');
       case 'Ξ':return say([{t:'La puerta de metal por la que entraste. Del lado de adentro no tiene teclado.',choices:[{l:'Volver al rellano',f(){goMap(MP.PUERTA5,4,2,'down');}},{l:'Quedarse',f(){}}]}]);
       case 'Д':return c5Phone();
-      case 'Я':return say([c3Next('guarL',['El guardarropa. Cuarenta abrigos de otra época. Nadie vino a buscarlos.','Un tapado de piel tiene el ticket 13 colgado. El 13 está escrito a mano, encima de otro número.','En el bolsillo de un sobretodo hay arroz. Como en un casamiento.'])]);
+      case 'Я':if(!S.flags.c5guarCash){S.flags.c5guarCash=1;S.pesos+=30;sfx.coin();return say(['El guardarropa. Cuarenta abrigos de otra época.','Metés la mano en el bolsillo de un tapado de piel. Está tibio, como si alguien se lo acabara de sacar.','Adentro hay $30 doblados en cuatro y un ticket que dice "13".','(Conseguiste $30.)']);}
+        return say([c3Next('guarL',['El guardarropa. Cuarenta abrigos de otra época. Nadie vino a buscarlos.','Un tapado de piel tiene el ticket 13 colgado. El 13 está escrito a mano, encima de otro número.','En el bolsillo de un sobretodo hay arroz. Como en un casamiento.'])]);
       case 'Г':{AU.t(1760,.5,'sine',.04);AU.t(2640,.4,'sine',.02,0,.02);return say(S.flags.timbre?['Ding.','"¡Enseguida lo atiendo!" Misma voz. Misma pausa. Mismo crujido de cinta.']:(S.flags.timbre=1,['Tocás la campanita del guardarropa.','Desde algún parlante, una grabación contesta: "¡Enseguida lo atiendo!"','Nadie viene.']));}
       case 'Ц':return say([c3Next('colL',['Una columna de mármol. Es de verdad. Está fría.','En la columna alguien rayó palitos, de a cinco. Contás hasta cien y dejás de contar.'])]);
-      case 'Ы':return say(['Un banco de terciopelo rojo, gastado en el medio.']);
+      case 'Ы':if(!S.flags.c5bancoCash){S.flags.c5bancoCash=1;S.pesos+=15;sfx.coin();return say(['Un banco de terciopelo rojo, gastado en el medio.','Entre el asiento y el respaldo hay algo duro. Monedas, y un billete arrugado.','Alguien se sentó acá a esperar mucho tiempo. Se le fue cayendo todo.','(Conseguiste $15.)']);}
+        return say(['Un banco de terciopelo rojo, gastado en el medio.']);
     }
   }};
 /* ---------- la sala ---------- */
@@ -1479,7 +1485,8 @@ MAPS[MP.SALA5]={title:'Teatro del Quinto · sala',theme:'teatro',encounters:true
       case 'П':return pianoMeet();
       case 'ӹ':return c5Stairs();
       case 'Ӌ':return trapBox();
-      case 'И':return say(['Dos timbales de cobre.',x%2?'Uno tiene el parche roto. Desde adentro.':'El parche está tenso. Le pasás el dedo y vibra solo un rato largo.']);
+      case 'И':if(x%2&&!S.flags.c5timbalCash){S.flags.c5timbalCash=1;S.pesos+=40;sfx.coin();return say(['Dos timbales de cobre. Uno tiene el parche roto. Desde adentro.','Metés la mano por el agujero. El cobre está frío por dentro.','Tocás papel. Es un sobre de la boletería: "RECAUDACIÓN · FUNCIÓN DEL 13". Adentro quedan $40.','Lo demás se lo llevó lo que rompió el parche.','(Conseguiste $40.)']);}
+        return say(['Dos timbales de cobre.',x%2?'Uno tiene el parche roto. Desde adentro.':'El parche está tenso. Le pasás el dedo y vibra solo un rato largo.']);
       case 'Ь':return say(['La baranda de bronce del foso. Está pulida, como si alguien la limpiara todos los días.']);
       case 'Б':{const fila=c5Fila(y),but=x<=9?10-x:x-11,sp=S.c5seat;
         if(S.flags.c5lentesQ&&!S.flags.c5lentes&&sp&&sp[0]===x&&sp[1]===y){S.flags.c5lentes=1;sfx.item();return say(['Fila '+fila+', butaca '+but+'.','Metés la mano entre el asiento y el respaldo. Hay algo frío.','Son unos lentes de marco grueso, con una patita arreglada con cinta. Tienen pelos de gato.',gotLine('lentes')]);}
@@ -1525,7 +1532,8 @@ MAPS[MP.PASILLO5]={title:'Teatro del Quinto · pasillos',theme:'camarin',encount
       case 'Ϸ':return ciroPipe();
       case 'Ӈ':return catBed();
       case 'Я':return hideRack();
-      case 'Ϲ':return say([c3Next('baulL',['Un baúl de vestuario. Adentro hay máscaras de yeso. Todas tienen la misma cara.','Un baúl lleno de partituras mojadas.','Un baúl con un cartel: "LUCES · NO TOCAR". Está vacío.'])]);
+      case 'Ϲ':if(!S.flags.c5baulAlf){S.flags.c5baulAlf=1;sfx.item();return say(['Un baúl de vestuario. Adentro hay máscaras de yeso. Todas tienen la misma cara.','Abajo de todo, envuelto en un programa de mano, hay un alfajor triple sin abrir.','El programa es de una función que todavía no se hizo.',gotLine('alfajor')]);}
+        return say([c3Next('baulL',['Un baúl de vestuario. Adentro hay máscaras de yeso. Todas tienen la misma cara.','Un baúl lleno de partituras mojadas.','Un baúl con un cartel: "LUCES · NO TOCAR". Está vacío.'])]);
       case 'D':return goMap(MP.FOYER5,14,1,'down');
     }
   }};
