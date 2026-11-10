@@ -214,11 +214,11 @@ const IT={
   d20:{n:'D20',t:'acc',d20:1,d:'El dado de la suerte de Gerónimo. Al empezar cada pelea, 1 chance en 20 de que el enemigo ya no quiera pelear.'},
   herramientas:{n:'Caja de herramientas',t:'key',d:'Roja, pesada, con "SILVESTRE" escrito con liquid paper.'},
   lentes:{n:'Lentes de Selene',t:'key',d:'Marco grueso, una patita arreglada con cinta. Tienen pelos de gato.'},
-  camara:{n:'Cámara de Selene',t:'key',d:'Una videocámara con modo nocturno. Lo que filma, a veces todavía no pasó.'},
+  camara:{n:'Cámara de Selene',t:'key',d:'Videocámara con modo nocturno. En lo oscuro se prende sola. Para grabar, acercate a algo y apretá Z. Lo que filma, a veces todavía no pasó.'},
   tubo:{n:'Tubo de órgano',t:'key',d:'Metal de órgano: estaño y plomo. Para que Silvestre lo funda.'},
   plomos:{n:'Plomos de piano',t:'key',d:'Plomitos de las teclas de un piano viejo. Pesan como un puño.'},
   platillo:{n:'Platillo partido',t:'key',d:'Bronce con mucho estaño, verde de tan viejo.'},
-  sardinas:{n:'Lata de sardinas',t:'key',d:'De Estefanía. Para tenderle una trampa a Fellini.'},
+  sardinas:{n:'Lata de sardinas',t:'key',d:'De Estefanía. Para tenderle una trampa a Pionono.'},
   llaveHab:{n:'Llave de bronce',t:'key',d:'Abre el sector de las habitaciones del teatro. Estaba en el collar de un gato.'},
   pua:{n:'Púa de Ringo',t:'key',d:'Una púa con la cara de Ringo. Es de Ciro.'},
   estano:{n:'Estaño y soldador',t:'key',d:'Silvestre fundió las tres piezas. Con esto se corta y se suelda un caño.'},
@@ -1513,11 +1513,11 @@ MAPS[MP.PASILLO5]={title:'Teatro del Quinto · pasillos',theme:'camarin',encount
   zone:(x,y)=>y<=4?'Los pasillos de atrás':'El depósito de escenografía',
   npcs:[{id:'selene5',x:5,y:2,dir:'down',look:LOOK.selene,vis:()=>!S.flags.c5selDead,talk:seleneTalk},
         {id:'gato5',x:19,y:8,dir:'left',draw:(x,y,t)=>drawCatW(x,y,t,false),vis:()=>S.canal===5,talk:cat5Talk},
-        {id:'gatoC',x:2,y:2,dir:'down',draw:(x,y,t)=>drawCat(x,y,t,'#c8843a',true),vis:()=>(S.flags.c5gato||0)>=3&&!S.flags.c5selDead,talk(){say(['Fellini duerme hecho una rosca, con olor a sardina.'])}}],
+        {id:'gatoC',x:2,y:2,dir:'down',draw:(x,y,t)=>drawCat(x,y,t,'#c8843a',true),vis:()=>(S.flags.c5gato||0)>=3&&!S.flags.c5selDead,talk(){say(['Pionono duerme hecho una rosca, con olor a sardina.'])}}],
   lights:t=>[[4,1.4,52,.6],[13,1.4,46,.5],[22,1.4,40,.45],[26.5,1.2,28+Math.sin(t*3)*2,.5],[8,7.5,60,.45],[20,7.5,60,.45]],
   enter(){
     if((c5Gen()||S.flags.tgAbort)&&!S.flags.c5gato)S.flags.c5gato=1;
-    if(!c5Hard()&&!S.flags.tgAbort&&S.flags.c5selOpen&&S.flags.c5cam&&!S.flags.c5gato){S.flags.c5gato=1;return say([{who:'Selene',t:'¡FELLINI! ¡No!'},'Un gato atigrado sale disparado de la habitación de Selene, entre tus piernas, y se pierde hacia el hall. En el collar le cuelga un llavero.',{who:'Selene',t:'¡Se llevó la llave del sector de las habitaciones! La de tu habitación... y la de Ciro.'},{who:'Selene',t:'Ciro es el de la guitarra. Hace días que no lo veo. Solo lo escucho, por los caños.'},{who:'Selene',t:'Fellini siempre se esconde en la sala del teatro. Le encanta el escenario. Es un gato muy dramático.'}]);}
+    if(!c5Hard()&&!S.flags.tgAbort&&S.flags.c5selOpen&&S.flags.c5cam&&!S.flags.c5gato){S.flags.c5gato=1;return say([{who:'Selene',t:'¡FELLINI! ¡No!'},'Un gato atigrado sale disparado de la habitación de Selene, entre tus piernas, y se pierde hacia el hall. En el collar le cuelga un llavero.',{who:'Selene',t:'¡Se llevó la llave del sector de las habitaciones! La de tu habitación... y la de Ciro.'},{who:'Selene',t:'Ciro es el de la guitarra. Hace días que no lo veo. Solo lo escucho, por los caños.'},{who:'Selene',t:'Pionono siempre se esconde en la sala del teatro. Le encanta el escenario. Es un gato muy dramático.'}]);}
     if(c5TG()&&!S.flags.c5selDead){S.flags.c5selDead=1;S.flags.c5gato=-1;BLACKOUT=true;AU.nz(.4,.3);
       return say(['Al final del pasillo hay una chica con el pelo rizado, rodeada de gatos. Entrecierra los ojos para mirarte.',{who:'Selene',t:'¿Sos vos? ¡Sos v—'},{t:'Tu cuerpo se mueve solo. No lo decidís. No lo podés frenar.',on(){sfx.stat();AU.nz(.6,.25);}},'Cuando termina, el pasillo queda en silencio. Los gatos también.','En el collar de uno hay un llavero. Lo agarrás sin pensar.',gotLine('llaveHab')],()=>{BLACKOUT=false;});}
     
@@ -1549,13 +1549,15 @@ MAPS[MP.SELENE5]={title:'Teatro del Quinto · el set de Selene',theme:'set',rows
   '#............#',
   '######D#######'],
   zone:()=>'El set de Selene',
-  npcs:[{id:'gatoS1',x:9,y:5,dir:'left',draw:(x,y,t)=>drawCat(x,y,t,'#2a2a2e',true),vis:()=>!S.flags.c5selDead,talk(){say(['Un gato negro te mira sin parpadear. Tiene puesto un collar que dice "KUBRICK".'])}},
-        {id:'gatoS2',x:3,y:6,dir:'up',draw:(x,y,t)=>drawCat(x,y,t,'#d8d0c0',true),vis:()=>!S.flags.c5selDead,talk(){say(['Una gata blanca duerme encima de un guion. Se llama "Varda", según el collar.'])}}],
+  npcs:[{id:'gatoS1',x:9,y:5,dir:'left',draw:(x,y,t)=>drawCat(x,y,t,'#2a2a2e',true),vis:()=>!S.flags.c5selDead,talk(){say(['Una gata negra te mira sin parpadear. Tiene puesto un collar que dice "NIOBE".'])}},
+        {id:'gatoS2',x:3,y:6,dir:'up',draw:(x,y,t)=>drawCat(x,y,t,'#d8d0c0',true),vis:()=>!S.flags.c5selDead,talk(){say(['Una gata blanca duerme encima de un guion. Se llama "Luna", según el collar.'])}},
+        {id:'gatoS3',x:12,y:6,dir:'left',draw:(x,y,t)=>drawCatVaca(x,y,t),vis:()=>!S.flags.c5selDead,talk(){say(['Un gato blanco con manchas negras, como una vaca chiquita. Duerme panza arriba.','En el collar dice "VAQUITO". Le queda perfecto.'])}},
+        {id:'gatoS4',x:5,y:2,dir:'down',draw:(x,y,t)=>drawCat(x,y,t,'#8a8c94',true),vis:()=>!S.flags.c5selDead,talk(){say(['Una gata gris atigrada, hecha un bollo arriba de una lata de película.','En el collar dice "MASHI". Abre un ojo, te evalúa y lo vuelve a cerrar.'])}}],
   lights:t=>[[7,2.5,110,.8],[5.5,1.2,40+Math.sin(t*20)*3,.5]],
   act(ch,x,y){
     switch(ch){
       case 'Ӎ':if(!has('camara')&&!S.flags.c5cam){S.flags.c5cam=1;sfx.item();
-          return say(['Una videocámara sobre un trípode. Tiene una cinta adentro y la luz de REC apagada.'].concat(S.flags.c5selDead?[gotLine('camara')]:[{who:'Selene',t:'Llevala. A mí no me sirve más: lo que filma, a veces todavía no pasó.'},{who:'Selene',t:'Tiene modo nocturno. Con eso se ve en la oscuridad como si fuera de día. Bah: verde.'},gotLine('camara')]));}
+          return say(['Una videocámara sobre un trípode. Tiene una cinta adentro y la luz de REC apagada.'].concat(S.flags.c5selDead?[gotLine('camara')]:[{who:'Selene',t:'Llevala. A mí no me sirve más: lo que filma, a veces todavía no pasó.'},{who:'Selene',t:'Tiene modo nocturno. Con eso se ve en la oscuridad como si fuera de día. Bah: verde.'},{who:'Selene',t:'Es fácil: apuntás y apretás. Si hay algo que valga la pena grabar, la cámara se da cuenta antes que vos.'},gotLine('camara')]).concat(CAM_HELP));}
         return say(['El trípode vacío. Tiene cinta de papel marcando dónde iba cada pata.']);
       case 'Ӕ':if(!has('tubo')&&!S.flags.c5tubo){S.flags.c5tubo=1;sfx.item();return say(['Tubos de órgano de verdad, usados como escenografía. Brillan como plata vieja.','Uno está suelto. Es liviano y blando: estaño y plomo.',gotLine('tubo')].concat(S.flags.c5selDead?[]:[{who:'Selene',t:'Llevate ese, el desafinado. Igual el órgano no anda desde 1975.'}]));}
         return say(['Tubos de órgano. Falta uno, el más chico.']);
@@ -1645,8 +1647,8 @@ function drawChandelier(x,y,t){const F=(c,a,b,w,h)=>{ctx.fillStyle=c;ctx.fillRec
 function seleneTalk(){
   const F=S.flags;
   if(c5Gen()||S.flags.tgAbort){
-    if(F.c5gato===-1)return say([{who:'Selene',t:'No me hables.'},{who:'Selene',t:'Fellini tenía nueve años. Nueve.'},{who:'Selene',t:'Hacé lo que quieras con Ciro. Ya no me importa nada.'}]);
-    if(!F.c5sel){F.c5sel=1;F.c5gato=1;return say([{who:'Selene',t:'...¿Quién anda ahí? No veo nada. Perdí los lentes.'},'Una chica con el pelo rizado entrecierra los ojos para mirarte. Da un paso atrás.',{who:'Selene',t:'Esos pasos... Sos el de abajo. El que hace callar a la gente.'},{who:'Selene',t:'No te acerques. Fellini se escapó con la llave de las habitaciones y yo no veo nada.'},{who:'Selene',t:'Por favor, no le hagas nada.'}]);}
+    if(F.c5gato===-1)return say([{who:'Selene',t:'No me hables.'},{who:'Selene',t:'Pionono tenía nueve años. Nueve.'},{who:'Selene',t:'Hacé lo que quieras con Ciro. Ya no me importa nada.'}]);
+    if(!F.c5sel){F.c5sel=1;F.c5gato=1;return say([{who:'Selene',t:'...¿Quién anda ahí? No veo nada. Perdí los lentes.'},'Una chica con el pelo rizado entrecierra los ojos para mirarte. Da un paso atrás.',{who:'Selene',t:'Esos pasos... Sos el de abajo. El que hace callar a la gente.'},{who:'Selene',t:'No te acerques. Pionono se escapó con la llave de las habitaciones y yo no veo nada.'},{who:'Selene',t:'Por favor, no le hagas nada.'}]);}
     return say([{who:'Selene',t:'No te acerques. Por favor.'}]);
   }
   if(!F.c5sel){F.c5sel=1;F.c5lentesQ=1;const sp=c5Seat();
@@ -1654,12 +1656,12 @@ function seleneTalk(){
   if(!F.c5selOpen){if(has('lentes')){S.items=S.items.filter(i=>i!=='lentes');F.c5selOpen=1;sfx.item();
       return say(['Le das los lentes.',{who:'Selene',t:'¡Ahora sí! Ay, qué feo estás. Mentira.'},'Selene teclea un código larguísimo en la puerta. La puerta hace clic.',{who:'Selene',t:'Pasá cuando quieras. Es mi set. Mi zona. Lo que necesites, agarralo.'}]);}
     return say([{who:'Selene',t:c3Next('selL',['Fila '+c5Fila(c5Seat()[1])+', del lado izquierdo. Entre el asiento y el respaldo, seguro.','Los lentes tienen una patita arreglada con cinta. Si ves algo con cinta, son esos.','Mientras tanto, si querés dormir, la cama de los gatos es toda tuya. A ellos no les molesta.'])}]);}
-  if(F.c5gato===1)return say([{who:'Selene',t:c3Next('selG',['¡Fellini tiene la llave! Está en la sala, seguro. Si lo agarrás, te la da. Bueno: no te la da. Pero la tiene.','Fellini es rápido. Más rápido que vos. Más rápido que todos.','A Fellini lo único que lo frena es la comida. Bah: eso dice todo el mundo de su gato.'])}]);
+  if(F.c5gato===1)return say([{who:'Selene',t:c3Next('selG',['¡Pionono tiene la llave! Está en la sala, seguro. Si lo agarrás, te la da. Bueno: no te la da. Pero la tiene.','Pionono es rápido. Más rápido que vos. Más rápido que todos.','A Pionono lo único que lo frena es la comida. Bah: eso dice todo el mundo de su gato.'])}]);
   if(c5SelQ())return;
   if(F.c5rescued)return say([{who:'Selene',t:c3Next('selR',['Ciro me contó todo. Que lo escuchaste. Que nadie más lo escuchaba.','Den está encerrada donde lo tenía a él. A veces pienso que tendríamos que ayudarla. Después se me pasa.','Ahora que estás, el piso suena distinto. Más afinado.'])}]);
   if(F.c5frigoSeen&&!F.c5grabQ&&!F.c5frigo){F.c5grabQ=1;return say([{who:'Selene',t:'¿La puerta de la cámara de frío? Es de Brian. Trabaja en el frigorífico y se trajo el trabajo a casa.'},{who:'Selene',t:'No tiene llave: se abre con una melodía. Den la tararea cada vez que entra o sale.'},{who:'Selene',t:'Un truco de directora: si no podés entrar al set, grabá el sonido de afuera.'},{who:'Selene',t:'Escondete atrás del perchero que está al lado de la puerta y esperala. Cuando tararee, grabás con la cámara.'},{who:'Selene',t:'Ojo. Si Den te ve... no sé qué te hace. Nadie volvió a contarlo.'}]);}
   if(F.c5ciro>=2&&!F.c5rescued)return say([{who:'Selene',t:c3Next('selC',['¿Hablaste con Ciro? ¿Está bien? Cada noche toca más desafinado.','Silvestre, el del 3, suelda cualquier cosa. Si le llevás con qué, te hace el estaño.','Los caños pasan justo por arriba de donde lo tienen. Si se pudieran cortar...'])}]);
-  return say([{who:'Selene',t:c3Next('selN',['Este piso antes era una fiesta. Ensayaba la orquesta, filmábamos, Ciro tocaba con su banda.','Los instrumentos se despertaron cuando empezó la guitarra de los caños. Primero el piano. Después todos.','Brian trabajaba en el frigorífico. Un día volvió con manchas grises en los brazos. Desde ese día, la carne de su cámara se mueve.','Kubrick y Varda son mis gatos. Fellini también, aunque él no lo sabe.','¿Te acordás de tu habitación? Yo me acuerdo de que siempre tenías la luz prendida.'])}]);
+  return say([{who:'Selene',t:c3Next('selN',['Este piso antes era una fiesta. Ensayaba la orquesta, filmábamos, Ciro tocaba con su banda.','Los instrumentos se despertaron cuando empezó la guitarra de los caños. Primero el piano. Después todos.','Brian trabajaba en el frigorífico. Un día volvió con manchas grises en los brazos. Desde ese día, la carne de su cámara se mueve.','Vaquito, Mashi, Luna y Niobe son mis gatos. Pionono también, aunque él no lo sabe.','¿Te acordás de tu habitación? Yo me acuerdo de que siempre tenías la luz prendida.'])}]);
 }
 function seleneDoor(){
   if(S.flags.c5selOpen)return goMap(MP.SELENE5,6,6,'up');
@@ -1667,6 +1669,7 @@ function seleneDoor(){
   return say(['Una puerta con un teclado numérico y una calcomanía de una claqueta.','El teclado tiene doce botones y ninguno tiene número. Solo Selene sabe el orden.']);
 }
 /* ---------- el gato ---------- */
+function drawCatVaca(x,y,t){drawCat(x,y,t,'#ece8e0',true);ctx.fillStyle='#16161a';ctx.fillRect(x+5,y+10,3,2);ctx.fillRect(x+9,y+12,2,1);ctx.fillRect(x+11,y+8,2,2);ctx.fillRect(x+3,y+12,1,2);}
 function drawCat(x,y,t,col,sleep){const F=(c,a,b,w,h)=>{ctx.fillStyle=c;ctx.fillRect(x+a,y+b,w,h);},b=sleep?0:Math.abs(Math.sin(t*9))*1.2;
   ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(x+8,y+15,6,2,0,0,7);ctx.fill();
   if(sleep){F(col,3,9,10,5);F(shd(col,-.2),3,13,10,1);F(col,10,8,4,4);F(shd(col,.2),4,9,6,1);F('#111',11,10,1,1);F(col,2,11,2,3);return;}
@@ -1674,8 +1677,8 @@ function drawCat(x,y,t,col,sleep){const F=(c,a,b,w,h)=>{ctx.fillStyle=c;ctx.fill
   F(col,1,6-b+Math.round(Math.sin(t*6)),2,4);F(col,4,13-b,1,2);F(col,10,13-b,1,2);if(col!=='#2a2a2e'&&col!=='#d8d0c0'){F('#e8c040',9,10-b,2,1);}}
 function gatoTalk(){
   if(c5Gen()||S.flags.tgAbort){const n=MAPS[MP.PASILLO5].npcs.find(q=>q.id==='gato');S.flags.c5gato=-1;sfx.hit();
-    return say(['Fellini no se escapa. Se queda quieto, con las orejas para atrás. Te mira.','Lo agarrás.','...','Ya no se mueve. En el collar tiene un llavero.',gotLine('llaveHab')].concat(!S.flags.c5selDead?[{who:'Selene',t:'¿Fellini? ...¿Qué hiciste? ¿QUÉ HICISTE?'}]:[]));}
-  return say(['Fellini te mira de reojo. Tiene una llave en el collar.','Estirás la mano. Se escapa.']);
+    return say(['Pionono no se escapa. Se queda quieto, con las orejas para atrás. Te mira.','Lo agarrás.','...','Ya no se mueve. En el collar tiene un llavero.',gotLine('llaveHab')].concat(!S.flags.c5selDead?[{who:'Selene',t:'¿Pionono? ...¿Qué hiciste? ¿QUÉ HICISTE?'}]:[]));}
+  return say(['Pionono te mira de reojo. Tiene una llave en el collar.','Estirás la mano. Se escapa.']);
 }
 let CATCD=0;
 function catTick(dt){const m=MAPS[MP.SALA5],n=m.npcs.find(q=>q.id==='gato');if(!n||!n.vis()||S.map!==MP.SALA5)return;
@@ -1687,11 +1690,11 @@ function catTick(dt){const m=MAPS[MP.SALA5],n=m.npcs.find(q=>q.id==='gato');if(!
     S.flags.c5chase=(S.flags.c5chase||0)+1;
     if(S.flags.c5chase===28&&!S.flags.c5hint){S.flags.c5hint=1;
       if(S.party.includes('silvestre'))PENDING.push({who:'Silvestre',t:'Pará, pará. Así no lo vas a agarrar nunca.'},{who:'Silvestre',t:'A un gato no se lo persigue: se le tiende una trampa. Una caja y algo que huela fuerte.'},{who:'Silvestre',t:'Al lado del foso hay una caja. Estefanía, la del 3C, siempre tiene sardinas. Trabaja de moza: le sobra de todo.'});
-      else PENDING.push({who:'Selene',t:'(desde el hall) ¡Así no! A Fellini hay que tenderle una trampa.'},{who:'Selene',t:'Una caja y comida. Hay una caja al lado del foso. Estefanía, la moza del 3, le guarda sardinas cuando baja por el ducto.'});}}
+      else PENDING.push({who:'Selene',t:'(desde el hall) ¡Así no! A Pionono hay que tenderle una trampa.'},{who:'Selene',t:'Una caja y comida. Hay una caja al lado del foso. Estefanía, la moza del 3, le guarda sardinas cuando baja por el ducto.'});}}
 }
 function trapBox(){const F=S.flags;
-  if(F.c5gato===2)return say(['La caja con las sardinas. Hay que alejarse para que Fellini se anime.']);
-  if(F.c5gato===1&&has('sardinas')){F.c5gato=2;S.items=S.items.filter(i=>i!=='sardinas');sfx.item();return say(['Ponés la lata de sardinas adentro de la caja y la dejás apenas inclinada.','Ahora hay que salir de la sala un rato. Fellini no va a entrar si lo estás mirando.']);}
+  if(F.c5gato===2)return say(['La caja con las sardinas. Hay que alejarse para que Pionono se anime.']);
+  if(F.c5gato===1&&has('sardinas')){F.c5gato=2;S.items=S.items.filter(i=>i!=='sardinas');sfx.item();return say(['Ponés la lata de sardinas adentro de la caja y la dejás apenas inclinada.','Ahora hay que salir de la sala un rato. Pionono no va a entrar si lo estás mirando.']);}
   if(F.c5gato===1&&F.c5hint)return say(['Una caja de cartón vacía. Serviría de trampa, si tuvieras con qué tentarlo.']);
   return say(['Una caja de cartón vacía, del tamaño justo de un gato.']);
 }
@@ -1705,6 +1708,7 @@ function catBed(){
     say(['Te acurrucás entre los gatos. Ronronean como un motor viejo.','Te despertás descansado, con la vida y la cordura llenas.','Y lleno de pelos de gato. En la ropa, en el pelo, en la boca.']);}},{l:'Mejor no',f(){}}]}]);
 }
 /* ---------- misión de Selene: los planos que faltan (cámara) ---------- */
+const CAM_HELP=['(Cómo usar la cámara: no hay que hacer nada para ver en la oscuridad. En los lugares sin luz se prende sola en modo nocturno, y ves en verde.)','(Para grabar, acercate a algo y apretá Z. Si vale la pena grabarlo, te pregunta. Mientras graba, en la pantalla aparece ● REC.)','(Si estás escondido, apretá Z para grabar en el momento justo. En algunas peleas aparece una opción para grabar en ACTUAR.)','(Lo podés volver a leer en el inventario: Cámara de Selene.)'];
 const SHOTN=['el escenario vacío','el gramófono, de cerca','la puerta de la cámara de frío','alguien durmiendo'];
 let RECT=0;
 const c5ShotN=()=>{const b=S.flags.selP||0;let n=0;for(let i=0;i<4;i++)if(b&(1<<i))n++;return n;};
@@ -1755,7 +1759,7 @@ function c5Grate(){const F=S.flags;C5GV=true;
   if(F.c5late)return say(['Abajo, Ciro está acurrucado contra la pared de la jaula. No levanta la vista.',{who:'Ciro',t:'(repite una sola nota, una y otra vez)'},'Ya no te escucha. Se acabó el tiempo.']);
   if(has('estano'))return ciroRescue();
   if((F.c5ciro||0)<2&&!has('pua')){F.c5ciro=1;F.c5seen=1;
-    return say(['Por la rejilla se ve un cuarto chico, de máquinas viejas, iluminado por una lamparita colgando de un cable.','Adentro hay una jaula de alambre. Adentro de la jaula, un pibe flaco abraza una guitarra.',{who:'¿?',t:'...¿Hay alguien en el caño? No. No otra vez.'},{who:'¿?',t:'Den me habla con las voces de otros. Con la de mi vieja. Con la de Cata. Ya no le creo a nadie.'},{who:'¿?',t:'Si sos de verdad, demostralo. Traeme algo que sea mío.'}].concat(F.c5habOpen?['(Algo suyo. Capaz en su habitación, en el sector de las habitaciones.)']:['(Algo suyo... Selene dijo que la llave de las habitaciones la tiene Fellini.)']));}
+    return say(['Por la rejilla se ve un cuarto chico, de máquinas viejas, iluminado por una lamparita colgando de un cable.','Adentro hay una jaula de alambre. Adentro de la jaula, un pibe flaco abraza una guitarra.',{who:'¿?',t:'...¿Hay alguien en el caño? No. No otra vez.'},{who:'¿?',t:'Den me habla con las voces de otros. Con la de mi vieja. Con la de Cata. Ya no le creo a nadie.'},{who:'¿?',t:'Si sos de verdad, demostralo. Traeme algo que sea mío.'}].concat(F.c5habOpen?['(Algo suyo. Capaz en su habitación, en el sector de las habitaciones.)']:['(Algo suyo... Selene dijo que la llave de las habitaciones la tiene Pionono.)']));}
   if(F.c5ciro!==2){F.c5ciro=2;S.items=S.items.filter(i=>i!=='pua');
     const L=['Dejás caer la púa por la rejilla. Rebota en el piso del cuarto y queda al lado de la jaula.','La guitarra se detiene. El pibe estira el brazo entre los alambres y la agarra.',{who:'Ciro',t:'...Esta púa. Es de Ringo. Es mía.'},{who:'Ciro',t:'Yo le regalé una igual a alguien. En un cumpleaños.'},{who:'Ciro',t:'...En un cumpleaños que todavía no pasó.'},
       {who:'Ciro',t:'Me llamo Ciro. Me tiene Den, la novia de Brian. Brian no sabe nada: trabaja de noche en el frigorífico, y Den... Den no duerme.'},
@@ -2079,7 +2083,7 @@ function c5AfterFight(){const F=S.flags;
 
 /* ---------- la sala: el gato vuelve a la caja y la escalera de servicio ---------- */
 function c5SalaEnter(){const F=S.flags;
-  if(F.c5gato===2){F.c5gato=3;sfx.item();return say(['La caja de cartón al lado del foso se mueve sola.','Adentro, Fellini come sardinas con cara de culpa. Ni se resiste.','En el collar tiene un llavero con una llave de bronce.',gotLine('llaveHab')].concat(!F.c5selDead?[{who:'Selene',t:'(desde el hall) ¡Fellini! ¡Sinvergüenza!'},{who:'Selene',t:'Esa llave abre el sector de las habitaciones. Tu habitación... y la de Ciro.'}]:[]));}
+  if(F.c5gato===2){F.c5gato=3;sfx.item();return say(['La caja de cartón al lado del foso se mueve sola.','Adentro, Pionono come sardinas con cara de culpa. Ni se resiste.','En el collar tiene un llavero con una llave de bronce.',gotLine('llaveHab')].concat(!F.c5selDead?[{who:'Selene',t:'(desde el hall) ¡Pionono! ¡Sinvergüenza!'},{who:'Selene',t:'Esa llave abre el sector de las habitaciones. Tu habitación... y la de Ciro.'}]:[]));}
 }
 function c5SalaUnder(t){const F2=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);},x=21*T,y=7*T;
   F2('#1a1210',x,y-T,T,2*T);F2('#3a2a20',x+1,y-T+2,T-2,2*T-2);
@@ -3346,7 +3350,7 @@ function drawUI(){
     if(S.flags.silv&&!S.party.includes('silvestre'))n.push('Silvestre, del 3A, necesita sus herramientas. Están en mantenimiento, con código.');
     if(S.flags.geroQ===1)n.push('Dados de Gerónimo: '+['dado4','dado6','dado12'].filter(d=>S.items.includes(d)).length+' de 3.');
     if(S.flags.need5&&!S.flags.cap2)n.push('La escalera al 2 pide un código. "EL 5 SABE".');
-    if(S.chapter===3){const F=S.flags;if(F.c5lentesQ&&!F.c5selOpen)n.push('Selene perdió los lentes entre las butacas: fila '+c5Fila(c5Seat()[1])+', lado izquierdo.');if(F.c5gato===1)n.push('Fellini, el gato de Selene, se escapó a la sala del teatro con la llave de las habitaciones.'+(F.c5hint?(has('sardinas')?' Poné las sardinas en la caja del foso y salí de la sala un rato.':' Trampa: la caja del foso y sardinas (Estefanía, 3C).'):''));
+    if(S.chapter===3){const F=S.flags;if(F.c5lentesQ&&!F.c5selOpen)n.push('Selene perdió los lentes entre las butacas: fila '+c5Fila(c5Seat()[1])+', lado izquierdo.');if(F.c5gato===1)n.push('Pionono, el gato de Selene, se escapó a la sala del teatro con la llave de las habitaciones.'+(F.c5hint?(has('sardinas')?' Poné las sardinas en la caja del foso y salí de la sala un rato.':' Trampa: la caja del foso y sardinas (Estefanía, 3C).'):''));
       if(!c5Hard()&&!F.c5rescued&&!F.c5late&&!F.c5fight){
         if(F.c5askSil&&!F.c5pipeOK&&!has('llavei'))n.push('Desde el empalme de caños (pasillos de atrás) Ciro no te escucha. Preguntale a Silvestre, en el 3A.');
         if(has('llavei')&&!F.c5pipeOK)n.push('Con la llave inglesa de Silvestre, sacá la tapa del empalme de caños y metete.');
@@ -3914,10 +3918,12 @@ const BDR={
   air(u){ctx.fillStyle='rgba(220,230,240,.85)';ctx.fillRect(u.x,u.y,u.w,1);ctx.fillRect(u.x+2,u.y+2,u.w-3,1);},
   cym(u,t){ctx.fillStyle='#c8a040';ctx.beginPath();ctx.ellipse(u.x+u.w/2,u.y+u.h/2,u.w/2,u.h/2.6,Math.sin(t*9+u.x)*.6,0,7);ctx.fill();ctx.fillStyle='#fff0a0';ctx.fillRect(u.x+u.w/2-1,u.y+u.h/2-1,2,1);},
   tri(u,t){ctx.save();ctx.translate(u.x+u.w/2,u.y+u.h/2);ctx.rotate(t*4+u.x);ctx.strokeStyle=u.k==='cor'?'#a78bfa':'#d8dce4';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(0,-3);ctx.lineTo(3,2.5);ctx.lineTo(-3,2.5);ctx.closePath();ctx.stroke();ctx.restore();},
-  laser(u,t){ctx.fillStyle='rgba(230,240,255,.95)';ctx.fillRect(u.x,u.y,u.w,u.h);ctx.fillStyle='rgba(180,200,255,.35)';ctx.fillRect(u.x,u.y-2,u.w,u.h+4);},
-  string(u,t){const a=Math.sin(t*60)*1.2;ctx.strokeStyle='#e8e0c0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(u.x,u.y+1);ctx.quadraticCurveTo(u.x+u.w/2,u.y+1+a*2,u.x+u.w,u.y+1);ctx.stroke();},
+  laser(u,t){ctx.fillStyle='rgba(230,240,255,.95)';ctx.fillRect(u.x,u.y,u.w,u.h);ctx.fillStyle='rgba(180,200,255,.35)';if(u.h>u.w)ctx.fillRect(u.x-2,u.y,u.w+4,u.h);else ctx.fillRect(u.x,u.y-2,u.w,u.h+4);},
+  stringV(u,t){const a=Math.sin(t*60)*1.2;ctx.strokeStyle='#e8e0c0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(u.x+1,u.y);ctx.quadraticCurveTo(u.x+1+a*2,u.y+u.h/2,u.x+1,u.y+u.h);ctx.stroke();},
+string(u,t){const a=Math.sin(t*60)*1.2;ctx.strokeStyle='#e8e0c0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(u.x,u.y+1);ctx.quadraticCurveTo(u.x+u.w/2,u.y+1+a*2,u.x+u.w,u.y+1);ctx.stroke();},
   keyW(u){ctx.fillStyle='#f0ece0';ctx.fillRect(u.x,u.y,u.w,u.h);ctx.fillStyle='#b8b4a8';ctx.fillRect(u.x+u.w-1,u.y,1,u.h);ctx.fillRect(u.x,u.y+u.h-1,u.w,1);},
   keyB(u){ctx.fillStyle='#141418';ctx.fillRect(u.x,u.y,u.w,u.h);ctx.fillStyle='#4a4a54';ctx.fillRect(u.x,u.y,1,u.h);},
+  hammerT(u){ctx.fillStyle='#6a4a2a';ctx.fillRect(u.x+u.w/2-1,u.y,2,u.h-4);ctx.fillStyle='#e8e0d0';ctx.fillRect(u.x,u.y+u.h-5,u.w,5);ctx.fillStyle='#a8a090';ctx.fillRect(u.x,u.y+u.h-5,u.w,1);},
   hammer(u){ctx.fillStyle='#6a4a2a';ctx.fillRect(u.x+u.w/2-1,u.y+4,2,u.h-4);ctx.fillStyle='#e8e0d0';ctx.fillRect(u.x,u.y,u.w,5);ctx.fillStyle='#a8a090';ctx.fillRect(u.x,u.y+4,u.w,1);},
   hook(u){ctx.strokeStyle='#8a9298';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(u.x+2,u.y-40);ctx.lineTo(u.x+2,u.y);ctx.stroke();ctx.strokeStyle='#c8d0d6';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(u.x+2.5,u.y+5,3,-Math.PI/2,Math.PI*.9);ctx.stroke();},
   snow(u,t){ctx.fillStyle=u.k==='cor'?'#a78bfa':'#e8f4ff';ctx.fillRect(u.x+1,u.y,1,3);ctx.fillRect(u.x,u.y+1,3,1);},
@@ -5789,7 +5795,7 @@ function soulHit(u){const cx=B.soul.x+3,cy=B.soul.y+3,nx=clamp(cx,u.x,u.x+u.w),n
 function enemyTurn(){
   if(S.cor<=0&&!B.shadow)return shadowStart();
   B.lessT=B.less;B.slowT=B.slow;B.less=0;B.slow=0;
-  B.state='dodge';B.lane=null;B.sv=null;B.corSeen=false;B.pel=null;B.run=null;B.tk=null;B.ballP=null;B.svy=0;B.tbox=BD;B.dt=0;B.bul=[];B.accs={};B.mira=null;B.soul={x:BD.x+BD.w/2-3,y:BD.y+BD.h/2-3};
+  B.state='dodge';B.lane=null;B.sv=null;B.corSeen=false;B.pel=null;B.run=null;B.tk=null;B.ballP=null;B.svy=0;B.dbox=null;B.tbox=BD;B.dt=0;B.bul=[];B.accs={};B.mira=null;B.soul={x:BD.x+BD.w/2-3,y:BD.y+BD.h/2-3};
   B.turn++;
   if(B.felix){B.attacks++;const n=B.attacks,X=['tiki','saque','penal','pique'];B.pats=n<2?['partido']:n<5?['partido','relato']:['partido','relato',X[(n-5)%4]];B.dur=12;return;}
   if(B.boss){B.attacks++;const n=B.attacks,P5=['fuego','botas','mira','minas','firmes'];
@@ -5858,7 +5864,7 @@ const PAT={
 };
 /* ===== Capítulo 3 · enemigos del teatro ===== */
 Object.assign(FOES,{
-  saxo:{name:'Saxofón tenor',hp:40,atk:8,xp:10,pesos:[12,16],sp:6,need:2,pats:['jazz','soplido','solo'],
+  saxo:{name:'Saxofón tenor',hp:56,atk:8,xp:10,pesos:[12,16],sp:6,need:2,pats:['jazz','soplido','solo'],
     flav:['El Saxofón tenor improvisa algo que suena a madrugada.','Le falta una llave. Por ahí se le escapa el aire, como un suspiro.','Huele a caña mojada y a humo de otro siglo.'],
     calmFlav:'El saxofón toca bajito, una balada.',
     acts:[
@@ -5868,7 +5874,7 @@ Object.assign(FOES,{
     ],
     spare:['El saxofón se va hacia el foso, tocando una balada.'],
     kill:['El saxofón suelta todo el aire de golpe. Una nota larga, larguísima, que se apaga.']},
-  plato:{name:'Platillo crash',hp:34,atk:8,xp:9,pesos:[10,14],sp:5,need:2,pats:['crash','rebotin','redoble'],
+  plato:{name:'Platillo crash',hp:48,atk:8,xp:9,pesos:[10,14],sp:5,need:2,pats:['crash','rebotin','redoble'],
     flav:['El Platillo crash vibra solo. No para nunca de vibrar.','Tiene una rajadura que le cruza la cara.','Cada vez que respirás, hace "tssss".'],
     calmFlav:'El platillo se queda quieto. Por primera vez en años, en silencio.',
     acts:[
@@ -5878,7 +5884,7 @@ Object.assign(FOES,{
     ],
     spare:['El platillo rueda hacia el foso, despacito, sin hacer ruido.'],
     kill:['El platillo se parte en dos. Cada mitad suena una nota distinta.']},
-  trian:{name:'Triángulo',hp:28,atk:7,xp:8,pesos:[8,12],sp:4,need:1,pats:['ding','prisma','trino'],
+  trian:{name:'Triángulo',hp:40,atk:7,xp:8,pesos:[8,12],sp:4,need:1,pats:['ding','prisma','trino'],
     flav:['El Triángulo cuelga de un hilo. Espera.','El Triángulo cuenta compases en voz baja. Va por el ciento ocho.','Brilla como una sonrisa de metal.'],
     calmFlav:'El triángulo hizo su "ding". Está en paz.',
     acts:[
@@ -5888,7 +5894,7 @@ Object.assign(FOES,{
     ],
     spare:['El triángulo se va colgado de su hilo, balanceándose.'],
     kill:['El triángulo se dobla en una línea recta. Ya no es nada.']},
-  uke:{name:'Ukelele',hp:32,atk:7,xp:9,pesos:[10,14],sp:5,need:2,pats:['cuerdas','rasgueo','acorde'],
+  uke:{name:'Ukelele',hp:46,atk:7,xp:9,pesos:[10,14],sp:5,need:2,pats:['cuerdas','rasgueo','acorde'],
     flav:['El Ukelele salta en el lugar, nervioso.','Tiene una calcomanía de una palmera despegada.','Rasguea solo. Siempre los mismos cuatro acordes.'],
     calmFlav:'El ukelele tararea algo de playa.',
     acts:[
@@ -5898,7 +5904,7 @@ Object.assign(FOES,{
     ],
     spare:['El ukelele se va saltando, rasgueando un acorde mayor.'],
     kill:['Las cuatro cuerdas se cortan a la vez. Plin.']},
-  piano:{name:'Piano de cola',hp:150,atk:9,xp:30,pesos:[30,40],sp:15,need:3,mini:1,pats:['teclas','martillos','escala'],
+  piano:{name:'Piano de cola',hp:200,atk:9,xp:30,pesos:[30,40],sp:15,need:3,mini:1,pats:['teclas','martillos','escala'],
     flav:['El Piano de cola abre y cierra la tapa, como una boca.','Las teclas suben y bajan solas: una escala que nunca termina.','Una tecla, la del medio, no suena. El piano lo sabe.'],
     calmFlav:'El piano toca un acorde mayor, suave.',
     acts:[
@@ -5908,7 +5914,7 @@ Object.assign(FOES,{
     ],
     spare:['El Piano de cola se cierra despacio y se queda quieto en el foso.'],
     kill:['El piano se desploma sobre sus patas. Todas las cuerdas suenan a la vez y se apagan.']},
-  brian:{name:'Brian',hp:170,atk:9,xp:40,pesos:[30,40],sp:15,need:2,pats:['ganchos','frio'],
+  brian:{name:'Brian',hp:210,atk:9,xp:40,pesos:[30,40],sp:15,need:2,pats:['ganchos','frio'],
     flav:['Brian todavía tiene puesto el guardapolvo del frigorífico.','Brian tiene manchas grises en los brazos, como moho. Se le mueven abajo de la piel.','Detrás de Brian, la carne de los ganchos se mueve al ritmo de su respiración.','Brian mira a Den. Después te mira a vos. No entiende nada.','"¿Qué hacés en mi casa?"','Le sale vapor de la boca. Acá adentro hace muchísimo frío.'],
     calmFlav:'Brian baja los brazos. Mira a Den como si fuera la primera vez.',
     acts:[
@@ -5918,7 +5924,7 @@ Object.assign(FOES,{
     ],
     spare:['Brian baja los puños.','"¿Hace cuánto que Den es... así?"','Se sienta en el piso de la cámara de frío, con la cara entre las manos.'],
     kill:['Brian cae sobre los cajones escarchados.','"Den... ¿me esperás despierta?"','Nadie le contesta.']},
-  den:{name:'Den',hp:200,atk:9,xp:50,pesos:[0,0],sp:0,need:999,pats:['copia','ojos'],
+  den:{name:'Den',hp:240,atk:9,xp:50,pesos:[0,0],sp:0,need:999,pats:['copia','ojos'],
     flav:['Den sonríe. Tiene demasiados dientes para esa boca.','Den repite lo que decís, un segundo después, con tu voz.','Den no parpadea. No parpadeó ni una vez.','Den mira a Brian con cariño. Con demasiado cariño.'],
     calmFlav:'Den sigue sonriendo.',
     acts:[
@@ -5932,7 +5938,7 @@ Object.assign(FOES,{
 Object.assign(SIL_HINT,{saxo:'Los saxos son como los motores: hay que agarrarles el ritmo. Primero el ritmo, después que haga su solo.',plato:'Ese platillo no para de vibrar. Tapate los oídos y después frenalo con la mano.',trian:'Un triángulo toca una vez por obra. Esperá su entrada y listo.',uke:'Está desafinado. Afinalo y después cantale algo.',piano:'Tiene una tecla trabada. Tocá una escala para encontrarla, sacala y después aplaudile.',brian:'Brian no sabe nada. Contale lo de Ciro y preguntale por Den. Si tenés la cámara, mostrásela.',den:'A esa no la convencés. Eso no es una persona.'});
 /* ===== Capítulo 3 · la carne contaminada de Brian ===== */
 Object.assign(FOES,{
-  chori:{name:'Chorizo',hp:36,atk:8,xp:10,pesos:[10,14],sp:5,need:2,pats:['parrilla','grasa'],
+  chori:{name:'Chorizo',hp:50,atk:8,xp:10,pesos:[10,14],sp:5,need:2,pats:['parrilla','grasa'],
     flav:['El Chorizo chisporrotea aunque no hay fuego.','Tiene una mancha gris en la tripa, igual a las de los brazos de Brian.','Huele a domingo. A un domingo que salió mal.'],
     calmFlav:'El chorizo se acomoda en su pan, satisfecho.',
     acts:[
@@ -5942,7 +5948,7 @@ Object.assign(FOES,{
     ],
     spare:['El chorizo se va rodando, adentro de su pan.'],
     kill:['El chorizo se parte al medio. Adentro, en vez de carne, hay algo gris que se mueve.']},
-  morci:{name:'Morcilla',hp:38,atk:8,xp:10,pesos:[10,14],sp:5,need:2,pats:['salpica','enrollar'],
+  morci:{name:'Morcilla',hp:52,atk:8,xp:10,pesos:[10,14],sp:5,need:2,pats:['salpica','enrollar'],
     flav:['La Morcilla se enrosca y se desenrosca, como si le costara respirar.','Es negra. Bueno: más negra de lo normal.','Tiene escarcha en la piel y no se derrite.'],
     calmFlav:'La morcilla se enrosca tranquila, como un gato.',
     acts:[
@@ -5952,7 +5958,7 @@ Object.assign(FOES,{
     ],
     spare:['La morcilla se va enroscada, rodando como una rueda.'],
     kill:['La morcilla se abre. Lo que sale es gris y frío, y se arrastra hacia la pared.']},
-  costi:{name:'Asado de tira',hp:44,atk:9,xp:11,pesos:[12,16],sp:6,need:3,pats:['huesos','cuchillo'],
+  costi:{name:'Asado de tira',hp:60,atk:9,xp:11,pesos:[12,16],sp:6,need:3,pats:['huesos','cuchillo'],
     flav:['El Asado de tira se para sobre sus huesos, como una mesa.','Cada hueso cruje con un ritmo distinto.','Tiene sal gruesa pegada. Brilla bajo el tubo fluorescente.'],
     calmFlav:'El asado se acuesta sobre la parrilla imaginaria, tranquilo.',
     acts:[
@@ -5962,7 +5968,7 @@ Object.assign(FOES,{
     ],
     spare:['El asado de tira se va caminando sobre sus huesos, despacio.'],
     kill:['Los huesos se desarman uno por uno y caen como palitos chinos.']},
-  chinchu:{name:'Chinchulín',hp:30,atk:7,xp:9,pesos:[8,12],sp:4,need:2,pats:['tripa','humo'],
+  chinchu:{name:'Chinchulín',hp:42,atk:7,xp:9,pesos:[8,12],sp:4,need:2,pats:['tripa','humo'],
     flav:['El Chinchulín se trenza y se destrenza, buscando algo.','Es larguísimo. No se le ve el final.','Del chinchulín sale un humo gris que no huele a nada.'],
     calmFlav:'El chinchulín se enrolla en un caracol perfecto.',
     acts:[
@@ -6054,7 +6060,7 @@ function LN5(b,i){return b.y+10+i*16;}
 Object.assign(PSIDE,{solo:'staff',redoble:'staff',trino:'staff',acorde:'staff',escala:'staff'});
 Object.assign(PSIDETXT,{staff:'¡PENTAGRAMA! ↑↓ CAMBIÁS DE LÍNEA',ice:'¡PISO CONGELADO!'});
 Object.assign(PAT,{
-  solo(dt,df,b){if(acc('solo',dt,.62/df)){const n=rnd()<.35?2:1,used=[];for(let j=0;j<n;j++){let l=ri(0,4);while(used.includes(l))l=ri(0,4);used.push(l);B.bul.push({x:b.x+b.w+2,y:LN5(b,l)-3,vx:-58*df,vy:0,w:5,h:6,k:rnd()<.15?'cor':'hp',dr:'note'});}}},
+  solo(dt,df,b){if(acc('solo',dt,.95/df)){const L=rnd()<.3,up=rnd()<.5,l0=up?ri(2,4):ri(0,2),n=3+(rnd()<.4?1:0);for(let j=0;j<n;j++){const l=Math.max(0,Math.min(4,l0+(up?-j:j)));B.bul.push({x:L?b.x-8-j*14:b.x+b.w+2+j*14,y:LN5(b,l)-3,vx:(L?1:-1)*58*df,vy:0,w:5,h:6,k:rnd()<.12?'cor':'hp',dr:'note'});}}},
   redoble(dt,df,b){if(acc('redoble',dt,1.15/df)){const a=ri(0,4);let c=ri(0,4);while(c===a)c=ri(0,4);for(const l of [a,c])B.bul.push({x:b.x,y:LN5(b,l)-2,vx:0,vy:0,w:b.w,h:4,warn:.65,life:.3,k:'hp',dr:'staffhit'});}},
   trino(dt,df,b){if(acc('trino',dt,.85/df)){const L=rnd()<.5,l=ri(0,4);B.bul.push({x:L?b.x-6:b.x+b.w+2,y:LN5(b,l)-3,vx:(L?1:-1)*44*df,vy:0,w:6,h:6,k:'hp',dr:'tri',ln:l,hop:.5});}
     for(const u of B.bul)if(u.hop!=null&&!(u.warn>0)){u.hop-=dt;if(u.hop<=0){u.hop=.5/df+.12;const d=u.ln<=0?1:u.ln>=4?-1:(rnd()<.5?-1:1);u.ln+=d;}const ty=LN5(b,u.ln)-3;u.y+=(ty-u.y)*Math.min(1,dt*16);}},
@@ -6063,16 +6069,25 @@ Object.assign(PAT,{
 });
 Object.assign(BDR,{staffhit(u,t){ctx.fillStyle='rgba(230,214,160,.9)';ctx.fillRect(u.x,u.y+1,u.w,2);ctx.fillStyle='rgba(230,214,160,.3)';ctx.fillRect(u.x,u.y-1,u.w,u.h+2);ctx.fillStyle='#c8a040';for(let x=u.x+4;x<u.x+u.w;x+=12){ctx.beginPath();ctx.ellipse(x,u.y+2,4,2,Math.sin(t*20+x)*.5,0,7);ctx.fill();}}});
 Object.assign(PAT,{
-  jazz(dt,df,b){if(acc('jazz',dt,.5/df)){const up=rnd()<.5;B.bul.push({x:b.x+b.w+2,y:b.y+12+rnd()*(b.h-24),vx:-52*df,vy:(up?-34:34)*df,ay:(up?70:-70)*df,w:5,h:6,k:rnd()<.15?'cor':'hp',dr:'note'});}},
+  jazz(dt,df,b){if(acc('jazz',dt,.55/df)){B.jz=(B.jz||0)+1;const L=B.jz%2===0,up=rnd()<.5,y0=up?b.y+b.h-8-rnd()*14:b.y+2+rnd()*14,n=B.jz%4===0?3:1;
+    for(let j=0;j<n;j++)B.bul.push({x:L?b.x-8-j*10:b.x+b.w+2+j*10,y:y0,vx:(L?1:-1)*50*df,vy:(up?-62:62)*df,ay:(up?62:-62)*df,w:5,h:6,k:rnd()<.12?'cor':'hp',dr:'note'});}},
   soplido(dt,df,b){if(acc('soplido',dt,1.25/df)){const L=rnd()<.5,gap=ri(1,5);for(let i=0;i<7;i++){if(i===gap||i===gap+1)continue;B.bul.push({x:L?b.x-14:b.x+b.w+2,y:b.y+4+i*11,vx:(L?1:-1)*56*df,vy:0,w:12,h:4,k:'hp',dr:'air'});}}},
   crash(dt,df,b){if(acc('crash',dt,1.35/df)){const cx=b.x+10+rnd()*(b.w-20),cy=rnd()<.5?b.y-4:b.y+b.h+4,skip=ri(0,13);for(let i=0;i<14;i++){if(i===skip||i===(skip+1)%14)continue;const a=i/14*Math.PI*2;B.bul.push({x:cx,y:cy,vx:Math.cos(a)*44*df,vy:Math.sin(a)*44*df,w:6,h:5,k:'hp',dr:'cym'});}}},
   rebotin(dt,df,b){if(acc('rebotin',dt,1.6/df)&&B.bul.filter(u=>u.dr==='cym'&&u.bounce).length<3){B.bul.push({x:b.x+4+rnd()*(b.w-12),y:b.y+4,vx:(rnd()<.5?-1:1)*48*df,vy:44*df,w:7,h:5,k:'hp',dr:'cym',bounce:1,life:6});}},
   ding(dt,df,b){if(acc('ding',dt,.42/df))B.bul.push({x:b.x+2+rnd()*(b.w-8),y:b.y-8,vx:0,vy:(52+rnd()*14)*df,w:6,h:6,k:rnd()<.15?'cor':'hp',dr:'tri'});},
-  prisma(dt,df,b){if(acc('prisma',dt,1.15/df)){const y=b.y+6+ri(0,6)*11;B.bul.push({x:b.x,y,vx:0,vy:0,w:b.w,h:3,warn:.6,life:.3,k:'hp',dr:'laser'});}},
-  cuerdas(dt,df,b){if(acc('cuerdas',dt,.85/df)){const i=ri(0,3),y=b.y+12+i*20;B.bul.push({x:b.x,y,vx:0,vy:0,w:b.w,h:3,warn:.65,life:.35,k:'hp',dr:'string'});}},
-  rasgueo(dt,df,b){if(acc('rasgueo',dt,1.4/df)){const sx=b.x-10+rnd()*30;for(let i=0;i<6;i++)B.bul.push({x:sx-i*9,y:b.y-6-i*9,vx:40*df,vy:46*df,w:5,h:6,k:'hp',dr:'note'});}},
-  teclas(dt,df,b){B.gl=B.gl||{i:0,d:1};if(acc('teclas',dt,.13/df)){const n=12,i=B.gl.i,blk=[1,3,6,8,10].includes(i%12)&&i%2;B.bul.push({x:b.x+2+i*(b.w-6)/n,y:b.y-16,vx:0,vy:(blk?84:66)*df,w:blk?4:7,h:blk?10:15,k:'hp',dr:blk?'keyB':'keyW'});if(S.canal===88)elisaNote(.035,.22);B.gl.i+=B.gl.d;if(B.gl.i>=n-1||B.gl.i<=0){B.gl.d*=-1;B.gl.i=Math.max(0,Math.min(n-1,B.gl.i));if(rnd()<.5)B.gl.i+=B.gl.d*2;}}},
-  martillos(dt,df,b){if(acc('martillos',dt,.8/df)){const x=b.x+4+ri(0,8)*11;B.bul.push({x,y:b.y+b.h-30,vx:0,vy:0,w:8,h:30,warn:.55,life:.42,k:'hp',dr:'hammer'});}},
+  prisma(dt,df,b){if(acc('prisma',dt,1.05/df)){B.pz=(B.pz||0)+1;const m=B.pz%3,H=(y)=>B.bul.push({x:b.x,y,vx:0,vy:0,w:b.w,h:3,warn:.62,life:.3,k:'hp',dr:'laser'}),V=(x)=>B.bul.push({x,y:b.y,vx:0,vy:0,w:3,h:b.h,warn:.62,life:.3,k:'hp',dr:'laser'});
+    if(m===1)H(b.y+6+ri(0,6)*11);else if(m===2)V(b.x+6+ri(0,8)*11);else{/* el prisma parte la luz en tres */const a=ri(0,6),c=(a+ri(2,4))%7;H(b.y+6+a*11);H(b.y+6+c*11);V(b.x+6+ri(0,8)*11);}}},
+  cuerdas(dt,df,b){if(acc('cuerdas',dt,1/df)){/* una cuerda acostada y una parada: hay que elegir el cuadrante */const y=b.y+10+ri(0,4)*((b.h-20)/4),x=b.x+10+ri(0,5)*((b.w-20)/5);
+    B.bul.push({x:b.x,y,vx:0,vy:0,w:b.w,h:3,warn:.68,life:.35,k:'hp',dr:'string'});B.bul.push({x,y:b.y,vx:0,vy:0,w:3,h:b.h,warn:.68,life:.35,k:'hp',dr:'stringV'});}},
+  rasgueo(dt,df,b){if(acc('rasgueo',dt,1.3/df)){B.rg=(B.rg||0)+1;const R=B.rg%2===0,sx=R?b.x+b.w-10-rnd()*(b.w*.5):b.x+10+rnd()*(b.w*.5),gap=ri(1,5);
+    for(let i=0;i<8;i++){if(i===gap)continue;B.bul.push({x:sx+(R?i*9:-i*9),y:b.y-6-i*9,vx:(R?-40:40)*df,vy:46*df,w:5,h:6,k:'hp',dr:'note'});}}},
+  teclas(dt,df,b){B.gl=B.gl||{i:0,d:1};
+    /* el piano abre y cierra el teclado: la caja se estira a lo ancho y se vuelve a cerrar */
+    if(!B.dbox)B.dbox={x:BD.x,y:BD.y,w:BD.w,h:BD.h};const q=.5-.5*Math.cos(Math.max(0,B.dt-WARN_T)*1.15),w=Math.round(100+120*q),h=BD.h;
+    B.dbox.w=w;B.dbox.h=h;B.dbox.x=160-w/2;B.dbox.y=BD.y;B.tbox=B.dbox;
+    if(acc('teclas',dt,.13/df)){const n=Math.round(12*b.w/100),i=Math.min(B.gl.i,n-1),blk=[1,3,6,8,10].includes(i%12)&&i%2;B.bul.push({x:b.x+2+i*(b.w-6)/n,y:b.y-16,vx:0,vy:(blk?84:66)*df,w:blk?4:7,h:blk?10:15,k:'hp',dr:blk?'keyB':'keyW'});if(S.canal===88)elisaNote(.035,.22);B.gl.i+=B.gl.d;if(B.gl.i>=n-1||B.gl.i<=0){B.gl.d*=-1;B.gl.i=Math.max(0,Math.min(n-1,B.gl.i));if(rnd()<.5)B.gl.i+=B.gl.d*2;}}},
+  martillos(dt,df,b){const m=B.mt||(B.mt={c:ri(0,8),d:rnd()<.5?1:-1});if(acc('martillos',dt,.7/df)){/* los martillos barren la caja de punta a punta, de arriba y de abajo */const n=Math.max(1,Math.floor((b.w-8)/11)),x=b.x+4+(m.c%n)*11,top=m.c%2===0;
+    B.bul.push({x,y:top?b.y:b.y+b.h-46,vx:0,vy:0,w:8,h:46,warn:.5,life:.4,k:'hp',dr:top?'hammerT':'hammer'});const x2=b.x+4+((m.c+Math.floor(n/2))%n)*11;B.bul.push({x:x2,y:top?b.y+b.h-46:b.y,vx:0,vy:0,w:8,h:46,warn:.5,life:.4,k:'hp',dr:top?'hammer':'hammerT'});m.c+=m.d;if(m.c>=n-1||m.c<=0){m.d*=-1;m.c=Math.max(0,Math.min(n-1,m.c));}}},
   ganchos(dt,df,b){if(acc('ganchos',dt,.55/df))B.bul.push({x:b.x+3+rnd()*(b.w-10),y:b.y-10,vx:(rnd()-.5)*16*df,vy:(40+rnd()*16)*df,w:5,h:9,k:'hp',dr:'hook'});},
   frio(dt,df,b){if(acc('frio',dt,.2/df))B.bul.push({x:b.x+rnd()*b.w,y:b.y-4,vx:(rnd()-.5)*20*df,vy:(22+rnd()*14)*df,ax:(rnd()-.5)*30,w:3,h:3,k:rnd()<.3?'cor':'hp',dr:'snow'});},
   copia(dt,df,b){if(!B.copy||!B.bul.includes(B.copy)){B.copy={x:0,y:0,vx:0,vy:0,w:6,h:6,k:'hp',dr:'mirror',keep:1};B.bul.push(B.copy);}const c=B.copy;c.x=b.x+b.w-(B.soul.x-b.x)-6;c.y=B.soul.y;c.vx=0;c.vy=0;
@@ -6081,7 +6096,7 @@ Object.assign(PAT,{
 });
 
 function updDodge(dt){
-  B.dt+=dt;const b=BD;
+  B.dt+=dt;const b=B.dbox||BD;
   const mx=(keys.right?1:0)-(keys.left?1:0),my=(keys.down?1:0)-(keys.up?1:0);
   const staff=B.staff=B.pats.some(p=>STAFFP.includes(p)),ice=B.ice=!staff&&B.pats.some(p=>ICEP.includes(p));
   const grav=B.pats.includes('vallas'),my2=grav||staff?0:my,nrm=(mx&&my2)?.7071:1,spd=82.8*(keys.b?.7:1);
