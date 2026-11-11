@@ -302,9 +302,9 @@ const FOES={
     flav:['Félix relata tu respiración: "¡Inspira! ¡Exhala! ¡Qué temple!"','Félix se acomoda los auriculares. Del cable no sale nada.','"¡Siga, siga, siga!", grita Félix, aunque nadie le pidió nada.','La luz de AL AIRE parpadea arriba de la puerta.'],
     calmFlav:'Félix se quedó sin voz.',
     acts:[
-      {n:'Comentar la jugada',run(){return['"Linda pelota", decís.','Félix: "¡LINDA PELOTA, DICE! ¡EL VECINO SABE!"'];}},
-      {n:'Hacer la ola',run(){gainCor(6);return['Hacés la ola vos solo. Desde la tribuna vacía, alguien la sigue.','Te sentís un poco mejor. (+6 COR)'];}},
-      {n:'Pedir el VAR',run(){return['Pedís el VAR.','Félix: "¡NO HAY VAR EN ESTE EDIFICIO! ¡Acá se juega como en el barrio!"','(Para terminar el partido hay que hacerle goles. Llevás '+(B.goals||0)+' de 3.)'];}}
+      {n:'Comentar la jugada',run(f){f.used.c=1;return['"Linda pelota", decís.','Félix: "¡LINDA PELOTA, DICE! ¡EL VECINO SABE!"'].concat(felixActsLine(f));}},
+      {n:'Hacer la ola',run(f){f.used.o=1;gainCor(6);return['Hacés la ola vos solo. Desde la tribuna vacía, alguien la sigue.','Te sentís un poco mejor. (+6 COR)'].concat(felixActsLine(f));}},
+      {n:'Pedir el VAR',run(f){f.used.v=1;return['Pedís el VAR.','Félix: "¡NO HAY VAR EN ESTE EDIFICIO! ¡Acá se juega como en el barrio!"'].concat(felixActsLine(f),['(Para terminar el partido: tres acciones distintas y tres goles. Llevás '+(B.goals||0)+' de 3.)']);}}
     ],
     spare:['Félix: "¡Y SE TERMINA! ¡SE TERMINA EL PARTIDO!"','Félix se saca los auriculares. Por primera vez, se calla.','Félix: "...Hacía años que no veía un partido de verdad. Gracias."'],
     kill:['Félix intenta relatar su propia caída. No le sale la voz.','"...Y... se va..."','La luz de AL AIRE se apaga.']},
@@ -375,6 +375,8 @@ FOES.sombra={name:'La Sombra',hp:999,atk:7,xp:0,pesos:[0,0],sp:0,need:999,shadow
     {n:'Gritar',run(){return['Gritás. La Sombra no se inmuta.','En algún lugar del edificio, alguien grita con vos.'];}},
     {n:'Taparte los ojos',run(){return['Te tapás los ojos. Cuando los abrís, está más cerca.'];}}],
   spare:[],kill:['La Sombra se deshace en el aire... y se vuelve a armar.']};
+const felixActed=f=>!!(f&&f.used&&f.used.c&&f.used.o&&f.used.v);
+function felixActsLine(f){return felixActed(f)&&!f.used.fl?(f.used.fl=1,['Félix se queda mirándote. Por primera vez no relata nada.','(La tribuna ya está con vos. Ahora, los goles.)']):[];}
 function pedroActsLine(f){return(f.used.o&&f.used.c&&f.used.r)?['Pedro todavía no puede parar. Pero ya no te mira con odio.','(Ahora desintonizalo en cada turno y aguantá sus ataques.)']:[];}
 const pedroCalm=f=>!!(f.used.o&&f.used.c&&f.used.r);
 
@@ -5769,9 +5771,54 @@ function tapeAfter(t){const k3=TP.k>=3,fl0=.75+.25*Math.sin(t*23)*(Math.sin(t*.9
     if(t>15.8&&t<16.3&&!cut)tapeThing(286,58,.45,t,0);if(t>16.75&&t<17.15&&!cut)tapeThing(96,206,2.3,t,1);if(t>=17.15)tapeFace(t);
     tapeOverlay(t,'CAM 03 · PISTA','03:34');}
   if(t>17.5){ctx.fillStyle='rgba(255,255,255,'+Math.min(.8,(t-17.5)*8)+')';ctx.fillRect(0,0,W,H);}}
+/* ---- la cinta del 5: la cabina de Félix y el candado de cinco ruedas ---- */
+function tapeCabin5(t,fl,open){const F=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
+  F('#14110e',0,0,W,H);F('#241e18',0,150,W,90);for(let k=0;k<8;k++)F(k%2?'#2a221a':'#221c16',0,150+k*12,W,12);
+  F('#1c1814',0,30,W,120);for(let k=0;k<W;k+=18)F('#18140f',k,30,9,120);// paneles de corcho
+  // la consola de radio y los micrófonos de Félix
+  F('#2a2a30',20,108,120,40);F('#3a3a42',20,108,120,4);for(let k=0;k<10;k++){F(k%3?'#5a5a62':'#8a3a2a',28+k*11,118,6,10);F('#c8c0a8',30+k*11,122-((k*7+Math.floor(t*3))%5),2,2);}
+  F('#1a1a1e',60,70,3,40);F('#2a2a2e',52,64,18,10);F('#3a3a3e',54,66,14,6);
+  // el cartel AL AIRE
+  const on=Math.sin(t*4)>-.3;F('#2a0a0a',112,40,52,16);F(on?'#ff3a2a':'#5a1a14',114,42,48,12);txt('AL AIRE',138,52,on?'#ffe8d8':'#3a1a14',9,'center',true);if(on){ctx.fillStyle='rgba(255,60,40,.1)';ctx.fillRect(90,30,96,60);}
+  // la reja de la escalera al 2
+  const rx=206,ry=52,rw=86,rh=98;F('#060505',rx,ry,rw,rh);for(let k=0;k<6;k++)F('rgba(120,100,80,'+(.4-k*.06)+')',rx+6,ry+20+k*14,rw-12-k*6,2);
+  ctx.save();ctx.translate(rx+(open?rw*.85*Math.min(1,open):0),0);F('#4a4e56',rx,ry,4,rh);F('#4a4e56',rx+rw-4,ry,4,rh);F('#4a4e56',rx,ry,rw,4);F('#4a4e56',rx,ry+rh-4,rw,4);for(let k=12;k<rw-4;k+=10)F('#5a5e66',rx+k,ry,2,rh);ctx.restore();
+  txt('EL 5 SABE',rx+rw/2,ry-6,'rgba(220,220,210,.6)',8,'center');
+  ctx.fillStyle='rgba(0,0,0,'+(.3*(1-fl))+')';ctx.fillRect(0,0,W,H);}
+function tapeArrive5(t){const u=Math.min(1,Math.max(0,(t-2.6)/3.4)),fl=.75+.25*Math.sin(t*23)*(Math.sin(t*.9)>.6?1:0);tapeCabin5(t,fl,0);
+  const x=-20+(222+20)*u,y=178+Math.sin(u*Math.PI)*4;tapePerson(x,y,2.4,tapeWho(),u<.97?'right':'up',t*1.3,u<.98);
+  if(t>4.8&&t<5.3){ctx.fillStyle='rgba(240,240,230,.8)';ctx.fillRect(96,92,2,2);ctx.fillRect(100,92,2,2);}
+  tapeOverlay(t,'CAM 03D · CABINA','03:52');}
+function tapeLock5(t){const F=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);},code=tapeCode(),fl=.82+.18*Math.sin(t*19);
+  F('#0c0b0a',0,0,W,H);for(let k=0;k<W;k+=22){F('#3a3e46',k,0,6,H);F('#5a5e66',k,0,2,H);}// barrotes de la reja, de cerca
+  const n=TAPE_T.filter(x=>t>=x).length,open=t>12.75,LX=74,LY=56;
+  // el arco del candado
+  const up=open?Math.min(14,(t-12.75)*40):0;ctx.strokeStyle='#9aa0a8';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(LX+40,LY+4-up);ctx.lineTo(LX+40,LY-26-up);ctx.arc(LX+86,LY-26-up,46,Math.PI,0);ctx.lineTo(LX+132,LY+4-(open?0:0));ctx.stroke();ctx.strokeStyle='#d8dce4';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(LX+38,LY-26-up);ctx.arc(LX+86,LY-26-up,48,Math.PI,Math.PI*1.4);ctx.stroke();
+  // el cuerpo con las cinco ruedas
+  F('#2a2c30',LX,LY,172,92);F('#5a5e66',LX+2,LY+2,168,4);F('#1a1c20',LX,LY+88,172,4);
+  for(let i=0;i<5;i++){const x=LX+14+i*30,done=i<n,dg=+code[i],spin=!done&&i===n?(t*14)%10:done?dg:(hash(i,7)%10),y=LY+22;
+    F('#141518',x-2,y-4,26,52);F(done?'#e8e4d0':'#b8b4a0',x,y,22,44);F('rgba(0,0,0,.35)',x,y,22,10);F('rgba(0,0,0,.35)',x,y+34,22,10);
+    const a=Math.floor(spin),f2=spin-a;txt(String((a+9)%10),x+11,y+8-f2*14,'rgba(40,40,40,.5)',10,'center');txt(String(a%10),x+11,y+27-f2*14,'#141414',16,'center',true);txt(String((a+1)%10),x+11,y+44-f2*14,'rgba(40,40,40,.5)',10,'center');
+    if(done){F('rgba(120,255,140,.25)',x,y+16,22,14);}}
+  F('#ff3a2a',LX+150,LY+8,6,4);if(open){F('#3aff5a',LX+150,LY+8,6,4);ctx.fillStyle='rgba(60,255,90,.2)';ctx.beginPath();ctx.arc(LX+153,LY+10,9,0,7);ctx.fill();}
+  // la mano de Ciro gira cada rueda con el pulgar
+  let kk=Math.min(4,n);const tx=LX+25+kk*30,ty=LY+70+Math.sin(t*9)*2,look=tapeWho(),skin=look.skin||'#e0b896',sleeve=look.shirt||'#2a2e3a',out=t>TAPE_T[4]+.35?Math.min(1,(t-TAPE_T[4]-.35)/.9):0,inn=t<6.8?1-Math.min(1,(t-6.6)/.2):0,hx=tx+(out+inn)*120,hy=ty+(out+inn)*120;
+  ctx.strokeStyle=sleeve;ctx.lineCap='round';ctx.lineWidth=28;ctx.beginPath();ctx.moveTo(W+30,H+40);ctx.quadraticCurveTo(hx+80,hy+70,hx+18,hy+18);ctx.stroke();ctx.lineCap='butt';
+  ctx.fillStyle=skin;ctx.beginPath();ctx.ellipse(hx+10,hy+14,12,9,-.5,0,7);ctx.fill();ctx.fillRect(hx-4,hy-4,6,14);ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(hx+2,hy+18,12,2);
+  if(t>=TAPE_T[0]){ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(8,166,108,30);txt(code.slice(0,Math.min(5,n)).split('').join(' '),62,189,'#fff',20,'center',true);}
+  ctx.fillStyle='rgba(0,0,0,'+(.25*(1-fl))+')';ctx.fillRect(0,0,W,H);tapeOverlay(t,'CAM 03D · REJA','03:53');}
+function tapeAfter5(t){const fl0=.75+.25*Math.sin(t*23)*(Math.sin(t*.9)>.6?1:0),dOpen=Math.min(1,Math.max(0,(t-13.6)/.8));
+  const cut=t>15.8&&((t>16.15&&t<16.3)||(t>16.6&&t<16.75)||(t>17.0&&t<17.15));const fl=cut?.1:t>15.8?Math.min(fl0,.32):fl0;
+  tapeCabin5(t,fl,dOpen);if(t<15){const q=Math.min(1,(t-13.6)/1.2);tapePerson(236+q*20,176-q*30,2.3-q*.8,tapeWho(),'up',t,true,1-q);}
+  // cuando Ciro baja, en la cabina vacía queda alguien sentado frente al micrófono
+  if(t>15.8&&t<16.3&&!cut){ctx.fillStyle='#07070a';ctx.fillRect(58,80,14,26);ctx.fillStyle='#f4f4ec';ctx.fillRect(61,84,2,2);ctx.fillRect(66,84,2,2);}
+  if(t>16.75&&t<17.15&&!cut){ctx.fillStyle='#07070a';ctx.fillRect(120,90,40,70);ctx.fillStyle='#f4f4ec';ctx.fillRect(128,100,5,4);ctx.fillRect(145,100,5,4);ctx.fillStyle='#e8e4d8';ctx.fillRect(126,120,28,3);}
+  if(t>=17.15)tapeFace(t);tapeOverlay(t,'CAM 03D · CABINA','03:54');
+  if(t>17.5){ctx.fillStyle='rgba(255,255,255,'+Math.min(.8,(t-17.5)*8)+')';ctx.fillRect(0,0,W,H);}}
 function drawTape(){const t=TP.t,sh=tapeShot(t);
   if(sh===0){ctx.fillStyle='#1a2ad0';ctx.fillRect(0,0,W,H);txt('PLAY ▶',20,30,'#fff',18);txt('CINTA: PISO '+(TP.k===5?5:TP.k===3?3:4),W/2,H/2,'#fff',16,'center');txt('SP   0:00:'+String(Math.floor(t*10)).padStart(2,'0'),W/2,H/2+20,'#c8d0ff',11,'center');return;}
   if(sh===1||sh===5){tapeStatic(t);if(sh===5&&t>17.6&&t<17.8){ctx.globalAlpha=.5;tapeAfter(17.45);ctx.globalAlpha=1;}return;}
+  if(TP.k===5){if(sh===2)return tapeArrive5(t);if(sh===3)return tapeLock5(t);return tapeAfter5(t);}
   if(sh===2)return tapeArrive(t);if(sh===3)return tapeCloseKeypad(t);return tapeAfter(t);}
 
 /* ================= wake & name ================= */
@@ -6043,7 +6090,7 @@ function enemyTurn(){
   B.lessT=B.less;B.slowT=B.slow;B.less=0;B.slow=0;
   B.state='dodge';B.lane=null;B.sv=null;B.corSeen=false;B.pel=null;B.run=null;B.tk=null;B.ballP=null;B.svy=0;B.dbox=null;B.tbox=BD;B.dt=0;B.bul=[];B.accs={};B.mira=null;B.soul={x:BD.x+BD.w/2-3,y:BD.y+BD.h/2-3};
   B.turn++;
-  if(B.felix){B.attacks++;const n=B.attacks,X=['tiki','saque','penal','pique'];B.pats=n<2?['partido']:n<5?['partido','relato']:['partido','relato',X[(n-5)%4]];B.dur=12;return;}
+  if(B.felix){B.attacks++;const n=B.attacks,X=['tiki','saque','penal','pique'];B.pats=B.fx2?(n%2?['partido']:['partido','relato']):n<2?['partido']:n<5?['partido','relato']:['partido','relato',X[(n-5)%4]];B.dur=B.fx2?14:12;return;}
   if(B.boss){B.attacks++;const n=B.attacks,P5=['fuego','botas','mira','minas','firmes'];
     if(n>=10&&pedroCalm(B.foes[0])&&B.dz===B.turn)B.pats=['retirada'];
     else if(n>=10){const a=P5[ri(0,4)];let b=P5[ri(0,4)];while(b===a)b=P5[ri(0,4)];B.pats=[a,b];}
@@ -6088,8 +6135,9 @@ const PAT={
   partido(dt,df,b){
     if(!B.ballP){B.ballP={x:b.x+b.w/2,y:b.y+b.h/2,vx:-30,vy:rnd()*40-20};B.keeper=b.y+b.h/2;}
     const o=B.ballP,cy=b.y+b.h/2,mouth=14;
-    B.keeper+=Math.sign(o.y-B.keeper)*Math.min(Math.abs(o.y-B.keeper),(22+B.attacks*1.2)*df*dt);
-    o.x+=o.vx*dt;o.y+=o.vy*dt;o.vx*=Math.pow(.6,dt);o.vy*=Math.pow(.6,dt);
+    B.keeper+=Math.sign(o.y-B.keeper)*Math.min(Math.abs(o.y-B.keeper),(22+B.attacks*1.2)*(B.fx2?.55:1)*df*dt);
+    if(B.fx2)o.vy+=Math.sin(B.dt*2.4+o.x*.05)*14*dt;
+    o.x+=o.vx*dt;o.y+=o.vy*dt;o.vx*=Math.pow(B.fx2?.45:.6,dt);o.vy*=Math.pow(B.fx2?.45:.6,dt);
     const sp=Math.hypot(o.vx,o.vy);if(sp<18){const k=18/(sp||1);o.vx=(o.vx||-1)*k;o.vy*=k;}
     if(o.y<b.y+4){o.y=b.y+4;o.vy=Math.abs(o.vy);}if(o.y>b.y+b.h-4){o.y=b.y+b.h-4;o.vy=-Math.abs(o.vy);}
     if(o.x<b.x+12&&o.vx<0&&Math.abs(o.y-B.keeper)<8){o.x=b.x+12;o.vx=Math.abs(o.vx)*1.1+20;o.vy+=(o.y-B.keeper)*4;sfx.blip();}
@@ -6346,7 +6394,7 @@ function updDodge(dt){
   B.dt+=dt;const b=B.dbox||BD;
   const mx=(keys.right?1:0)-(keys.left?1:0),my=(keys.down?1:0)-(keys.up?1:0);
   const staff=B.staff=B.pats.some(p=>STAFFP.includes(p)),ice=B.ice=!staff&&B.pats.some(p=>ICEP.includes(p));
-  const grav=B.pats.includes('vallas'),my2=grav||staff?0:my,nrm=(mx&&my2)?.7071:1,spd=82.8*(keys.b?.7:1);
+  const grav=B.pats.includes('vallas'),my2=grav||staff?0:my,nrm=(mx&&my2)?.7071:1,spd=82.8*(keys.b?.7:1)*(B.fx2?.62:1);
   if(ice){const v=B.sv||(B.sv={x:0,y:0}),n2=(mx&&my)?.7071:1,a=330*(keys.b?.7:1);v.x+=mx*a*n2*dt;v.y+=my*a*n2*dt;const fr=Math.exp(-((mx||my)?.9:1.5)*dt);v.x*=fr;v.y*=fr;const vs=Math.hypot(v.x,v.y),vm=104*(keys.b?.7:1);if(vs>vm){v.x*=vm/vs;v.y*=vm/vs;}
     let nx=B.soul.x+v.x*dt,ny=B.soul.y+v.y*dt;if(nx<b.x+2||nx>b.x+b.w-8){v.x*=-.35;nx=clamp(nx,b.x+2,b.x+b.w-8);}if(ny<b.y+2||ny>b.y+b.h-8){v.y*=-.35;ny=clamp(ny,b.y+2,b.y+b.h-8);}B.soul.x=nx;B.soul.y=ny;}
   else{B.soul.x=clamp(B.soul.x+mx*spd*nrm*dt,b.x+2,b.x+b.w-8);B.soul.y=clamp(B.soul.y+my2*spd*nrm*dt,b.y+2,b.y+b.h-8);}
@@ -6374,7 +6422,11 @@ function updDodge(dt){
   B.bul=B.bul.filter(u=>!(u.life!=null&&u.life<=0)&&u.x<b.x+b.w+40&&u.x+u.w>b.x-40&&u.y<b.y+b.h+40&&u.y+u.h>b.y-40);
   if(B.dt>=B.dur-(S.eq.acc==='crono'?2:0)){
     B.bul=[];
-    if(B.felix&&B.goals>=3){const f=B.foes[0];f.spared=true;sfx.item();return bSay(f.def.spare,()=>endBattle());}
+    if(B.felix&&B.goals>=3){const f=B.foes[0];
+      if(!felixActed(f)){B.goals=2;return bSay(['Félix: "¡TRES A CERO! ¡Pero esto no termina hasta que la tribuna diga basta!"','(Félix no va a aflojar hasta que la ACTÚES de tres formas distintas.)'],()=>toMenu());}
+      if(!B.fx2){B.fx2=1;B.goals=0;B.fgoals=0;B.ballP=null;B.keeper=null;AU.nz(1.4,.3);AU.t(60,1.2,'sawtooth',.06,40);for(let i=0;i<6;i++)setTimeout(()=>AU.nz(.3,.12),300+i*180);
+        return bSay(['Félix: "¡Y TERMINA EL PRIMER TIEMPO! ¡PERO ESTO NO SE TERMINA ACÁ!"','Félix patea un caño de la pared. El caño revienta.','El agua entra a chorros. En segundos te llega a las rodillas. A la cintura.','Chispazo. Se corta la luz. Solo queda el cartel de AL AIRE, rojo, reflejado en el agua.','Félix: "¡SEGUNDO TIEMPO! ¡WATER POLO! ¡Y FÉLIX ESTÁ CANSADA, PERO NO SE RINDE!"','(Ahora te movés más lento en el agua. Ella también. Hacele tres goles más.)'],()=>toMenu());}
+      f.spared=true;sfx.item();return bSay(['Félix: "¡Y... GOL! ¡Y SE TERMINA! ¡SE TERMINA EL PARTIDO!"','Félix flota boca arriba en el agua oscura, riéndose sin voz.'].concat(f.def.spare.slice(1)),()=>endBattle());}
     if(B.boss&&!B.felix&&B.attacks>=10&&pedroCalm(B.foes[0])&&B.dz===B.turn){const f=B.foes[0];f.spared=true;sfx.item();return bSay(f.def.spare,()=>endBattle());}
     toMenu();
   }
@@ -6786,7 +6838,12 @@ function renderBattle(t){
         if(B.sv&&Math.hypot(B.sv.x,B.sv.y)>40){ctx.fillStyle='rgba(154,232,255,.25)';ctx.fillRect(B.soul.x+3-B.sv.x*.06,B.soul.y+3-B.sv.y*.06,2,2);ctx.fillRect(B.soul.x+3-B.sv.x*.12,B.soul.y+3-B.sv.y*.12,1,1);}}
       if(!(B.inv>0&&Math.floor(t*20)%2)){const s=B.soul;ctx.fillStyle=B.pats.includes('vallas')?'#5aa8ff':B.staff?'#f0e6c8':B.ice?'#9ae8ff':'#e3a849';ctx.beginPath();ctx.moveTo(s.x+3,s.y-1);ctx.lineTo(s.x+7,s.y+3);ctx.lineTo(s.x+3,s.y+7);ctx.lineTo(s.x-1,s.y+3);ctx.closePath();ctx.fill();ctx.fillStyle='#fff3d6';ctx.fillRect(s.x+2,s.y+2,2,2);}
       ctx.restore();
-      if(B.felix){ctx.fillStyle='rgba(8,10,20,.8)';ctx.fillRect(96,6,128,14);ctx.strokeStyle='#e3a849';ctx.strokeRect(96.5,6.5,127,13);txt('FÉLIX '+(B.fgoals||0)+'  ·  '+(B.goals||0)+' VOS',160,16,'#e6e8ef',11,'center',true);}
+      if(B.felix&&B.fx2){const s2=B.soul,o2=B.ballP;ctx.save();ctx.beginPath();ctx.rect(b.x,b.y,b.w,b.h);ctx.clip();
+        ctx.fillStyle='rgba(20,60,110,.28)';ctx.fillRect(b.x,b.y,b.w,b.h);ctx.strokeStyle='rgba(140,200,255,.18)';ctx.lineWidth=1;for(let k=0;k<6;k++){ctx.beginPath();for(let x=b.x;x<=b.x+b.w;x+=4){const y=b.y+10+k*14+Math.sin(x*.12+t*2+k)*1.5;x===b.x?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();}
+        /* sin luz: solo se ve cerca tuyo y el reflejo rojo de AL AIRE */const g=ctx.createRadialGradient(s2.x+3,s2.y+3,6,s2.x+3,s2.y+3,46);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(2,4,10,.93)');ctx.fillStyle=g;ctx.fillRect(b.x,b.y,b.w,b.h);
+        ctx.fillStyle='rgba(255,40,40,'+(.08+.04*Math.sin(t*3))+')';ctx.fillRect(b.x,b.y,b.w,b.h);if(o2){ctx.fillStyle='rgba(240,238,230,.55)';ctx.beginPath();ctx.arc(o2.x,o2.y,4.5,0,7);ctx.fill();ctx.strokeStyle='rgba(180,220,255,.35)';ctx.beginPath();ctx.ellipse(o2.x,o2.y+4,7,2,0,0,7);ctx.stroke();}ctx.restore();}
+      if(B.felix&&B.fx2){ctx.fillStyle='rgba(2,6,16,.5)';ctx.fillRect(0,0,W,b.y-14);ctx.strokeStyle='rgba(120,180,255,.25)';ctx.beginPath();for(let x=0;x<=W;x+=4){const y=b.y-16+Math.sin(x*.08+t*1.6)*1.5;x?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.stroke();ctx.fillStyle='rgba(255,40,40,'+(.05+.03*Math.sin(t*3))+')';ctx.fillRect(0,0,W,b.y-14);}
+      if(B.felix){const bw2=B.fx2?156:128,bx2=160-bw2/2;ctx.fillStyle='rgba(8,10,20,.8)';ctx.fillRect(bx2,6,bw2,14);ctx.strokeStyle=B.fx2?'#9ad0ff':'#e3a849';ctx.strokeRect(bx2+.5,6.5,bw2-1,13);txt((B.fx2?'2T · ':'')+'FÉLIX '+(B.fgoals||0)+'  ·  '+(B.goals||0)+' VOS',160,16,B.fx2?'#9ad0ff':'#e6e8ef',11,'center',true);}
       if(B.dt<WARN_T){const sides=[...new Set(B.pats.map(p=>PSIDE[p]||'up'))];if(B.ice)sides.push('ice');const on=Math.floor(t*10)%2;txtFit(sides.map(x=>PSIDETXT[x]).join('  '),160,b.y-6,on?'#ff5a3a':'#e3a849',12,'center',300);if(B.combo||B.esc)txt(B.combo?'¡ATAQUE COMBINADO!':'¡MÁS RÁPIDO!',160,b.y-18,on?'#e3a849':'#ff5a3a',11,'center',true);
         if(on){ctx.fillStyle='#ff5a3a';for(const sd of sides){if(sd==='up'||sd==='all')for(let i=0;i<3;i++)txt('▼',b.x+b.w*(i+1)/4,b.y+12,'#ff5a3a',10,'center');if(sd==='down'||sd==='all')for(let i=0;i<3;i++)txt('▲',b.x+b.w*(i+1)/4,b.y+b.h-4,'#ff5a3a',10,'center');if(sd==='lr'||sd==='left'||sd==='all')txt('▶',b.x+8,b.y+b.h/2+4,'#ff5a3a',12,'center');if(sd==='lr'||sd==='right'||sd==='all')txt('◀',b.x+b.w-8,b.y+b.h/2+4,'#ff5a3a',12,'center');if(sd==='aim')txt('◎',b.x+b.w/2,b.y+b.h/2+5,'#ff5a3a',16,'center');if(sd==='floor')txt('✕ ✕ ✕',b.x+b.w/2,b.y+b.h/2+4,'#ff5a3a',12,'center');}}}
       else txt(B.felix?'Llevá la pelota al arco de la izquierda':B.pats.includes('vallas')?'Mantené ↑: salto más alto':B.staff?'↑↓: saltás de línea en el pentagrama':B.ice?'El piso está congelado: resbalás.':B.boss?(B.pats.includes('fuego')?'¡Ojo! También caen de arriba.':'Ataque '+B.attacks):B.shadow?(B.esc?'Cada turno es peor. Huí.':'No le podés ganar. Huí.'):(B.corSeen||(B.corSeen=B.bul.some(u=>u.k==='cor')))?'Esquivá. Lo violeta te come la cordura.':'Esquivá.',160,b.y-6,'#767c92',10,'center');break;}
