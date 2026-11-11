@@ -598,10 +598,10 @@ MAPS[MP.CASA]={title:'Casa de campo · febrero de 2025',theme:'casa',rooms:[{x:1
   'ggggg!ggggggg-|..........n.n............K#-gggggggggg!',
   'ggggg!ggggggp-#......II.............F....#-ggggggg/gg!',
   'ggggg!ggggggg-######.##############.######-gggggggggg!',
-  '{{{{{!ggggggg-#.w@s#.#5::::::::::::::::::#-ggggggggYg!',
+  '{{{{{!ggggggg-#.w@s#.#5::::::::::::::::::;-ggggggggYg!',
   'ggggg!gYggggg-#....+..:::::::::::::::::GG#-g}gggggggg!',
   'ggggg!gggYggg-#HH..#.#:::::::::::::::::GG#-gYgggggggg!',
-  'ggggg!ggggggg-#HH.U^&#:::::::::::::::::::;-gggggYgggp!',
+  'ggggg!ggggggg-#HH.U^&#:::::::::::::::::::#-gggggYgggp!',
   'ggggg!ggggggg-########::::q:::::::q::::::#-gggggggggg!',
   'ggggg!ggggg**------!----------------------!!!!!!!!!!!!',
   'ggggggggggg**gggggg!--ggggggggggggggggggggggggggggggg!',
@@ -2885,7 +2885,7 @@ function tileAt(x,y){
   return ch==='+'&&S.flags['dr'+x+'_'+y]?'_':ch;
 }
 const walk=ch=>ch==='ѣ'||ch==='¨'||ch==='¡'||ch==='.'||ch==='r'||ch===','||ch===':'||ch==='g'||ch==='_'||ch==='-'||(ch===';'&&!!(S&&S.flags.a8))||(ch==='?'&&!!(S&&S.flags.gateA11));
-const isWall=ch=>'#W1234vEDZcmx+%|^µø¬ωΞħЭЂϺϷӁӃӅӤӠაბნტყთიჟѵ'.includes(ch);
+const isWall=ch=>ch===';'?!(S&&S.flags&&S.flags.a8):'#W1234vEDZcmx+%|^µø¬ωΞħЭЂϺϷӁӃӅӤӠაბნტყთიჟѵ'.includes(ch);
 const OUTCH='-!*0678)(][<>?Yl;9{}p/';
 function npcAt(x,y){
   const n=MAPS[S.map].npcs.find(n=>n.vis()&&n.x===x&&n.y===y);if(n)return n;
@@ -3132,9 +3132,9 @@ function fenceTalk(x,y){
   return say(['Una valla de madera. No podés seguir.']);
 }
 function secretGap(){
-  if(S.flags.a8)return say(['La abertura al lado de la parrilla da afuera.']);
-  if(!S.flags.patito)return say(['Al lado de la parrilla, donde los ladrillos tocan la pared, hay una rajadura. No pasa ni un dedo.','No podés continuar.']);
-  if(!S.flags.a8){S.flags.a8=1;AU.t(880,.1,'square',.04,1300);return say(['El patito de goma hace "cuic" solo, adentro del bolsillo.','"Quizás sí hay algunos secretos que se pueden desvelar, cuac."','Al lado de la parrilla, un pedazo de pared se corre solo. Justo del tamaño de una persona. Da afuera.']);}
+  if(S.flags.a8)return say(['La abertura del rincón, arriba de la parrilla, da afuera.']);
+  if(!S.flags.patito)return;/* sin el patito es una pared como cualquier otra */
+  if(!S.flags.a8){S.flags.a8=1;AU.t(880,.1,'square',.04,1300);return say(['El patito de goma hace "cuic" solo, adentro del bolsillo.','"Quizás sí hay algunos secretos que se pueden desvelar, cuac."','Arriba de la parrilla, en el rincón, un pedazo de pared se corre solo. Justo del tamaño de una persona. Da afuera.']);}
   return;
 }
 function giftAt(x,y){
@@ -4818,7 +4818,6 @@ ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(px+3,py+13,12,3);ctx.fillStyle='#e8
       ctx.fillStyle='#b8a040';ctx.fillRect(px+5,py,6,5);ctx.fillRect(px+4,py+1,1,2);ctx.fillRect(px+11,py+1,1,2);ctx.fillStyle='#1a1a1a';ctx.fillRect(px+7,py+3,2,2);ctx.fillStyle='#e8e0a0';ctx.fillRect(px+5,py,1,1);ctx.fillRect(px+10,py,1,1);
       ctx.fillStyle='#c8a030';ctx.fillRect(px+3,py+5,2,1);ctx.fillRect(px+12,py+6,1,1);break;}
     case ';':{/* el hueco al lado de la parrilla: cerrado es pared; abierto, un solo cuadrado por donde se ve el camino de piedra */
-      if(!S.flags.a8){drawTile('#',px,py,tx,ty,th,t);ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(px+7,py+5,1,3);ctx.fillRect(px+8,py+7,1,4);ctx.fillRect(px+7,py+10,1,2);break;}
       drawTile('-',px,py,tx,ty,th,t);ctx.fillStyle='rgba(0,0,8,.5)';ctx.fillRect(px,py,T,3);ctx.fillStyle='rgba(0,0,8,.25)';ctx.fillRect(px,py+3,T,2);ctx.fillRect(px,py,2,T);
       ctx.fillStyle='#2a1e16';ctx.fillRect(px,py,T,1);ctx.fillRect(px,py+T-1,T,1);ctx.fillStyle='#6a3224';ctx.fillRect(px,py+1,1,T-2);ctx.fillStyle='rgba(240,210,60,.14)';ctx.fillRect(px+2,py+7,T-2,3);break;}
     case 'f':ctx.fillStyle='#4a3a28';ctx.fillRect(px+7,py+2,2,13);ctx.fillStyle='#8a8a8a';ctx.fillRect(px,py+5,T,1);ctx.fillRect(px,py+10,T,1);break;
@@ -5090,7 +5089,7 @@ function updMap(dt){
   if(HAL){HAL.t-=dt;if(HAL.t<=0)HAL=null;}
   else if(!S.pro){const ch=(S.map===MP.PASILLO?.06:0)+(S.cor<60?(60-S.cor)/250:0);if(rnd()<ch*dt){const m=MAPS[S.map];for(let k=0;k<20;k++){const x=(rnd()*m.rows[0].length)|0,y=(rnd()*m.rows.length)|0;if(walk(tileAt(x,y))&&Math.hypot(x-S.x,y-S.y)>4){HAL={x,y,t:.22};break;}}}}
   try{corSenseTick(dt);}catch(e){}
-  if(S.map===MP.CASA&&scene==='map'&&!DLG&&!S.flags.a8&&S.flags.patito&&S.flags.news&&Math.abs(S.x-41)<=2&&Math.abs(S.y-22)<=1&&S.x<41)secretGap();
+  if(S.map===MP.CASA&&scene==='map'&&!DLG&&!S.flags.a8&&S.flags.patito&&S.flags.news&&Math.abs(S.x-41)<=2&&Math.abs(S.y-19)<=1&&S.x<41)secretGap();
   if(DLG){dlgUpdate(dt);return;}
   if(UI){uiUpdate();return;}
   if(PENDING.length){say(PENDING.splice(0));return;}
