@@ -218,6 +218,9 @@ const IT={
   tubo:{n:'Tubo de órgano',t:'key',d:'Metal de órgano: estaño y plomo. Para que Silvestre lo funda.'},
   plomos:{n:'Plomos de piano',t:'key',d:'Plomitos de las teclas de un piano viejo. Pesan como un puño.'},
   platillo:{n:'Platillo partido',t:'key',d:'Bronce con mucho estaño, verde de tan viejo.'},
+  soga:{n:'Soga del telón',t:'key',d:'Soga gruesa de escenario. Para el aparejo de Silvestre.'},
+  roldana:{n:'Roldana del proyector',t:'key',d:'Una roldana de bronce. Gira sin hacer ruido.'},
+  cuna:{n:'Cuña de madera',t:'key',d:'Para trabar el piano en cada escalón.'},
   sardinas:{n:'Lata de sardinas',t:'key',d:'De Estefanía. Para tenderle una trampa a Pionono.'},
   llaveHab:{n:'Llave de bronce',t:'key',d:'Abre el sector de las habitaciones del teatro. Estaba en el collar de un gato.'},
   pua:{n:'Púa de Ringo',t:'key',d:'Una púa con la cara de Ringo. Es de Ciro.'},
@@ -1506,11 +1509,11 @@ MAPS[MP.SALA5]={title:'Teatro del Quinto · sala',theme:'teatro',encounters:true
       PENDING.push('Apenas pisás el escenario, la sala estalla en aplausos.','Las butacas están vacías.','Los aplausos salen de grabadores escondidos entre las filas. Se cortan todos a la vez, en seco.');}},
   act(ch,x,y){
     switch(ch){
-      case 'Л':return say([c3Next('telL',['El telón de fondo, de terciopelo rojo. Pesa como si estuviera mojado.','Atrás del telón se escucha, muy lejos, una guitarra. Toca siempre lo mismo.','Corrés un poco el telón. Atrás hay una pared de ladrillo con caños que se pierden hacia los costados.'])]);
+      case 'Л':if(c5PolPiece('soga',['Detrás del telón, una soga gruesa sostiene un contrapeso que ya no sostiene nada. La desatás.']))return;return say([c3Next('telL',['El telón de fondo, de terciopelo rojo. Pesa como si estuviera mojado.','Atrás del telón se escucha, muy lejos, una guitarra. Toca siempre lo mismo.','Corrés un poco el telón. Atrás hay una pared de ladrillo con caños que se pierden hacia los costados.'])]);
       case 'Ш':if(c5ShotAsk(1))return;return say(['Un gramófono con una bocina dorada. El disco gira solo.','Sale un vals, muy lejos, como desde el fondo de un pozo.',c3Next('gramL',['Entre la música, una voz grabada dice: "...fila trece..."','La aguja salta y repite: "...otra vez, otra vez, otra vez..."','Entre el crujido se escucha un aplauso. Uno solo. Muy cerca.'])]);
       case 'Щ':if(S.canal===74)return lamas74();return say(['Un grabador de cinta abierta. Las bobinas giran.','La etiqueta dice: "ENSAYO GENERAL · 13/3/75".',c3Next('tapeL',['Apretás STOP. No pasa nada. Las bobinas siguen girando.','Por el parlante sale tu respiración. Con un segundo de atraso.'])]);
       case 'Ъ':if(c5ShotAsk(0))return;return say(['El borde del escenario. Las candilejas están prendidas, aunque no hay nadie a quien iluminar.']);
-      case 'Ф':{const L=[['Una silla y un atril. La partitura está abierta en el compás 13.','Arriba, a lápiz: "No mirar al público."'],['La partitura está en blanco: el pentagrama, pero ni una nota.'],['Sobre la silla hay un violín sin cuerdas.'],['Un papelito: "Si volvés a escuchar el ensayo, no aplaudas."']];return say(L[(x+y)%4]);}
+      case 'Ф':{if(c5PolPiece('cuna',['Abajo de la pata del atril hay una cuña de madera, para que no baile. La sacás. El atril se tuerce un poco y la partitura se cae.']))return;const L=[['Una silla y un atril. La partitura está abierta en el compás 13.','Arriba, a lápiz: "No mirar al público."'],['La partitura está en blanco: el pentagrama, pero ni una nota.'],['Sobre la silla hay un violín sin cuerdas.'],['Un papelito: "Si volvés a escuchar el ensayo, no aplaudas."']];return say(L[(x+y)%4]);}
       case 'П':return pianoMeet();
       case 'ӹ':return c5Stairs();
       case 'Ӌ':return trapBox();
@@ -1589,7 +1592,7 @@ MAPS[MP.SELENE5]={title:'Teatro del Quinto · el set de Selene',theme:'set',rows
         return say(['El trípode vacío. Tiene cinta de papel marcando dónde iba cada pata.']);
       case 'Ӕ':if(!has('tubo')&&!S.flags.c5tubo){S.flags.c5tubo=1;sfx.item();return say(['Tubos de órgano de verdad, usados como escenografía. Brillan como plata vieja.','Uno está suelto. Es liviano y blando: estaño y plomo.',gotLine('tubo')].concat(S.flags.c5selDead?[]:[{who:'Selene',t:'Llevate ese, el desafinado. Igual el órgano no anda desde 1975.'}]));}
         return say(['Tubos de órgano. Falta uno, el más chico.']);
-      case 'Ӑ':return say(['Un proyector de cine. Proyecta sobre la pared un plano fijo del pasillo de atrás.','En la imagen, alguien camina por el pasillo. Es igual a vos. Va hacia la puerta de la cámara de frío.'].concat(S.canal===24?['Contás los cuadros. Veinticuatro por segundo. En uno de cada veinticuatro, el que camina se da vuelta y mira a cámara.','En ese cuadro no tiene cara.']:[]));
+      case 'Ӑ':if(c5PolPiece('roldana',['El proyector tiene una roldana de bronce para el film. Sale con dos vueltas de tornillo.','Selene no se va a dar cuenta. Bah, sí. Pero va a entender.']))return;return say(['Un proyector de cine. Proyecta sobre la pared un plano fijo del pasillo de atrás.','En la imagen, alguien camina por el pasillo. Es igual a vos. Va hacia la puerta de la cámara de frío.'].concat(S.canal===24?['Contás los cuadros. Veinticuatro por segundo. En uno de cada veinticuatro, el que camina se da vuelta y mira a cámara.','En ese cuadro no tiene cara.']:[]));
       case 'Ӓ':return vcrPlay('Una tele con una videocasetera arriba. La pantalla tiene pelos de gato pegados por la estática.');
       case 'Ӗ':return say(['Una silla de director. En el respaldo dice "SELENE". Debajo, con otra letra: "y los gatos".']);
       case 'Ӛ':return say(['Una claqueta: "LA SEÑAL · ESCENA 5 · TOMA 13".','Las tomas de la 1 a la 12 están tachadas.']);
@@ -2232,11 +2235,46 @@ function vcrPlay(desc){if(!has('cinta5')||S.flags.tape5)return say([desc]);retur
 /* ---------- el piano (minijefe) ---------- */
 function pianoMeet(){const F=S.flags;
   if(F.c5stairs)return say(['Donde estaba el piano quedan cuatro marcas en el piso y una tecla negra, sola.']);
-  if(F.c5piano)return say([F.c5piano==='spare'?'El piano de cola, quieto. A una tecla le falta su lugar: te la dio a vos.':'El piano de cola, con la tapa partida. Ya no suena.']);
+  if(F.c5piano==='spare'&&!F.pTune)return say(['El piano de cola, quieto. A una tecla le falta su lugar: te la dio a vos.',{t:'El piano levanta la tapa apenas. Te espera.',choices:[{l:'Tocar "Para Elisa" con él',f(){say(['El piano empieza "Para Elisa". Ya sabés dónde se equivoca: siempre en la misma nota.','(Apretá Z justo en esa nota para corregirla. Tres veces seguidas.)'],()=>pianoTuneStart());}},{l:'Dejarlo',f(){}}]}]);
+  if(F.c5piano)return say([F.c5piano==='spare'?(F.pTune?'El piano de cola, afinado. Cuando pasás, toca una nota sola, bajito, como saludando.':'El piano de cola, quieto.'):'El piano de cola, con la tapa partida. Ya no suena.']);
   return say(['Un piano de cola, en el foso. Está abierto.',{t:'¿Tocar una tecla?',choices:[{l:'Tocar',f(){AU.t(261.6,1.2,'triangle',.06);AU.t(277,1.1,'sine',.02);
     if(S.canal===88){ELI_I=0;for(let i=0;i<9;i++){const f=ELISA[i];AU.t(i===7?f*1.06:f,.34,'triangle',.05,0,.6+i*.24);}ELI_I=0;}
     say(S.canal===88?['Tocás un do. Suena desafinado.','El piano contesta. No con un do: con el principio de "Para Elisa".','Se equivoca en la misma nota. Vuelve a empezar. Se vuelve a equivocar en la misma nota.','La tapa se levanta como una boca.']:['Tocás un do. Suena desafinado.','Medio segundo después, el piano toca el mismo do. Solo. Y otro. Y otro.','La tapa se levanta como una boca.'],()=>startBattle(['piano'],{leftKey:'c5pianoK',intro:['¡El Piano de cola se despierta en el foso!']}));}},{l:'Mejor no',f(){}}]}]);
 }
+/* ---------- el piano perdonado: afinarlo con "Para Elisa" y bajarlo con un aparejo ---------- */
+let PG=null;
+function pianoTuneStart(){PG={round:0,t:-.6,last:-1,hit:false,res:null,flash:0,ok:0};}
+const PG_TEMPO=[.34,.28,.23];
+function pianoTuneUpd(dt){const g=PG,tp=PG_TEMPO[g.round];g.t+=dt;if(g.flash>0)g.flash-=dt;
+  const on7=7*tp;if(hit('a')){if(g.t>=on7-.22&&g.t<=on7+.08&&!g.res)g.hit=true;else if(g.t>=0&&g.t<9*tp){g.res=g.res||'mal';}}
+  if(hit('b')){PG=null;return say(['Sacás las manos del teclado. El piano espera, quieto.']);}
+  const i=Math.floor(g.t/tp);
+  if(i!==g.last&&g.t>=0&&i<9){g.last=i;if(i!==7)AU.t(ELISA[i],tp*1.1,'triangle',.06);}
+  if(g.last===7&&g.t>=on7+.08&&g.res==null){g.res=g.hit?'bien':'mal';AU.t(g.res==='bien'?ELISA[7]:ELISA[7]*1.06,tp*1.2,'triangle',.07);g.flash=.35;}
+  if(g.t>=9*tp+.8){if(g.res==='bien'){g.ok++;g.round++;sfx.item();if(g.round>=3){PG=null;return pianoTuned();}}else{AU.t(110,.3,'sawtooth',.04);}g.t=-.5;g.last=-1;g.hit=false;g.res=null;}}
+function pianoTuned(){const F=S.flags;F.pTune=1;for(let i=0;i<20;i++){const f=ELISA[i];if(f)AU.t(f,.3,'triangle',.05,0,.3+i*.22);}
+  say(['El piano toca "Para Elisa" entera. Esta vez no se equivoca en ninguna nota.','Cuando termina, la tapa baja despacio, y vuelve a subir. Como si asintiera.','Te das cuenta de que te está ofreciendo algo. Te mira la puerta de la escalera de servicio.','Quiere ayudar. Pero pesa media tonelada, y no quiere romperse.'].concat(S.party.includes('silvestre')?[{who:'Silvestre',t:'¿Querés bajarlo entero por la escalera? Con un aparejo se puede. Vamos a ver la escalera.'}]:['(Silvestre sabría cómo bajarlo entero. Está en el 3A.)']));}
+function drawPianoTune(t){const g=PG,tp=PG_TEMPO[g.round],x0=W/2-108,y0=70,kw=24;ctx.fillStyle='rgba(4,4,8,.86)';ctx.fillRect(0,0,W,H);
+  txt('"PARA ELISA"',W/2,40,'#e3a849',14,'center',true);txt('Ronda '+(g.round+1)+' de 3',W/2,56,'#9aa0b4',10,'center');
+  const i=g.t>=0?Math.floor(g.t/tp):-1;
+  for(let k=0;k<9;k++){const x=x0+k*kw,on=k===i,tgt=k===7;ctx.fillStyle=on?(tgt&&g.res==='mal'?'#ff6a5a':tgt&&g.res==='bien'?'#7cff9a':'#fff6d8'):'#e8e0d0';ctx.fillRect(x,y0,kw-2,70);ctx.fillStyle='#3a3226';ctx.fillRect(x,y0+66,kw-2,4);
+    if([1,3].includes(k)){ctx.fillStyle='#141414';ctx.fillRect(x+kw-8,y0,12,42);}
+    if(tgt){ctx.strokeStyle=Math.floor(t*4)%2?'#ff5a3a':'#a03020';ctx.lineWidth=2;ctx.strokeRect(x+1,y0+1,kw-4,68);txt('acá se equivoca',x+kw/2,y0+86,'#ff8a70',9,'center');}}
+  if(g.t>=0&&i<9){ctx.fillStyle='#e3a849';ctx.fillRect(x0+(g.t/tp)*kw-1,y0-8,3,6);}
+  if(g.flash>0){ctx.fillStyle=g.res==='bien'?'rgba(124,255,154,'+g.flash+')':'rgba(255,90,58,'+g.flash+')';ctx.fillRect(0,0,W,H);}
+  txt('Z justo en la nota marcada · X salir',W/2,186,'#767c92',9,'center');
+  for(let k=0;k<3;k++){ctx.fillStyle=k<g.ok?'#7cff9a':'#3a3c48';ctx.fillRect(W/2-16+k*12,196,8,8);}}
+function c5PolQ(){const F=S.flags;return F.polQ===1;}
+function c5PolPiece(id,line){if(!c5PolQ()||has(id))return false;sfx.item();say(line.concat([gotLine(id),'(Piezas del aparejo: '+['soga','roldana','cuna'].filter(has).length+' de 3.)']));return true;}
+function c5Pulley(){const F=S.flags;
+  if(!F.pTune)return false;
+  if(!S.party.includes('silvestre')){say(['La escalera tapada de muebles. El piano solo no puede bajar entero.','Silvestre sabría cómo hacerlo. Está en el 3A.']);return true;}
+  if(!F.polQ){F.polQ=1;say([{who:'Silvestre',t:'A ver. Si lo tiramos, se hace pedazos. Si lo bajamos despacio, el peso hace el trabajo y las barricadas ceden igual.'},{who:'Silvestre',t:'Necesito tres cosas: una soga gruesa, una roldana y una cuña de madera para trabarlo en cada escalón.'},{who:'Silvestre',t:'Soga hay en el telón. Una roldana... el proyector de Selene tiene una. Y una cuña, cualquier atril del foso tiene una abajo de la pata.'},'(Conseguí la soga, la roldana y la cuña.)']);return true;}
+  if(!['soga','roldana','cuna'].every(has)){say([{who:'Silvestre',t:'Faltan cosas. Soga del telón, roldana del proyector y una cuña de los atriles.'}]);return true;}
+  S.items=S.items.filter(i=>!['soga','roldana','cuna'].includes(i));F.polQ=2;F.c5stairs=1;F.c5pianoDown=1;AU.nz(1,.2);for(let i=0;i<14;i++)setTimeout(()=>{AU.t(ELISA[i%9]||330,.3,'triangle',.05);if(i%3===2)AU.nz(.15,.12);},600+i*260);
+  say(['Silvestre ata la soga a la pata del piano, pasa la otra punta por la roldana y la engancha en la baranda del foso.',{who:'Silvestre',t:'Vos trabás con la cuña. Yo largo de a poco. A la cuenta de tres.'},
+    'El piano baja la escalera escalón por escalón. En cada uno toca una nota, como si contara.','Llega a las barricadas y se apoya con todo su peso. Las butacas crujen. Los tablones ceden. Todo se va abajo, despacio.',
+    'Cuando termina, el piano queda entero en el rellano entre el 4 y el 3, con la tapa abierta. Entre el polvo, toca un acorde. Mayor.',{who:'Silvestre',t:'Te dije. Despacio se llega igual.'},'(Ahora podés bajar al 3 sin pasar por el ducto.)']);return true;}
 /* ---------- Silvestre funde las piezas ---------- */
 function c5MeltCheck(){if(S.chapter!==3||has('estano')||S.flags.c5rescued)return false;const n=['tubo','plomos','platillo'].filter(has).length;if(!n)return false;
   const sil=S.party.includes('silvestre')||!S.flags.silvDead;
@@ -2274,7 +2312,8 @@ function c5Stairs(){const F=S.flags;
   if(F.c5stairs)return say([{t:'La escalera de servicio, despejada. Abajo, el rellano entre el 4 y el 3.',choices:[{l:'Bajar',f(){goMap(MP.ESCALERA,2,3,'down');}},{l:'Quedarse',f(){}}]}]);
   const L=['Una puerta de servicio con un cartelito: "ESCALERA". Del otro lado, la escalera está tapada de muebles, butacas rotas y escombros hasta el techo.','Es la misma escalera que en el 4 está tapada. Esta es la otra punta.'];
   if(F.c5piano==='kill')return say(L.concat([{t:'Lo que queda del piano de cola está ahí nomás, en el foso. Pesa media tonelada.',choices:[{l:'Tirarlo por la escalera',f(){c5PianoDrop();}},{l:'Dejarlo',f(){}}]}]));
-  return say(L.concat([F.c5piano==='spare'?'Haría falta algo muy pesado para tirar todo eso abajo. El piano te mira desde el foso. Ni lo pienses.':'Haría falta algo muy, muy pesado para tirar todo eso abajo.']));}
+  if(F.c5piano==='spare'&&c5Pulley())return;
+  return say(L.concat([F.c5piano==='spare'?'Haría falta algo muy pesado para tirar todo eso abajo. El piano te mira desde el foso. Si confiara en vos...':'Haría falta algo muy, muy pesado para tirar todo eso abajo.']));}
 function c5PianoDrop(){const F=S.flags;F.c5stairs=1;AU.nz(1.2,.3);sfx.hit();for(let i=0;i<12;i++)setTimeout(()=>{AU.nz(.2,.16);AU.t(70+rnd()*300,.35,'triangle',.05);},500+i*170);
   say([S.party.length?'Entre todos arrastran los restos del piano por el foso hasta la puerta de servicio.':'Arrastrás los restos del piano por el foso hasta la puerta de servicio. Tardás una eternidad.','Se traba en el marco. Empujás con el hombro. Cede.','El piano cae por la escalera golpe por golpe. Cada escalón suena como una tecla distinta.','Las barricadas revientan. Butacas, tablones, escombros: todo se va abajo con el piano.','Cuando termina, se hace silencio. Abajo, entre el polvo, se ve el rellano entre el 4 y el 3.','(Ahora podés bajar al 3 sin pasar por el ducto.)']);}
 /* ---------- el cuarto de máquinas, escondido detrás de un estante ---------- */
@@ -3543,6 +3582,7 @@ function drawUI(){
         if(has('estano'))n.push('Tenés el estaño. Volvé a la rejilla del caño: cortás los barrotes, sacás a Ciro y soldás todo de nuevo.');
         if(F.c5run){const s2=Math.ceil(F.c5ms/1000);n.push('Ciro aguanta poco: quedan '+Math.floor(s2/60)+':'+String(s2%60).padStart(2,'0')+'.');}}if(F.c5late&&!F.c5fight)n.push('Se acabó el tiempo. A Ciro solo se lo saca enfrentando a Brian y Den.');
       if(F.c5grabQ&&!F.grabMel)n.push('La cámara de frío se abre con la melodía que tararea Den. Hay que grabarla, escondido atrás del perchero.');if(F.c5stairs)n.push('La escalera de servicio de la sala baja directo al rellano entre el 4 y el 3.');
+      if(F.polQ===1)n.push('Aparejo para bajar el piano: '+['soga','roldana','cuna'].filter(has).length+' de 3 (soga del telón, roldana del proyector, cuña de un atril). Después, a la escalera de servicio con Silvestre.');
       if(F.c5ciroFol)n.push('Volvé por el caño hasta la tapa de inspección. Ciro va atrás tuyo.');if(F.c5tp===1)n.push('El plan: en la cámara de frío, Den va a ir a la puerta escondida siguiendo la guitarra. Empujala por la espalda cuando no te mire (Z).');
       if(F.denN){let c=0;for(let i=0;i<3;i++)if(F.denN&(1<<i))c++;n.push('Notas de Den encontradas: '+c+' de 3.'+(c===3?' Capaz le sirvan a Brian.':''));}
       if(F.selQ===1){const k=4-c5ShotN();n.push(k?'Selene necesita '+k+' plano'+(k>1?'s':'')+' para su película: '+c5ShotLeft().join(', ')+'. Grabalos con la cámara.':'Ya grabaste los cuatro planos. Llevaselos a Selene, en el set.');}if(F.mochila)n.push('Tenés la mochila de rodaje de Selene: te entran '+pocketMax()+' cosas en los bolsillos.');
@@ -4894,6 +4934,7 @@ function updMap(dt){
   mapTitleT=Math.max(0,mapTitleT-dt);bumpCd-=dt;encCd-=dt;
   if(CUT){updCut(dt);return;}
   if(CINE){cineUpd(dt);return;}
+  if(PG){pianoTuneUpd(dt);return;}
   if(RESC){rescUpd(dt);return;}
   if(C5H){c5HideUpd(dt);return;}
   if(HAL){HAL.t-=dt;if(HAL.t<=0)HAL=null;}
@@ -5077,6 +5118,7 @@ function renderMap(t){
   if(VIEW)drawView(t);
   if(C5H)drawC5Hide(t);
   if(RESC)try{drawResc(t);}catch(e){}
+  if(PG)try{drawPianoTune(t);}catch(e){}
   if(CINE)try{drawCine(t);}catch(e){}
   drawUI();
   drawDlg();
