@@ -372,7 +372,7 @@ FOES.sombra={name:'La Sombra',hp:999,atk:7,xp:0,pesos:[0,0],sp:0,need:999,shadow
     {n:'Gritar',run(){return['Gritás. La Sombra no se inmuta.','En algún lugar del edificio, alguien grita con vos.'];}},
     {n:'Taparte los ojos',run(){return['Te tapás los ojos. Cuando los abrís, está más cerca.'];}}],
   spare:[],kill:['La Sombra se deshace en el aire... y se vuelve a armar.']};
-function pedroActsLine(f){return(f.used.o&&f.used.c&&f.used.r)?['Pedro todavía no puede parar. Pero ya no te mira con odio.']:[];}
+function pedroActsLine(f){return(f.used.o&&f.used.c&&f.used.r)?['Pedro todavía no puede parar. Pero ya no te mira con odio.','(Ahora desintonizalo en cada turno y aguantá sus ataques.)']:[];}
 const pedroCalm=f=>!!(f.used.o&&f.used.c&&f.used.r);
 
 /* ================= state ================= */
@@ -867,6 +867,8 @@ MAPS[MP.DEPTO]={title:'Departamento 4A · 1995',theme:'home',rows:[
       case 'N':return say(['El cajón de la mesita de luz está cerrado con llave.','No te acordás dónde dejaste la llave. Ni siquiera te acordás de haberla tenido.']);
       case 'T':return say(['La tele solo muestra nieve.','Por un segundo, en la nieve, ves una estrella cruzando el cielo, demasiado rápido. Después, nada.']);
       case 'V':
+        if(has('cinta5')&&!S.flags.tape5)return say(['Metés la cinta "PISO 5" en la videocasetera. Entra sola, como si la estuviera esperando.'],()=>{c5Code();playTape(5);});
+        if(S.flags.tape5)return say(['La videocasetera está vacía. El código de la reja de Félix que anotaste: '+S.code5+'.']);
         if(S.items.includes('cinta3')&&!S.flags.tape3)return say(['Metés la cinta "PISO 3" en la videocasetera.'],()=>playTape(3));
         if(S.flags.tape3)return say(['La videocasetera está vacía. Los códigos que anotaste: '+S.code+' y '+S.code3+'.']);
         if(S.items.includes('cinta1'))return say(['Metés la cinta en la videocasetera.'],()=>playTape());
@@ -1600,7 +1602,7 @@ MAPS[MP.HABIT5]={title:'Teatro del Quinto · habitaciones',theme:'camarin',rows:
     }
   }};
 /* ---------- la cámara de frío: Brian y Den ---------- */
-MAPS[MP.FRIGO5]={title:'Teatro del Quinto · la cámara de frío',theme:'frigo',get encounters(){return frigoLit()&&!DEN;},enc:{pool:['chori','morci','costi','chinchu'],key:'leftCarne',total:10},rows:[
+MAPS[MP.FRIGO5]={title:'Teatro del Quinto · la cámara de frío',theme:'frigo',get encounters(){return !C5H&&!S.flags.c5fight&&!S.flags.c5trapOn;},enc:{pool:['chori','morci','costi','chinchu'],key:'leftCarne',total:10},rows:[
   '########ϺϺϺϺϺϺ########',
   '#ӦӦ..ӨӨ########..ӪӪ.Ӱ#',
   '#......########......#',
@@ -1775,7 +1777,7 @@ function c5Grate(){const F=S.flags;C5GV=true;
       {who:'Ciro',t:'Hay que cortar los barrotes y después volver a soldarlos, que no se note nada. Para eso hace falta estaño.'},
       {who:'Ciro',t:'Silvestre, el del 3, hace estaño con cualquier metal blando. Tubos de órgano. Los plomos de un piano. Un platillo de bronce.'},
       {who:'Ciro',t:'En el piso hay de todo eso. Juntá tres piezas, que Silvestre las funda, y volvé acá con el estaño.'},
-      {who:'Ciro',t:'Pero apurate. Cada vez me cuesta más acordarme de cómo me llamo.'},'(Tenés siete minutos.)');
+      {who:'Ciro',t:'Pero apurate. Cada vez me cuesta más acordarme de cómo me llamo.'},'(Tenés cuatro minutos. El reloj se frena mientras peleás.)');
     if(c5PacOK()&&S.party.includes('silvestre'))L.push({who:'Silvestre',t:'(desde atrás, en el caño) Bajar a mi taller y volver por el ducto nos come el tiempo.'},{who:'Silvestre',t:'Si hubiera un teléfono en este teatro, le pido a alguien que me suba el crisol.'});
     return say(L,()=>{if(!F.c5run){F.c5run=1;F.c5ms=C5TIME;sfx.cor();}});}
   const p=F.c5ms!=null?F.c5ms/C5TIME:1,n=['tubo','plomos','platillo'].filter(has).length;
@@ -2037,7 +2039,11 @@ function frigoPost(t,cx,cy){
   if(DEN){const d=DEN,x=(d.fx+(d.x-d.fx)*d.p)*T-cx,y=(d.fy+(d.y-d.fy)*d.p)*T-cy;
     if(nv){ctx.save();ctx.globalAlpha=.75;drawDenFig(x,y,t,false,true);ctx.restore();}
     const ex=d.dir==='left'?-2:d.dir==='right'?2:0;ctx.fillStyle='#f4f4ec';ctx.fillRect(x+5+ex,y-6,2,2);ctx.fillRect(x+9+ex,y-6,2,2);ctx.fillStyle='rgba(240,240,230,.25)';ctx.fillRect(x+4+ex,y-7,8,4);
-    if(nv){const [vx,vy]=DIRS[d.dir];ctx.fillStyle='rgba(255,60,60,.07)';ctx.beginPath();ctx.moveTo(x+8,y+4);ctx.lineTo(x+8+vx*80-vy*24,y+4+vy*80-vx*24);ctx.lineTo(x+8+vx*80+vy*24,y+4+vy*80+vx*24);ctx.fill();}}
+    /* lo que ve Den: las mismas casillas que usa para descubrirte, en ámbar */
+    {const [vx,vy]=DIRS[d.dir],pul=.5+.5*Math.sin(t*5);ctx.save();ctx.globalCompositeOperation='source-over';
+      for(let f=1;f<=5;f++)for(let l=-(f>=2?1:0);l<=(f>=2?1:0);l++){const tx=d.x+vx*f+(vy?l:0),ty=d.y+vy*f+(vx?l:0);if(!losClear(d.x,d.y,tx,ty)||!walk(tileAt(tx,ty)))continue;
+        const a=(nv?.2:.13)+(.1*pul)*(1-f/6),sx=tx*T-cx,sy=ty*T-cy;ctx.fillStyle='rgba(255,176,32,'+a+')';ctx.fillRect(sx+1,sy+1,T-2,T-2);ctx.strokeStyle='rgba(255,200,80,'+(a+.12)+')';ctx.strokeRect(sx+1.5,sy+1.5,T-3,T-3);}
+      ctx.restore();}}
 }
 function drawDenFig(x,y,t,cell,nvMode){const F=(c,a,b,w,h)=>{ctx.fillStyle=c;ctx.fillRect(x+a,y+b,w,h);},j=Math.sin(t*37)>.92?1:0;
   if(cell){F('#0a0a0e',4,-8,8,22);F('#f4f4ec',5,-5,2,2);F('#f4f4ec',9,-5,2,2);return;}
@@ -2052,7 +2058,7 @@ function frigoBossIntro(){return ['Se prende un tubo fluorescente. Después otro
 function c5BossStart(){const F=S.flags;F.c5fightReady=2;
   say(frigoBossIntro(),()=>startBattle(['brian','den'],{c5bd:true,leftKey:'c5bdK',intro:['¡Brian y Den te cortan el paso!'],onEnd:()=>say(C5HID(),c5AfterFight)}));}
 /* ---------- la cinta del 5 y las videocaseteras ---------- */
-function vcrPlay(desc){if(!has('cinta5'))return say([desc]);return say([desc,{t:'¿Poner la cinta "PISO 5"?',choices:[{l:'Ponerla',f(){c5Code();playTape(5);}},{l:'Todavía no',f(){}}]}]);}
+function vcrPlay(desc){if(!has('cinta5')||S.flags.tape5)return say([desc]);return say([desc,'Probás meter la cinta de Ciro. La videocasetera la traga hasta la mitad, hace un ruido de engranaje y la escupe.','En la etiqueta, abajo de "PISO 5", con letra chiquita: "solo en tu tele".','(La cinta de Ciro solo se puede ver en la videocasetera de tu departamento, en el 4.)']);}
 /* ---------- el piano (minijefe) ---------- */
 function pianoMeet(){const F=S.flags;
   if(F.c5stairs)return say(['Donde estaba el piano quedan cuatro marcas en el piso y una tecla negra, sola.']);
@@ -2135,11 +2141,11 @@ function c5FelixTalk(){const F=S.flags;
   return say([{who:'Félix',t:c3Next('fx5',['Esto parece un estadio vacío. Me da más miedo que un clásico sin hinchada.','Si hay que relatar algo, avisame. Tengo la garganta caliente.','Me quedo acá cuidando la puerta. Nadie entra sin que yo lo relate.'])}]);}
 function c5MeltHere(){const F=S.flags;if(has('estano')||!c5Pieces())return;S.items=S.items.filter(i=>!['tubo','plomos','platillo'].includes(i));sfx.item();
   say(['Silvestre arma el crisol en el piso, sobre unas baldosas flojas, y prende el soldador grande.',{who:'Silvestre',t:'¿Metal de órgano? ¿Bronce de platillo? ¿Plomo de teclas? Esto es estaño de primera. Bah, casi.'},'Funde el tubo, los plomos y el platillo, y cuela todo en varillas finitas que humean.',{who:'Silvestre',t:'Listo. Con esto cortás los barrotes de la rejilla y los volvemos a soldar. Nadie se va a dar cuenta.'},gotLine('estano')]);}
-/* ---------- reloj de 7 minutos ---------- */
-const C5TIME=420000;
+/* ---------- reloj de 4 minutos (se congela en las peleas) ---------- */
+const C5TIME=240000;
 function c5Tick(dt){if(!S||S.pro||S.chapter!==3)return;try{catTick(dt);}catch(e){}try{denTick(dt);}catch(e){}
   const F=S.flags;c5KitTick(dt);if(F.c5ms>C5TIME)F.c5ms=C5TIME;if(!F.c5m15){F.c5m15=1;if(S.left5!=null&&S.left5>0)S.left5--;}
-  if(F.c5bossNext&&scene==='map'&&S.map===MP.FRIGO5&&!DLG&&!PENDING.length&&!F.c5fight){F.c5bossNext=0;c5BossStart();}if(F.c5run&&!F.c5late&&!PAUSE&&(scene==='map'||scene==='battle')){F.c5ms-=dt*1000;if(F.c5ms<=0){F.c5ms=0;F.c5run=0;F.c5late=1;sfx.cor();if(scene==='map')PENDING.push('A lo lejos, la guitarra de los caños se corta de golpe.','Después vuelve, desafinada, repitiendo una sola nota.','(Se terminó el tiempo. Ya no se puede sacar a Ciro por los caños.)');}}}
+  if(F.c5bossNext&&scene==='map'&&S.map===MP.FRIGO5&&!DLG&&!PENDING.length&&!F.c5fight){F.c5bossNext=0;c5BossStart();}if(F.c5run&&!F.c5late&&!PAUSE&&scene==='map'){F.c5ms-=dt*1000;if(F.c5ms<=0){F.c5ms=0;F.c5run=0;F.c5late=1;sfx.cor();if(scene==='map')PENDING.push('A lo lejos, la guitarra de los caños se corta de golpe.','Después vuelve, desafinada, repitiendo una sola nota.','(Se terminó el tiempo. Ya no se puede sacar a Ciro por los caños.)');}}}
 function c5Hud(){const F=S&&S.flags;if(!F||S.chapter!==3||!F.c5run||F.c5late||scene!=='map')return;const s=Math.ceil(F.c5ms/1000),m=Math.floor(s/60),ss=s%60,low=s<=60;
   ctx.fillStyle='rgba(6,8,20,.7)';ctx.fillRect(W-74,24,66,16);txt('⏱ '+m+':'+String(ss).padStart(2,'0'),W-12,36,low&&Math.floor(performance.now()/250)%2?'#ff5a3a':'#e3a849',12,'right',true);}
 function startChapter3(){
@@ -4595,7 +4601,7 @@ function arrive(){
   if(S.map===MP.PISO3){const d=p3Data().dice;if(d&&S.x===d[0]&&S.y===d[1]&&S.flags.geroQ===1&&!S.flags.dado4){S.flags.dado4=1;S.items.push('dado4');sfx.item();PENDING.push('Pisás algo chiquito y duro. Es un dado de cuatro caras, perdido entre las líneas del andarivel.','Agarraste: '+IT.dado4.n+'.');}}
   const m=MAPS[S.map];
   const E=m.enc||{pool:['soldadito','casco','radio'],key:'left',total:15};if(S[E.key]==null)S[E.key]=E.total;
-  if(m.encounters&&!S.pro&&!CHASE&&S.flags.p3dark!==1&&S.flags.p3dark!==3&&S[E.key]>0&&encCd<=0&&ri(1,30)===30){
+  if(m.encounters&&!S.pro&&!CHASE&&S.flags.p3dark!==1&&S.flags.p3dark!==3&&S[E.key]>0&&encCd<=0&&(()=>{const N=S.chapter===3?35:30;return ri(1,N)===N;})()){
     const pool=E.pool,ids=[pool[ri(0,pool.length-1)]];
     if(S[E.key]>=2&&rnd()<.3)ids.push(pool[ri(0,pool.length-1)]);
     if(E.key==='left'&&!uniHas('cascoU')&&(S.left<=4||S.flags.pedroNo))ids[0]='casco';
@@ -5712,7 +5718,7 @@ function bossQuotes(){
   if(r<.75&&!q.a){q.a=1;L.push('Pedro: "¡Eso no me dolió, recluta!"');}
   if(r<.5&&!q.b){q.b=1;L.push('Pedro: "Yo... yo tengo que cuidar la escalera. Me lo ordenaron."');}
   if(r<.25&&!q.c){q.c=1;L.push('Pedro: "Si caigo... ¿quién va a cuidar...?"');}
-  if(pedroCalm(f)&&B.attacks>=8&&!q.d){q.d=1;L.push('Pedro: "Estoy... muy cansado."');}
+  if(pedroCalm(f)&&B.attacks>=6&&!q.d){q.d=1;L.push('Pedro: "Estoy... muy cansado."');}
   if(!L.length){const cl=pedroCalm(f),PT=cl?['Ya casi no oigo la radio.','Mis brazos... ya no quieren marchar.','Un patio. Me acuerdo de un patio.']:['¡Nadie sube! ¡Nadie baja!','¡La radio me lo ordenó! ¡La radio!','Mi voz sale de la radio. No de mi boca.','¡No me mires los ojos, civil!','¿Vos también la escuchás? La otra voz.','Si me rindo... ella gana.'];const key=cl?'pc':'pn';q[key]=q[key]||0;if(q[key]<PT.length&&rnd()<.75)L.push('Pedro: "'+PT[q[key]++]+'"');}
   return L;
 }
@@ -5733,7 +5739,7 @@ function doMercy(k){
     return afterPlayer(['Intentás huir, pero te cortan el paso.'],false);
   }
   if(B.felix)return afterPlayer(['Félix: "¡EL PARTIDO NO TERMINÓ! ¡Acá se gana con goles!"','(Llevás '+(B.goals||0)+' de 3 goles.)'],false);
-  if(B.boss){const f=B.foes[0];return afterPlayer([pedroCalm(f)?'Intentás desintonizarlo. Pedro no baja la guardia todavía. Aguantá.':'Pedro no baja la guardia. Parece que solo responde a órdenes.'],false);}
+  if(B.boss){const f=B.foes[0];if(pedroCalm(f)){B.dz=B.turn+1;B.dzN=(B.dzN||0)+1;}return afterPlayer([pedroCalm(f)?(B.attacks>=9?'Lo desintonizás. Pedro baja los brazos un poco. Un ataque más.':'Lo desintonizás. Pedro afloja un poco. Seguí así, y aguantá.'):'Pedro no baja la guardia. Parece que solo responde a órdenes.'],false);}
   const sp=spareables();
   if(!sp.length)return afterPlayer(['Nadie quiere irse todavía.'],false);
   const L=[];sp.forEach(f=>{f.spared=true;L.push(f.def.spare[0]);});sfx.item();
@@ -5803,7 +5809,7 @@ function enemyTurn(){
   B.turn++;
   if(B.felix){B.attacks++;const n=B.attacks,X=['tiki','saque','penal','pique'];B.pats=n<2?['partido']:n<5?['partido','relato']:['partido','relato',X[(n-5)%4]];B.dur=12;return;}
   if(B.boss){B.attacks++;const n=B.attacks,P5=['fuego','botas','mira','minas','firmes'];
-    if(n>=15&&pedroCalm(B.foes[0]))B.pats=['retirada'];
+    if(n>=10&&pedroCalm(B.foes[0])&&B.dz===B.turn)B.pats=['retirada'];
     else if(n>=10){const a=P5[ri(0,4)];let b=P5[ri(0,4)];while(b===a)b=P5[ri(0,4)];B.pats=[a,b];}
     else B.pats=[P5[(n-1)%5]];
     B.dur=12;
@@ -6132,7 +6138,7 @@ function updDodge(dt){
   if(B.dt>=B.dur-(S.eq.acc==='crono'?2:0)){
     B.bul=[];
     if(B.felix&&B.goals>=3){const f=B.foes[0];f.spared=true;sfx.item();return bSay(f.def.spare,()=>endBattle());}
-    if(B.boss&&!B.felix&&B.attacks>=15&&pedroCalm(B.foes[0])){const f=B.foes[0];f.spared=true;sfx.item();return bSay(f.def.spare,()=>endBattle());}
+    if(B.boss&&!B.felix&&B.attacks>=10&&pedroCalm(B.foes[0])&&B.dz===B.turn){const f=B.foes[0];f.spared=true;sfx.item();return bSay(f.def.spare,()=>endBattle());}
     toMenu();
   }
 }
