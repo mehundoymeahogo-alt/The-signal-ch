@@ -238,6 +238,7 @@ toma12:{n:'Carrete "Toma 12"',t:'key',d:'Cinta de carrete abierto. Adentro está
   dado4:{n:'Dado de cuatro caras',t:'key',d:'Un dado chiquito en forma de pirámide. Es de Gerónimo.'},
   dado6:{n:'Dado de seis caras',t:'key',d:'Un dado común, con los puntos pintados a mano. Es de Gerónimo.'},
   dado12:{n:'Dado de doce caras',t:'key',d:'Un dado con brillitos. Es de Gerónimo.'},
+  afilador:{n:'Afilador de Brian',t:'acc',cutx:1.15,adef:3,d:'La chaira del frigorífico de Brian. Gastada en el medio. +15% de daño con armas cortantes y +3 de defensa.'},
   crono:{n:'Cronómetro',t:'acc',d:'El cronómetro del corredor del 3. Marca 50 vueltas. Los ataques enemigos duran 2 segundos menos.'},
   auris:{n:'Auriculares de Félix',t:'acc',corRes:.3,d:'Los auriculares de la relatora. No sale nada del cable. La cordura baja un 30% menos.'},
   patito:{n:'Patito de goma',t:'key',d:'Amarillo. Hace "cuic". Lo tenías en la mano antes de despertar.'}
@@ -414,9 +415,9 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)markClosed(
 
 const maxHP=()=>{let m=S.baseHP+Math.round((S.lv-1)*79/19)+S.hpBonus-S.hpDrain;if(S.eq.acc==='anillo')m=Math.round(m*1.25);if(S.eq.acc==='diente')m=Math.floor(m/2);return Math.max(5,m);};
 const fixHP=()=>{S.hp=Math.min(S.hp,maxHP());};
-const defVal=()=>S.eq.armor?IT[S.eq.armor].def:0;
+const defVal=()=>(S.eq.armor?IT[S.eq.armor].def:0)+((S.eq.acc&&IT[S.eq.acc]&&IT[S.eq.acc].adef)||0);
 const atkVal=()=>(S.eq.weapon?IT[S.eq.weapon].dmg:4)+(S.lv-1)*2;
-function dmgMult(){let m=1;const a=S.eq.acc&&IT[S.eq.acc];if(a&&a.dmgx)m*=a.dmgx;if(S.eq.weapon&&IT[S.eq.weapon].k==='rango'&&S.eq.armor==='chaqueta')m*=1.25;return m;}
+function dmgMult(){let m=1;const a=S.eq.acc&&IT[S.eq.acc];if(a&&a.dmgx)m*=a.dmgx;if(a&&a.cutx&&S.eq.weapon&&IT[S.eq.weapon].k==='cortante')m*=a.cutx;if(S.eq.weapon&&IT[S.eq.weapon].k==='rango'&&S.eq.armor==='chaqueta')m*=1.25;return m;}
 // ── Cordura baja: la cabeza rota sintoniza lo escondido ──
 // Con menos de 45 de cordura, los secretos del mapa empiezan a titilar; con menos de 30 se ve un ojo dibujado
 // y se escuchan susurros; con menos de 15 se ven desde cualquier punto del mapa, con un "acá" garabateado.
@@ -486,7 +487,7 @@ function itemEffect(id){const it=IT[id],L=[];
     let s=L.join(' y ');s=s.charAt(0).toUpperCase()+s.slice(1)+'. Se gasta al usarlo.';if(it.hp||it.full)s+=' (Tenés '+S.hp+'/'+maxHP()+' PV.)';else if(it.cor)s+=' (Tenés '+S.cor+'/'+S.maxCor+' de cordura.)';return s;}
   if(it.t==='weapon'){const c=S.eq.weapon&&IT[S.eq.weapon];return 'Arma '+it.k+': '+it.dmg+' de daño. '+critText(it.k)+(c?' (Ahora usás '+c.n+': '+c.dmg+'.)':'');}
   if(it.t==='armor'){const c=S.eq.armor&&IT[S.eq.armor];return 'Abrigo: +'+it.def+' de defensa'+(it.inv?' y los golpes tardan más en volver a lastimarte':'')+(id==='chaqueta'?' y más daño con armas a distancia':'')+'.'+(c?' (Ahora tenés '+c.n+': +'+c.def+'.)':'');}
-  if(it.t==='acc'){if(it.dmgx)L.push('+'+Math.round((it.dmgx-1)*100)+'% de daño');if(it.half)L.push('tu vida máxima queda a la mitad');if(it.corRes)L.push('la cordura baja un '+Math.round(it.corRes*100)+'% menos');if(it.hpx)L.push('+'+Math.round((it.hpx-1)*100)+'% de vida máxima');if(it.d20)L.push('1 chance en 20 de que el enemigo no quiera pelear');if(id==='crono')L.push('los ataques enemigos duran 2 segundos menos');
+  if(it.t==='acc'){if(it.dmgx)L.push('+'+Math.round((it.dmgx-1)*100)+'% de daño');if(it.cutx)L.push('+'+Math.round((it.cutx-1)*100)+'% de daño con armas cortantes');if(it.adef)L.push('+'+it.adef+' de defensa');if(it.half)L.push('tu vida máxima queda a la mitad');if(it.corRes)L.push('la cordura baja un '+Math.round(it.corRes*100)+'% menos');if(it.hpx)L.push('+'+Math.round((it.hpx-1)*100)+'% de vida máxima');if(it.d20)L.push('1 chance en 20 de que el enemigo no quiera pelear');if(id==='crono')L.push('los ataques enemigos duran 2 segundos menos');
     const c=S.eq.acc&&IT[S.eq.acc];let s=L.join(', ');s='Accesorio: '+s+'.';return s+(c?' (Reemplaza a '+c.n+'.)':'');}
   return it.d;}
 function confirmItem(i,verb,go){const id=S.items[i];const V=verb.charAt(0).toUpperCase()+verb.slice(1);say([{t:IT[id].n+'. '+itemEffect(id)+' ¿'+V+'?',choices:[{l:verb.charAt(0).toUpperCase()+verb.slice(1),f:go},{l:'Mejor no',f(){}}]}]);}
@@ -1453,17 +1454,7 @@ function c5Seat(){if(!S.c5seat){const fila=[10,12,14][ri(0,2)];S.c5seat=[ri(2,9)
 const c5Fila=y=>y===10?11:y===12?12:14;
 const C5F=S0=>S0.flags;
 /* ---------- el hall ---------- */
-MAPS[MP.FOYER5]={title:'Teatro del Quinto · hall',theme:'teatro',rows:[
-  '##ЭЭ#Ђ###DD###D#ЭЭ##',
-  '#ДДД,,,,....,,,,ЯЯЯ#',
-  '#ДДД,,,,....,,,,ГГГ#',
-  '#,,,,,,,....,,,,,,,#',
-  '#,,Ц,,,,....,,,,Ц,,#',
-  '#,,,,,,,....,,,,,,,#',
-  '#ЫЫ,,,,,....,,,,,ЫЫ#',
-  '#,,Ц,,,,....,,,,Ц,,#',
-  '#,,,,,,,....,,,,,,,#',
-  '#########ΞΞ#########'],
+MAPS[MP.FOYER5]={title:'Teatro del Quinto · hall',theme:'teatro',get rows(){return FOYER_V[teatLV()];},
   zone:()=>'El hall del teatro',
   npcs:[{id:'felix5',x:12,y:7,dir:'down',look:LOOK.felix,vis:()=>(S.flags.c5kit||0)>=2,talk(){c5FelixTalk();}},{id:'brian5',x:3,y:6,dir:'left',look:LOOK.brian,vis:()=>!!S.flags.c5trap,talk(){say([{who:'Brian',t:c3Next('brT',['Me dijeron que había una función. Que me apurara. No hay nadie.','¿Viste a Den? Siempre me espera despierta. Hoy no estaba.','Diez horas en la cámara de frío del frigorífico. Llego y está Den. Siempre está Den.','...¿Por qué me mirás así?'])}]);}}],
   lights:t=>[[10,3.6,96+Math.sin(t*1.3)*3,.8],[3.5,1.6,40,.55],[17.5,1.6,40,.5]],
@@ -1531,18 +1522,7 @@ MAPS[MP.SALA5]={title:'Teatro del Quinto · sala',theme:'teatro',encounters:true
     }
   }};
 /* ---------- los pasillos de atrás (donde vive Selene) ---------- */
-MAPS[MP.PASILLO5]={title:'Teatro del Quinto · pasillos',theme:'camarin',encounters:true,enc:{pool:['saxo','plato','trian','uke'],key:'left5',total:15},rows:[
-  '###ӁӁϺϺϺϺϺϺϺӃӃϺϺϺϺϺϺϺӅӅϺϺϺϷ#',
-  '#ӇӇ................ЯЯ......#',
-  '#..........................#',
-  '#....Ϲ.................Ϲ...#',
-  '#..........................#',
-  '####...#########...#####..##',
-  '#..........................#',
-  '#...Ϲ..................Ϲ...#',
-  '#..........................#',
-  '#..........................#',
-  '##D#########################'],
+MAPS[MP.PASILLO5]={title:'Teatro del Quinto · pasillos',theme:'camarin',encounters:true,enc:{pool:['saxo','plato','trian','uke'],key:'left5',total:15},get rows(){return PAS5_V[teatLV()];},
   zone:(x,y)=>y<=4?'Los pasillos de atrás':'El depósito de escenografía',
   npcs:[{id:'selene5',x:5,y:2,dir:'down',look:LOOK.selene,vis:()=>!S.flags.c5selDead,talk:seleneTalk},
         {id:'gato5',x:19,y:8,dir:'left',draw:(x,y,t)=>drawCatW(x,y,t,false),vis:()=>S.canal===5,talk:cat5Talk},
@@ -1573,20 +1553,21 @@ MAPS[MP.PASILLO5]={title:'Teatro del Quinto · pasillos',theme:'camarin',encount
   }};
 /* ---------- la zona de Selene: su set ---------- */
 MAPS[MP.SELENE5]={title:'Teatro del Quinto · el set de Selene',theme:'set',rows:[
-  '##############',
-  '#ӔӔ..ӐӐ...ӒӒ.#',
-  '#............#',
-  '#..Ӗ...Ӎ..Ӛ..#',
-  '#............#',
-  '#ӇӇ.......Я..#',
-  '#............#',
-  '######D#######'],
+  '##################',
+  '#ӔӔ..ӐӐ...ӒӒ.ѽѽѽѽ#',
+  '#............ѿ...#',
+  '#..Ӗ...Ӎ..Ӛ......#',
+  '#...........ѿ....#',
+  '#ӇӇ.......Я...ѳѾѾ#',
+  '#................#',
+  '######D###########'],
   zone:()=>'El set de Selene',
   npcs:[{id:'gatoS1',x:9,y:5,dir:'left',draw:(x,y,t)=>drawCat(x,y,t,'#2a2a2e',true),vis:()=>!S.flags.c5selDead,talk(){say(['Una gata negra te mira sin parpadear. Tiene puesto un collar que dice "NIOBE".'])}},
         {id:'gatoS2',x:3,y:6,dir:'up',draw:(x,y,t)=>drawCat(x,y,t,'#d8d0c0',true),vis:()=>!S.flags.c5selDead,talk(){say(['Una gata blanca duerme encima de un guion. Se llama "Luna", según el collar.'])}},
         {id:'gatoS3',x:12,y:6,dir:'left',draw:(x,y,t)=>drawCatVaca(x,y,t),vis:()=>!S.flags.c5selDead,talk(){say(['Un gato blanco con manchas negras, como una vaca chiquita. Duerme panza arriba.','En el collar dice "VAQUITO". Le queda perfecto.'])}},
         {id:'gatoS4',x:5,y:2,dir:'down',draw:(x,y,t)=>drawCat(x,y,t,'#8a8c94',true),vis:()=>!S.flags.c5selDead,talk(){say(['Una gata gris atigrada, hecha un bollo arriba de una lata de película.','En el collar dice "MASHI". Abre un ojo, te evalúa y lo vuelve a cerrar.'])}}],
-  lights:t=>[[7,2.5,110,.8],[5.5,1.2,40+Math.sin(t*20)*3,.5]],
+  lights:t=>[[7,2.5,110,.8],[5.5,1.2,40+Math.sin(t*20)*3,.5],[13.5,2.2,70,.7],[12.5,4.2,60,.6],[16,5.5,36,.45]],
+  under(t){setUnder(t);},
   act(ch,x,y){
     switch(ch){
       case 'Ӎ':if(!has('camara')&&!S.flags.c5cam){S.flags.c5cam=1;sfx.item();
@@ -1600,26 +1581,35 @@ MAPS[MP.SELENE5]={title:'Teatro del Quinto · el set de Selene',theme:'set',rows
       case 'Ӛ':return say(['Una claqueta: "LA SEÑAL · ESCENA 5 · TOMA 13".','Las tomas de la 1 a la 12 están tachadas.']);
       case 'Ӈ':return catBed();
       case 'Я':return say(['Vestuario de película: un saco con sangre falsa, una capa, una peluca de payaso.','Todo tiene pelos de gato.']);
+      case 'ѽ':return say([c3Next('chrL',['Una tela verde, tensada de pared a pared. Para después poner otra cosa atrás.','En la tela verde hay una sombra. No es la tuya: la tuya está del otro lado.','Selene escribió con fibra, en una esquina: "acá va el edificio desde afuera".'])]);
+      case 'ѿ':return say([c3Next('lmpL',['Un reflector de cine sobre un trípode. Quema de lo caliente.','El reflector apunta a un lugar vacío del set. Como esperando a alguien.'])]);
+      case 'ѳ':return say(['Latas de película apiladas. Cada una tiene una etiqueta: "TOMA 1", "TOMA 2"...','La de arriba de todo no tiene número. Dice tu nombre.']);
+      case 'Ѿ':return say(['Una moviola: la mesa para editar película. La pantallita muestra un cuadro fijo.','En el cuadro: este mismo set, visto desde arriba. Hay alguien parado donde estás vos.',S.flags.selQ===2?'Abajo, el rollo de los cuatro planos que le grabaste, cortado y pegado con cinta.':'Al lado, una lista con cuatro planos que le faltan a Selene.']);
       case 'D':return goMap(MP.PASILLO5,3,1,'down');
     }
   }};
 /* ---------- el sector de las habitaciones: Ciro y el Ermitaño ---------- */
 MAPS[MP.HABIT5]={title:'Teatro del Quinto · habitaciones',theme:'camarin',rows:[
-  '#ӠӠ######ӤӤ####',
+  '#ӠӠ#ѵѵ###ӤӤ####',
   '#ββ..ӞӞ#......#',
   '#......#......#',
   '#Ӝ..Ӣ..+......#',
   '#......#......#',
-  '########......#',
-  '########......#',
+  '#ѷ...ѹ.#......#',
+  '#..ѻѻ..#......#',
   '###########D###'],
   zone:(x)=>x<=7?'La habitación de Ciro':'El pasillo de las habitaciones',
   npcs:[{id:'ciro5',x:3,y:2,dir:'down',look:LOOK.ciro,vis:()=>!!S.flags.c5rescued&&!S.flags.c5ciroDead,talk:ciroTalk}],
-  lights:t=>[[3.5,2,60,.55],[10.5,3,50,.4]],
+  lights:t=>[[3.5,2,60,.55],[10.5,3,50,.4],[3.5,5.5,46+Math.sin(t*3)*2,.5]],
+  under(t){ciroRoomUnder(t);},
   act(ch,x,y){
     switch(ch){
       case 'Ӥ':if(c5TG()){return say(['Una puerta de madera con una plaquita de bronce: "V.".','Das un paso hacia la puerta. Tu cuerpo retrocede solo.',{who:S.name,t:'Todavía no.'}]);}
         return say([c3Next('ermL',['Una puerta de madera con una plaquita de bronce: "V.". Está cerrada con llave.','Golpeás. No contesta nadie. Del otro lado no hay ni un ruido: ni una respiración, ni un reloj.','Por debajo de la puerta no sale luz. Sale un olor muy suave. Como a velitas recién apagadas.','Cerrada.'])].concat(!S.flags.c5selDead&&!S.flags.c5ermSel&&(S.flags.c5ermSel=1)?[{who:'Selene',t:'(desde el pasillo) ¡Esa es la tuya! Bueno... era. Hace mucho que no la abrís.'}]:[]));
+      case 'ѵ':return say(['Un volante pegado con cinta: "LA BANDA DEL CINCO · EN VIVO · CUMPLEAÑOS".','La fecha está escrita con birome: un año que todavía no llegó.','Abajo, la lista de temas. El último está tachado tantas veces que rompió el papel.']);
+      case 'ѷ':{const n=(S.flags.ciroDisc=(S.flags.ciroDisc||0)+1);AU.nz(.6,.03);for(let i=0;i<6;i++)AU.t([392,440,494,523,494,440][i],.25,'triangle',.03,0,.3+i*.26);return say(n===1?['Un tocadiscos con la tapa de acrílico rayada. Tiene un disco puesto.','Lo prendés. Una canción que conocés y no sabés de dónde.','En la etiqueta del disco dice, a mano: "para V., cuando salga".']:['El disco gira. La aguja salta siempre en el mismo surco.']);}
+      case 'ѹ':return say([c3Next('cdL',['Una torre de CDs. Todos de los mismos cuatro tipos. Ordenados por año.','Hay un CD sin tapa, grabado en casa. Dice "ensayo con Cata y V. · NO ESCUCHAR".','Uno está al revés. Lo das vuelta. Al rato, está al revés de nuevo.'])]);
+      case 'ѻ':return say([c3Next('escL',['Un escritorio lleno de hojas pentagramadas. Canciones a medio terminar.','En un cuaderno, una letra: "Si toco, me encuentran. Si no toco, me olvido."','Abajo de todo, un dibujo: tres pibes y una torta. Uno de los pibes no tiene cara.'])]);
       case 'Ӡ':return say(['Un póster de una banda: cuatro pibes cruzando una calle, dibujados a mano por alguien que no sabe dibujar.','Abajo dice: "LA BANDA DEL CINCO · Ciro, Cata y V.".']);
       case 'β':if(S.flags.c5cintaLoc&&!has('cinta5')&&!S.flags.c5cinta){S.flags.c5cinta=1;sfx.item();return say(['Levantás el colchón de Ciro, como te dijo.','Abajo, envuelta en una remera de los Beatles, hay una cinta VHS. Dice "PISO 5", con marcador.',gotLine('cinta5'),'Hay que verla en alguna videocasetera.']);}
         return say(['La cama de Ciro, deshecha. La almohada tiene la forma de alguien que no durmió bien.']);
@@ -1632,6 +1622,12 @@ MAPS[MP.HABIT5]={title:'Teatro del Quinto · habitaciones',theme:'camarin',rows:
       case 'D':return goMap(MP.PASILLO5,12,1,'down');
     }
   }};
+function ciroRoomUnder(t){const F2=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
+  F2('rgba(120,40,30,.35)',2*T+4,3*T+6,4*T-8,3*T-8);for(let k=0;k<6;k++)F2('rgba(200,160,90,.25)',2*T+6+k*9,3*T+8,4,1);F2('rgba(200,160,90,.2)',2*T+4,6*T-4,4*T-8,1);
+  F2('#e8e4d8',5*T+3,2*T+9,6,4);F2('#8a8a9a',5*T+4,2*T+10,4,1);F2('#c8c0a8',1*T+6,4*T+10,5,3);ctx.fillStyle='rgba(240,240,250,.6)';ctx.beginPath();ctx.arc(4*T+4,4*T+12,2.5,0,7);ctx.fill();}
+function setUnder(t){const F2=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
+  for(let x=8*T;x<16*T;x+=2)F2('#6a6a72',x,4*T+5,1,1);F2('#5a5a62',8*T,4*T+4,8*T,1);F2('#5a5a62',8*T,4*T+11,8*T,1);for(let x=8*T;x<16*T;x+=6)F2('#3a2a1a',x,4*T+3,2,10);
+  ctx.strokeStyle='rgba(20,20,24,.8)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(13*T+8,2*T+14);ctx.quadraticCurveTo(11*T,6*T,7*T,3*T+12);ctx.stroke();ctx.beginPath();ctx.moveTo(12*T+8,4*T+14);ctx.quadraticCurveTo(14*T,6*T+8,16*T,6*T);ctx.stroke();}
 /* ---------- la cámara de frío: Brian y Den ---------- */
 const FRIGO_V=[['########ϺϺϺϺϺϺ####################','#ӦӦ..ӨӨ########..ӪӪ.Ӱ#........ӦӦѱ#','#......########......#....ѫ......#','#......###ӻ####......#....ѫ......#','#....................ѣ....ѫ......#','#..ӦӦ..##########..ӦӦ#.........ѯ.#','#......##########....#.......ѫ...#','#......##########...Ӯ#.......ѫ...#','#.Ӧ.................Ӧ#..ѯ....ѫ...#','#....................ѣ...........#','#...................ѱ#Ӧ..........#','##########..################.#####','#ѱ..............................ѯ#','#..ѫѫ..ѫѫ.....ѫѫ....ѫѫ..ѫѫ....ѫѫ.#','#................................#','#................................#','#....ѫѫ..ѫѫ..ѫѫ...ѫѫ..ѫѫ..ѫѫ..ѫѫ.#','#................................#','#ѯ...............................#','################ӅӅ################'],['########ϺϺϺϺϺϺ####################','#ӦӦ..ӨӨ########..ӪӪ.Ӱ#........ӦӦѱ#','#......########......#....ѫ......#','#......###ӻ####......#....ѫ......#','#....................ѣ....ѫ......#','#..ӦӦ..##########..ӦӦ#.........ѯ.#','#......##########....#.......ѫ...#','#......##########....#.......ѫ...#','#.Ӧ.................Ӧ#..ѯ....ѫ...#','#....................ѣ...........#','#...................ѱ#Ӧ.........Ӯ#','##########..################.#####','#ѱ..............................ѯ#','#.ѫѫ..ѫѫ......ѫѫ..ѫѫ..ѫѫ.......ѫѫ#','#................................#','#................................#','#..ѫѫ..ѫѫ...ѫѫ.....ѫѫ..ѫѫ..ѫѫ..ѫ.#','#................................#','#ѯ...............................#','################ӅӅ################'],['########ϺϺϺϺϺϺ####################','#ӦӦ..ӨӨ########..ӪӪ.Ӱ#........ӦӦѱ#','#......########......#....ѫ......#','#......###ӻ####......#....ѫ......#','#....................ѣ....ѫ......#','#..ӦӦ..##########..ӦӦ#.........ѯ.#','#......##########....#.......ѫ...#','#......##########....#.......ѫ...#','#.Ӧ.................Ӧ#..ѯ....ѫ...#','#....................ѣ...........#','#...................ѱ#Ӧ..........#','##########..################.#####','#ѱ..............................ѯ#','#..ѫѫ..ѫѫ.....ѫѫ....ѫѫ..ѫѫ....ѫѫ.#','#................................#','#Ӯ...............................#','#....ѫѫ..ѫѫ..ѫѫ...ѫѫ..ѫѫ..ѫѫ..ѫѫ.#','#................................#','#ѯ...............................#','################ӅӅ################']];
 const frigoV=()=>{const F=S&&S.flags;if(!F)return 0;if(F.fv5==null)F.fv5=ri(0,2);return F.fv5;};
@@ -2288,10 +2284,11 @@ function c5MeltCheck(){if(S.chapter!==3||has('estano')||S.flags.c5rescued)return
 function c5BattleEnd(L){const bd=B.foes,br=bd.find(f=>f.id==='brian'),dn=bd.find(f=>f.id==='den'),LK=B.leftKey,F=S.flags;
   if(LK==='left5'&&S.left5===0&&!F.c5teaQ){F.c5teaQ=1;if(c5Hard())L.push('El teatro quedó en silencio. Ya no queda nadie que toque.');}
   if(LK==='leftCarne'&&S.leftCarne===0&&!F.c5carQ){F.c5carQ=1;if(c5Hard()){L.push('La cámara de frío quedó en silencio. Los ganchos dejaron de balancearse.');if(!F.c5fight)F.c5bossNext=1;}}
-  if(B.c5bt){if(br)S.flags.c5brian=br.dead?'dead':'spare';return;}
+  const afil=()=>{if(br&&br.spared&&!S.flags.afil){S.flags.afil=1;L.push('Brian se saca algo del bolsillo del guardapolvo y te lo da sin mirarte.',{who:'Brian',t:'Mi afilador. Del frigorífico. Con esto los cuchillos cortan solos.'},{who:'Brian',t:'Tenelo vos. Yo ya no quiero cortar nada.'},gotLine('afilador'));}};
+  if(B.c5bt){if(br)S.flags.c5brian=br.dead?'dead':'spare';afil();return;}
   if(!B.c5bd){const p=bd.find(f=>f.id==='piano');if(p){if(p.spared){S.flags.c5piano='spare';if(S.canal===88){ELI_I=0;for(let i=0;i<20;i++){const f=ELISA[i];if(f)AU.t(f,.32,'triangle',.05,0,i*.24);}L.push('Antes de cerrarse, el piano toca "Para Elisa". Esta vez no se equivoca.');}L.push('El Piano de cola se cierra despacio. Una tecla suelta cae a tus pies.',gotLine('teclaS'));}else if(p.dead){S.flags.c5piano='kill';L.push('Entre las astillas queda una tecla partida. Todavía vibra.',gotLine('teclaD'));}}return;}
   S.flags.c5fight=1;S.flags.c5run=0;
-  if(br)S.flags.c5brian=br.spared?'spare':br.dead?'dead':'';
+  if(br)S.flags.c5brian=br.spared?'spare':br.dead?'dead':'';afil();
   if(dn&&dn.dead){S.flags.c5den='dead';L.push('Den cae sin hacer ruido, como algo que no pesa nada.','Cuando te acercás, no hay sangre. En el piso hay un maniquí de vidriera, de yeso, con una peluca negra torcida.','La sonrisa está pintada. Muy prolija. Demasiado ancha.');
     if(br&&br.spared)L.push({who:'Brian',t:'...¿Den?'},'Brian se arrodilla al lado del maniquí y le acomoda la peluca. No dice nada más.');}
 }
@@ -3925,7 +3922,13 @@ function doorFront(px,py,o){o=o||{};const F=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fi
 }
 
 /* ===== Capítulo 3 · el teatro del quinto: arte de tiles ===== */
-const TEATCH='ДЯГЦЫЛШЩЪФПИЬБЮϞϹӇӋӍӐӒӔӖӚӜӞӢӦӨӪӬӮӰѫѣѯѱ';
+const FOYER_V=[['##ЭЭ#Ђ###DD###D#ЭЭ##','#ДДД,,,,....,,,,ЯЯЯ#','#ДДД,,,,....,,,,ГГГ#','#,,,,,,,....,,,,,,,#','#,,Ц,,,,....,,,,Ц,,#','#,,,,,,,....,,,,,,,#','#ЫЫ,,,,,....,,,,,ЫЫ#','#,,Ц,,,,....,,,,Ц,,#','#,,,,,,,....,,,,,,,#','#########ΞΞ#########'],['##ЭЭ#Ђ###DD###D#ЭЭ##','#ДДД,,,,....,,,,ЯЯЯ#','#ДДД,,,,....,,,,ГГГ#','#,,,,Ц,,....,,Ц,,,,#','#,,,,,,,....,,,,,,,#','#,,,,,,,....,,,,,,,#','#,,,,Ц,,....,,Ц,,,,#','#ЫЫ,,,,,....,,,,,ЫЫ#','#,,,,,,,....,,,,,,,#','#########ΞΞ#########'],['##ЭЭ#Ђ###DD###D#ЭЭ##','#ДДД,,,,....,,,,ЯЯЯ#','#ДДД,,,,....,,,,ГГГ#','#,,,,,,,....,,,,,,,#','#,Ц,,,Ц,....,Ц,,,Ц,#','#,,,,,,,....,,,,,,,#','#,,,,,,,....,,,,,,,#','#ЫЫ,,,,,....,,,,,ЫЫ#','#,,,,,,,....,,,,,,,#','#########ΞΞ#########']];
+const PAS5_V=[['###ӁӁϺϺϺϺϺϺϺӃӃϺϺϺϺϺϺϺӅӅϺϺϺϷ#','#ӇӇ................ЯЯ......#','#..........................#','#....Ϲ.................Ϲ...#','#..........................#','####...#########...#####..##','#..........................#','#...Ϲ..................Ϲ...#','#..........................#','#..........................#','##D#########################'],['###ӁӁϺϺϺϺϺϺϺӃӃϺϺϺϺϺϺϺӅӅϺϺϺϷ#','#ӇӇ................ЯЯ......#','#..........................#','#.......Ϲ.............Ϲ....#','#..........................#','#..#########....#######..###','#..........................#','#..Ϲ.......Ϲ...............#','#..........................#','#..........................#','##D#########################'],['###ӁӁϺϺϺϺϺϺϺӃӃϺϺϺϺϺϺϺӅӅϺϺϺϷ#','#ӇӇ................ЯЯ......#','#..........................#','#...Ϲ.............Ϲ........#','#..........................#','######..########..####..####','#..........................#','#.........Ϲ.........Ϲ......#','#..........................#','#..........................#','##D#########################']];
+const teatLV=()=>{const F=S&&S.flags;if(!F)return 0;if(F.lv5==null)F.lv5=ri(0,2);return F.lv5;};
+const teatDV=()=>{const F=S&&S.flags;if(!F)return 0;if(F.dv5==null)F.dv5=ri(0,2);return F.dv5;};
+const TPAL=[{a:'#5e1820',b:'#6a1c24',c:'#7a2a2a',d:'#4e1218',e:'#3a0e12',w:'#5a1c22',w2:'#6a262c',w3:'#7a3a2a',w4:'#3a1014',w5:'#3e1418'},{a:'#163a28',b:'#1a4430',c:'#2a5a3c',d:'#10301e',e:'#0a2414',w:'#183a2a',w2:'#224a36',w3:'#3a5a2a',w4:'#0e2418',w5:'#122a1c'},{a:'#1a1e44',b:'#20264e',c:'#2e3462',d:'#141838',e:'#0e1028',w:'#1c2046',w2:'#262c58',w3:'#3a3a6a',w4:'#10122a',w5:'#141630'}];
+
+const TEATCH='ДЯГЦЫЛШЩЪФПИЬБЮϞϹӇӋӍӐӒӔӖӚӜӞӢӦӨӪӬӮӰѫѣѯѱѷѹѻѽѿѾѳ';
 const isTeatMap=()=>S&&S.map>=MP.FOYER5&&S.map<=MP.CANO5;
 function teatFloorCh(tx,ty){for(const [a,b] of [[0,1],[0,-1],[-1,0],[1,0],[1,1],[-1,1]]){const q=tileAt(tx+a,ty+b);if(q===':'||q===','||q==='.')return q;}return '.';}
 function teatFloor(ch,px,py,tx,ty,th){
@@ -3940,25 +3943,26 @@ function teatFloor(ch,px,py,tx,ty,th){
   if(ch===':'){// tablas del escenario
     for(let r=0;r<4;r++){const v=hash(tx+r*31,ty)%3;F(['#7a5634','#70502f','#82603a'][v],0,r*4,T,4);F('#4e3420',0,r*4+3,T,1);const cut=(hash(tx,ty*4+r)%12)+2;F('#4e3420',cut,r*4,1,3);F('#a07a4e',cut+1,r*4+1,1,1);}
     if(h%9===0){F('#e8d048',(h>>4)%12+1,(h>>8)%12+1,3,1);}if(h%13===0){F('#e8e4d8',(h>>5)%12+1,(h>>9)%12+2,1,3);}return;}
-  // alfombra bordó con dibujo dorado
-  F('#5e1820',0,0,T,T);F('#6a1c24',1,1,T-2,T-2);
-  F('#7a2a2a',7,2,2,1);F('#7a2a2a',6,3,4,1);F('#8a6a2a',7,3,2,1);F('#7a2a2a',7,4,2,1);
-  F('#7a2a2a',(tx+ty)%2?2:12,10,2,2);F('#4e1218',0,8,T,1);F('#4e1218',8,0,1,T);
+  // alfombra con dibujo dorado (bordó, verde botella o azul noche, según la partida)
+  const P=TPAL[teatDV()];F(P.a,0,0,T,T);F(P.b,1,1,T-2,T-2);
+  F(P.c,7,2,2,1);F(P.c,6,3,4,1);F('#8a6a2a',7,3,2,1);F(P.c,7,4,2,1);
+  F(P.c,(tx+ty)%2?2:12,10,2,2);F(P.d,0,8,T,1);F(P.d,8,0,1,T);if(teatDV()===1&&h%7===0)F('rgba(232,224,200,.5)',(h>>3)%10+2,(h>>6)%10+2,4,3);if(teatDV()===2&&h%9===0)F('rgba(0,0,0,.25)',(h>>3)%8,(h>>6)%8,7,5);
   const N=(a,b)=>{const q=tileAt(tx+a,ty+b);return q==='.'||q==='_'||TEATCH.includes(q);};
-  if(!N(0,-1)){F('#a07a30',0,0,T,1);F('#3a0e12',0,1,T,1);}if(!N(0,1)){F('#a07a30',0,T-1,T,1);F('#3a0e12',0,T-2,T,1);}
-  if(!N(-1,0)){F('#a07a30',0,0,1,T);F('#3a0e12',1,0,1,T);}if(!N(1,0)){F('#a07a30',T-1,0,1,T);F('#3a0e12',T-2,0,1,T);}
+  if(!N(0,-1)){F('#a07a30',0,0,T,1);F(P.e,0,1,T,1);}if(!N(0,1)){F('#a07a30',0,T-1,T,1);F(P.e,0,T-2,T,1);}
+  if(!N(-1,0)){F('#a07a30',0,0,1,T);F(P.e,1,0,1,T);}if(!N(1,0)){F('#a07a30',T-1,0,1,T);F(P.e,T-2,0,1,T);}
 }
 function wallFaceTeat(F,tx,ty,th,h){
   if(wallFaceTeat2(F,tx,ty,th,h))return;
   if(th===TH.camarin){// pintura vieja con un caño que corre por arriba
     F('#7a6a58',0,2,T,11);F('#6e5e4e',0,9,T,4);F('#5a4a3c',0,9,T,1);F('#8a7a66',(h>>3)%14,4+(h>>9)%4,2,1);if(h%4===0)F('rgba(60,40,20,.35)',(h>>5)%12,5,1,5);
     F('#4a4e52',0,3,T,2);F('#6a6e72',0,3,T,1);if(tx%5===0)F('#3a3e42',6,2,3,4);return;}
-  // empapelado bordó con damasco y moldura dorada
-  F('#5a1c22',0,2,T,11);for(let y=3;y<12;y+=4)for(let x=(y%8===3?0:4);x<T;x+=8){F('#6a262c',x+2,y,3,1);F('#6a262c',x+1,y+1,5,1);F('#6a262c',x+2,y+2,3,1);F('#7a3a2a',x+3,y+1,1,1);}
-  F('#a07a30',0,9,T,1);F('#3a1014',0,10,T,1);F('#3e1418',0,11,T,2);F('#a07a30',0,12,T,1);
+  // empapelado con damasco y moldura dorada (mismo color que la alfombra de la partida)
+  const P=TPAL[teatDV()];F(P.w,0,2,T,11);for(let y=3;y<12;y+=4)for(let x=(y%8===3?0:4);x<T;x+=8){F(P.w2,x+2,y,3,1);F(P.w2,x+1,y+1,5,1);F(P.w2,x+2,y+2,3,1);F(P.w3,x+3,y+1,1,1);}
+  F('#a07a30',0,9,T,1);F(P.w4,0,10,T,1);F(P.w5,0,11,T,2);F('#a07a30',0,12,T,1);if(teatDV()===2&&h%6===0)F('rgba(0,0,0,.3)',(h>>3)%12,3,3,6);
   if(tx%4===0){F('#8a6a28',7,3,2,6);F('#c8a048',7,3,1,6);}
 }
 function drawTeatWall(ch,px,py,tx,ty,t){const F=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(px+x,py+y,w,h);};
+  if(ch==='ѵ'){wallFaceTeat(F,tx,ty,TH.camarin,hash(tx,ty));const lf=tileAt(tx-1,ty)==='ѵ';if(!lf){F('#e8e0c8',3,2,13,11);F('#c83a3a',4,3,11,3);F('#1a1a1a',5,7,2,4);F('#1a1a1a',8,7,2,4);F('#1a1a1a',11,7,2,4);F('#1a1a1a',14,7,1,4);F('#c8c0a8',3,12,13,1);}else{F('#e8e0c8',0,2,12,11);F('#1a1a1a',1,4,1,4);F('#1a1a1a',3,5,1,3);F('#8a8a9a',2,9,8,1);F('#8a8a9a',2,11,6,1);F('#c83a3a',8,3,3,2);}return true;}
   if(ch==='Э'){// afiche enmarcado
     F('#8a6a28',2,1,12,13);F('#c8a048',2,1,12,1);F('#5a4418',2,13,12,1);const k=tx%4;
     const bg=['#141018','#1c1428','#e8dcc0','#201418'][k];F(bg,3,2,10,11);
@@ -4127,6 +4131,22 @@ function drawTeat2(ch,px,py,tx,ty,t){const F=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.f
       F('#e8e0d0',lf?0:2,8,T-(lf?0:2)-(rt?0:2),3);for(let x=(lf?1:3);x<T-(rt?0:2);x+=2){const gone=S.flags.c5plomos&&hash(tx*16+x,3)%3===0;F(gone?'#2a180e':(x%7===4?'#e8e0d0':'#141414'),x,8,1,gone?3:2);}F('#2a180e',lf?0:1,11,T-(lf?0:1)-(rt?0:1),3);return true;}
     case 'Ӣ':{// guitarra en su pie
       F('rgba(0,0,0,.3)',4,13,9,3);F('#2a2a2e',7,10,2,4);F('#2a2a2e',4,13,8,1);if(!S.flags.c5guit){ctx.fillStyle='#b8783a';ctx.beginPath();ctx.ellipse(px+8,py+9,4.5,3.6,0,0,7);ctx.fill();ctx.beginPath();ctx.ellipse(px+8,py+4.5,3.4,2.8,0,0,7);ctx.fill();F('#1a0e08',7,7,2,2);F('#5a3a1a',7,-6,2,10);F('#2a1a10',6,-8,4,3);F('#d8d8d8',7,-6,1,14);}return true;}
+    case 'ѷ':{// tocadiscos sobre una mesita
+      F('rgba(0,0,0,.3)',1,13,14,3);F('#4a3220',2,8,12,6);F('#5a3e28',2,8,12,1);F('#2a2420',2,3,12,6);F('#141414',4,4,8,4);const a=t*5;F('#3a3a3a',7,5,2,2);F('#c83a3a',7+Math.round(Math.cos(a)*2),5+Math.round(Math.sin(a)),1,1);F('#c8c0a8',11,3,1,4);F('rgba(255,255,255,.18)',2,3,12,1);return true;}
+    case 'ѹ':{// torre de CDs
+      F('rgba(0,0,0,.3)',3,13,10,3);F('#2a2a30',4,-6,8,20);for(let k=0;k<9;k++)F(['#c83a3a','#e8d048','#3a6ac8','#e8e0d0','#48a85a'][(k+tx)%5],5,-5+k*2,6,1);F('#e8e0d0',2,11,6,2);return true;}
+    case 'ѻ':{// escritorio con hojas pentagramadas
+      F('rgba(0,0,0,.3)',0,13,T,3);F('#5a3e28',lf?0:1,4,T-(lf?0:1)-(rt?0:1),3);F('#3a2818',lf?0:1,7,T-(lf?0:1)-(rt?0:1),2);if(!lf)F('#3a2818',1,9,2,5);if(!rt)F('#3a2818',13,9,2,5);
+      F('#e8e4d8',3+(tx%2)*2,2,7,4);for(let k=0;k<3;k++)F('#8a8a9a',4+(tx%2)*2,3+k,5,1);if(tx%2)F('#1a1a1a',9,1,1,4);return true;}
+    case 'ѽ':{// tela verde del chroma
+      F('#2a8a3a',0,0,T,T);F('#32a044',0,0,T,2);for(let k=0;k<T;k+=4)F('rgba(0,0,0,.12)',k,0,1,T);F('rgba(255,255,255,.08)',(hash(tx,3)%10),4,3,8);F('#1a5a26',0,T-2,T,2);return true;}
+    case 'ѿ':{// reflector de cine sobre trípode
+      F('rgba(0,0,0,.3)',2,13,12,3);F('#2a2a2e',7,4,2,9);F('#2a2a2e',3,12,10,1);F('#2a2a2e',4,11,1,2);F('#2a2a2e',11,11,1,2);F('#3a3a42',3,-4,10,8);F('#e8e0b0',4,-3,8,6);F('rgba(255,240,190,'+(.5+.2*Math.sin(t*13+tx))+')',5,-2,6,4);return true;}
+    case 'Ѿ':{// moviola (mesa de edición)
+      F('rgba(0,0,0,.3)',0,13,T,3);F('#3a3a42',lf?0:1,5,T-(lf?0:1)-(rt?0:1),8);F('#4a4a54',lf?0:1,5,T-(lf?0:1)-(rt?0:1),1);
+      if(!lf){F('#141418',3,-2,9,7);F('rgba(200,220,255,'+(.4+.2*Math.sin(t*7))+')',4,-1,7,5);}else{const a=t*3;ctx.fillStyle='#8a8a92';ctx.beginPath();ctx.arc(px+8,py+3,5,0,7);ctx.fill();F('#2a2a2e',7+Math.round(Math.cos(a)*3),2+Math.round(Math.sin(a)*3),2,2);}return true;}
+    case 'ѳ':{// latas de película apiladas
+      F('rgba(0,0,0,.3)',1,13,14,3);for(let k=0;k<4;k++){F(k%2?'#8a8a92':'#a8a8b0',2+(k%2),10-k*4,12,3);F('#5a5a62',2+(k%2),12-k*4,12,1);}F('#e8e0c8',5,-1,6,2);return true;}
     case 'ѫ':{// media res colgada de un gancho
       const sw=Math.round(Math.sin(t*.8+tx*1.7)*1);F('#4a4e52',0,0,T,1);F('#8a9298',7,0,2,3);F('rgba(0,0,0,.3)',3+sw,14,10,2);
       F('#5a1e1e',4+sw,3,8,11);F('#8a2a2a',5+sw,4,6,9);F('#a83a3a',5+sw,5,3,6);F('#e8c8b8',9+sw,5,2,7);F('#d8b0a0',6+sw,12,4,1);
@@ -4348,7 +4368,7 @@ function drawTile(ch,px,py,tx,ty,th,t){
       return;
     }
     wallFace(px,py,tx,ty,th);
-    if((ch==='Э'||ch==='Ђ')&&drawTeatWall(ch,px,py,tx,ty,t))return;
+    if((ch==='Э'||ch==='Ђ'||ch==='ѵ')&&drawTeatWall(ch,px,py,tx,ty,t))return;
     if('ϺϷӁӃӅӤӠ'.includes(ch)&&drawTeatWall2(ch,px,py,tx,ty,t))return;
     if(ch==='D'&&(S.map===MP.FOYER5||S.map===MP.SALA5)){drawTeatDoor(px,py,tx,ty);return;}
     if(ch==='ħ'){if(S.flags.escDoor){ctx.fillStyle='#2a2a2c';ctx.fillRect(px+2,py+1,12,14);ctx.fillStyle='#000';ctx.fillRect(px+3,py+2,10,13);ctx.fillStyle='rgba(120,130,160,'+(.15+.1*Math.sin(t*3))+')';ctx.fillRect(px+4,py+10,8,1);return;}const n=S.flags.remoteDone?0:Math.min(9,S.flags.escWall||0);if(n>=3){ctx.fillStyle='rgba(0,0,0,'+(.08*n)+')';ctx.fillRect(px+3,py+2,1,12);ctx.fillRect(px+12,py+2,1,12);if(n>=9)ctx.fillRect(px+3,py+2,10,1);}return;}
@@ -5026,7 +5046,7 @@ function dynTest(ch,x,y,th){const sv=ctx;let dyn=false;
     const d1=rr(DYNA,.13),d2=rr(DYNB,1.77);for(let i=0;i<d1.length;i+=4){if(d1[i]!==d2[i]||d1[i+1]!==d2[i+1]||d1[i+2]!==d2[i+2]||d1[i+3]!==d2[i+3]){dyn=true;break;}}}catch(e){dyn=true;}finally{ctx=sv;}
   return dyn;}
 function objSig(){if(!DRAWFLAGS){const src=drawTile.toString()+(typeof drawPropArt==='function'?drawPropArt.toString():'');DRAWFLAGS=[...new Set((src.match(/S\.flags\.(\w+)/g)||[]).map(z=>z.slice(8)))];}
-  let k=S.map+'|'+S.canal+'|'+(S.pro?1:0)+'|'+(S.map===MP.PASILLO?(S.hall&&S.hall.rows.join('')):S.map===MP.PISO3?(S.p3&&S.p3.rows.join('')):'');for(const f of DRAWFLAGS)k+='|'+(S.flags[f]===undefined?'':S.flags[f]);return k;}
+  let k=S.map+'|'+S.canal+'|'+(S.pro?1:0)+'|'+S.flags.lv5+S.flags.dv5+S.flags.fv5+'|'+(S.map===MP.PASILLO?(S.hall&&S.hall.rows.join('')):S.map===MP.PISO3?(S.p3&&S.p3.rows.join('')):'');for(const f of DRAWFLAGS)k+='|'+(S.flags[f]===undefined?'':S.flags[f]);return k;}
 function objLayer(m,th){const key=objSig();if(OBJC.key===key&&OBJC.c)return OBJC.c;
   const W2=m.rows[0].length,H2=m.rows.length,c=mk(W2*T*2,H2*T*2),g=c.getContext('2d'),bc=mk(W2*T*2,H2*T*2),bg=bc.getContext('2d'),sv=ctx;g.setTransform(2,0,0,2,0,0);bg.setTransform(2,0,0,2,0,0);g.imageSmoothingEnabled=false;
   const floorOf=(x,y)=>{for(const [a,b] of [[0,1],[-1,0],[1,0],[0,-1],[1,1],[-1,1]]){const q=tileAt(x+a,y+b);if(q&&FLAT.includes(q))return q;}return S.map===MP.CASA?'g':'.';};
