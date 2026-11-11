@@ -257,7 +257,7 @@ const VIT_MAX=3; // la vitamina C da mucha ventaja: Nico tiene 3 en total, para 
 const XPT=[0,20,50,90,140,200,270,350,440,540,650,770,900,1040,1190,1350,1520,1700,1890,2090];
 const CAST=['IVAN','ISIDORO','ISI','GERONIMO','AUGUSTO','SELENE','SILVESTRE','MANUEL','ROMAN','MATIAS','MILAGROS','SOFIA','BRIAN','FELIX','ESTEFANIA','ANGELINA','ANGIE','PEDRO','MAXIMO','NICOLAS','BIANCA','TOMAS','VALENTINO','JOAQUIN','CIRO','CATALINA','DEN'];
 
-const CASTMSG={"IVAN": "Iván ya existe. Uno solo alcanza, creeme.", "ISIDORO": "Isi te mira: \"¿Y yo cómo me llamo, entonces?\"", "ISI": "Isi te mira: \"¿Y yo cómo me llamo, entonces?\"", "GERONIMO": "El narrador dice: \"Ese nombre ya tiene ficha.\"", "AUGUSTO": "Ya hay un Augusto. Y un perro llamado Simón.", "SELENE": "\"Ni lo pienses.\" Siete gatos te miran mal.", "SILVESTRE": "\"Mi nombre no rima con el tuyo.\" —Silvestre", "MANUEL": "*Tun-tun-tsss* Ese nombre ya tiene batería.", "ROMAN": "\"...¿Seguís enojado? Igual ese nombre es mío.\"", "MATIAS": "\"Ese nombre entrena todos los días. Otro.\"", "MILAGROS": "\"Ese nombre ya tiene canción. Buscá la tuya.\"", "SOFIA": "\"¡Es mío! Pero te convido helado.\"", "BRIAN": "\"Ese nombre es de primera. Y ya tiene dueño.\"", "FELIX": "\"¡Y se lo quiere robar! ¡Tarjeta amarilla!\"", "ESTEFANIA": "*Se cruza de brazos.* \"No.\"", "ANGELINA": "\"Ya salgo en todas las fotos con ese nombre.\"", "ANGIE": "\"Ya salgo en todas las fotos con ese nombre.\"", "PEDRO": "Ya hay dos Pedros. Un tercero es un pelotón.", "MAXIMO": "\"Ese nombre tiene raíces acá. No se mueve.\"", "NICOLAS": "\"Ya lo conté tres veces: ese nombre es mío.\"", "BIANCA": "\"Probabilidad de que te lo preste: 0%.\"", "TOMAS": "\"Propiedad privada. Es un chiste. Más o menos.\"", "VALENTINO": "\"Llegué veinte minutos antes. Es mío.\"", "JOAQUIN": "\"Lo leí en un foro: ese nombre ya está tomado.\"", "CIRO": "(Ciro niega con la cabeza, muy despacio.)", "CATALINA": "\"¡Ese es mío! Elegí otro, ¡dale, dale!\"", "DEN": "\"Ese es mío. Buscate otro.\""};
+const CASTMSG={"IVAN": "Iván ya existe. Uno solo alcanza, creeme.", "ISIDORO": "Isi te mira: \"¿Y yo cómo me llamo, entonces?\"", "ISI": "Isi te mira: \"¿Y yo cómo me llamo, entonces?\"", "GERONIMO": "El narrador dice: \"Ese nombre ya tiene ficha.\"", "AUGUSTO": "Ya hay un Augusto. Y un perro llamado Simón.", "SELENE": "\"Ni lo pienses.\" Cinco gatos te miran mal.", "SILVESTRE": "\"Mi nombre no rima con el tuyo.\" —Silvestre", "MANUEL": "*Tun-tun-tsss* Ese nombre ya tiene batería.", "ROMAN": "\"...¿Seguís enojado? Igual ese nombre es mío.\"", "MATIAS": "\"Ese nombre entrena todos los días. Otro.\"", "MILAGROS": "\"Ese nombre ya tiene canción. Buscá la tuya.\"", "SOFIA": "\"¡Es mío! Pero te convido helado.\"", "BRIAN": "\"Ese nombre es de primera. Y ya tiene dueño.\"", "FELIX": "\"¡Y se lo quiere robar! ¡Tarjeta amarilla!\"", "ESTEFANIA": "*Se cruza de brazos.* \"No.\"", "ANGELINA": "\"Ya salgo en todas las fotos con ese nombre.\"", "ANGIE": "\"Ya salgo en todas las fotos con ese nombre.\"", "PEDRO": "Ya hay dos Pedros. Un tercero es un pelotón.", "MAXIMO": "\"Ese nombre tiene raíces acá. No se mueve.\"", "NICOLAS": "\"Ya lo conté tres veces: ese nombre es mío.\"", "BIANCA": "\"Probabilidad de que te lo preste: 0%.\"", "TOMAS": "\"Propiedad privada. Es un chiste. Más o menos.\"", "VALENTINO": "\"Llegué veinte minutos antes. Es mío.\"", "JOAQUIN": "\"Lo leí en un foro: ese nombre ya está tomado.\"", "CIRO": "(Ciro niega con la cabeza, muy despacio.)", "CATALINA": "\"¡Ese es mío! Elegí otro, ¡dale, dale!\"", "DEN": "\"Ese es mío. Buscate otro.\""};
 const FOES={
   pelota:{name:'Pelota de cuero',hp:34,atk:7,xp:8,pesos:[10,14],sp:5,need:2,pats:['penal','tiki'],
     flav:['La Pelota de cuero rebota sola, siempre a la misma altura.','La pelota tiene la costura abierta. Respira por ahí.','Huele a pasto mojado y a vestuario.'],
@@ -662,7 +662,7 @@ MAPS[MP.CASA]={title:'Casa de campo · febrero de 2025',theme:'casa',rooms:[{x:1
     npcSimple('selene',29,12,'selene','Selene',[
       ['Hola, Valen. Feliz cumple.','...Igual seguimos sin hablar de lo del otro día.'],
       ['Mi novio no vino. Dijo que tenía "cosas". Siempre tiene cosas.','...Perdón. Es tu cumple. No es tema.'],
-      ['¿Sabías que tengo siete gatos? Bueno, ocho. Uno se metió solo y se quedó.','Le puse Valentín. No te lo tomes personal.'],
+      ['¿Sabías que tengo cinco gatos? Bueno, seis. Uno se metió solo y se quedó.','Le puse Valentín. No te lo tomes personal.'],
       ['Algún día voy a filmar una película en esta casa. De terror.','Vos harías de víctima. Tenés cara de víctima.']]),
     npcSimple('matias',31,15,'matias','Matías',[
       ['Feliz cumple, hermano. Mañana gimnasio, ¿no?','No me falles.'],
@@ -1610,7 +1610,7 @@ MAPS[MP.HABIT5]={title:'Teatro del Quinto · habitaciones',theme:'camarin',rows:
       case 'ѷ':{const n=(S.flags.ciroDisc=(S.flags.ciroDisc||0)+1);AU.nz(.6,.03);for(let i=0;i<6;i++)AU.t([392,440,494,523,494,440][i],.25,'triangle',.03,0,.3+i*.26);return say(n===1?['Un tocadiscos con la tapa de acrílico rayada. Tiene un disco puesto.','Lo prendés. Una canción que conocés y no sabés de dónde.','En la etiqueta del disco dice, a mano: "para V., cuando salga".']:['El disco gira. La aguja salta siempre en el mismo surco.']);}
       case 'ѹ':return say([c3Next('cdL',['Una torre de CDs. Todos de los mismos cuatro tipos. Ordenados por año.','Hay un CD sin tapa, grabado en casa. Dice "ensayo con Cata y V. · NO ESCUCHAR".','Uno está al revés. Lo das vuelta. Al rato, está al revés de nuevo.'])]);
       case 'ѻ':return say([c3Next('escL',['Un escritorio lleno de hojas pentagramadas. Canciones a medio terminar.','En un cuaderno, una letra: "Si toco, me encuentran. Si no toco, me olvido."','Abajo de todo, un dibujo: tres pibes y una torta. Uno de los pibes no tiene cara.'])]);
-      case 'Ӡ':return say(['Un póster de una banda: cuatro pibes cruzando una calle, dibujados a mano por alguien que no sabe dibujar.','Abajo dice: "LA BANDA DEL CINCO · Ciro, Cata y V.".']);
+      case 'Ӡ':return say(['Un póster de una banda: tres pibes cruzando una calle, como en la tapa de Abbey Road, dibujados a mano por alguien que no sabe dibujar.','Abajo dice: "LA BANDA DEL CINCO · Ciro, Cata y V.".']);
       case 'β':if(S.flags.c5cintaLoc&&!has('cinta5')&&!S.flags.c5cinta){S.flags.c5cinta=1;sfx.item();return say(['Levantás el colchón de Ciro, como te dijo.','Abajo, envuelta en una remera de los Beatles, hay una cinta VHS. Dice "PISO 5", con marcador.',gotLine('cinta5'),'Hay que verla en alguna videocasetera.']);}
         return say(['La cama de Ciro, deshecha. La almohada tiene la forma de alguien que no durmió bien.']);
       case 'Ӝ':if(!has('pua')&&!S.flags.c5pua){S.flags.c5pua=1;sfx.item();return say(['Un amplificador viejo, todavía tibio. Arriba hay una púa con la cara de Ringo.','Es igual a la que te regaló Ciro en tu cumpleaños. Pero es otra. ¿O es la misma?',gotLine('pua')]);}
@@ -1873,25 +1873,6 @@ MAPS[MP.CANO5]={title:'Adentro del caño',theme:'ducto',rows:[
       case 'Ӻ':return c5Grate();
     }
   }};
-function ciroRescue(){const F=S.flags;S.items=S.items.filter(i=>i!=='estano');F.c5rescued=1;F.c5run=0;F.c5trap=1;sfx.item();
-  const sil=S.party.includes('silvestre');
-  say([sil?'Silvestre se mete en el caño atrás tuyo, protestando, y corta los barrotes de la rejilla con el soldador, uno por uno.':'Con el soldador de Silvestre cortás los barrotes de la rejilla, uno por uno. Cada corte suena como una cuerda que se corta.',
-    'Abajo, Ciro abre el pasador de la jaula desde adentro. Nunca tuvo candado. Nunca se había animado.','Se sube a una caja, estira los brazos, y lo levantás por la rejilla. Pesa muy poco. Trae la guitarra colgada de la espalda.',
-    sil?{who:'Silvestre',t:'Ahora sueldo los barrotes de nuevo. Que no se note nada.'}:'Soldás los barrotes de nuevo con el estaño. Queda prolijo. No se nota nada.',
-    'Vuelven los dos arrastrándose por el caño hasta el empalme.',
-    {who:'Ciro',t:'...Gracias. Gracias. Te escuché todo el tiempo. Pensé que eras una grabación.'},
-    {who:'Ciro',t:'Den va a darse cuenta. Hay que hacer algo antes.'},
-    'Selene, Ciro y vos se juntan en el pasillo. Selene tiene un plan. Es directora: siempre tiene un plan.',
-    {who:'Selene',t:'Primero Brian. Le avisamos que hay función en la sala. Que Den lo espera ahí.'},
-    'Brian sale de la cámara de frío arreglándose el pelo, y se va hacia el hall.',
-    {who:'Ciro',t:'Ahora ella.'},'Ciro apoya la guitarra contra los caños y toca. La misma canción de todas las noches, la que Den conoce de memoria.',
-    'El sonido viaja por los caños hasta el cuarto de máquinas vacío. Den corre el estante, siguiendo la guitarra, buscando al prisionero que ya no está.',
-    'Cuando Den se mete en la jaula para mirar, Selene cierra la puerta escondida y le pasa la tranca. Ciro le pone el estante de nuevo adelante.',
-    {who:'Den',t:'(con la voz de Ciro) ...Me engañaron.'},
-    {who:'Selene',t:'Ahí se queda. Hasta que sepamos si hay forma de ayudarla.'},
-    {who:'Ciro',t:'El código de la escalera al 2 está en una cinta. La grabé yo. Está en mi habitación, abajo del colchón.'},
-    {who:'Ciro',t:'Andá. Yo me quedo acá. Este es mi piso.'}],()=>{F.c5cintaLoc=1;S.spares++;C5GV=false;if(S.map===MP.CANO5)goMap(MP.PASILLO5,26,1,'down');});
-}
 function ciroTalk(){const F=S.flags;
   if(S.canal===27&&!F.ciro27){F.ciro27=1;return say([{who:'Ciro',t:'¿La escuchás? La otra guitarra sigue sonando en los caños.'},{who:'Ciro',t:'Antes tocaba lo que yo iba a tocar mañana. Ahora toca lo que toqué ayer.'},{who:'Ciro',t:'Veintisiete. Siempre que la escucho cuento hasta veintisiete y para. No sé por qué.'}]);}
   if(!F.c5cinta&&F.c5cintaLoc)return say([{who:'Ciro',t:'La cinta. Abajo del colchón. Envuelta en una remera.'}]);
@@ -2465,12 +2446,12 @@ const W_=(who,t)=>({who,t});
 function placeLine(who){
   const m=S.map,L={
     ivan:{[MP.PASILLO]:'Este pasillo antes olía a lavandina. Ahora huele a radio quemada.',[MP.IVAN]:'Mi laboratorio. No toques nada que burbujee.',[MP.NICO]:'Nicolás nunca sale de acá. Lo cronometré: nunca.',[MP.PEDRO]:'Pedro no duerme. Lo escucho marchar a las cuatro de la mañana.',[MP.DEPTO]:'Tu departamento es más ordenado que el mío. Inquietantemente ordenado.',[MP.ESCALERA]:'Una escalera que baja siempre al mismo piso. Esto no se estudia en la facultad.',[MP.PISO3]:'Una pista de atletismo en un tercer piso. Voy a necesitar otro cuaderno.',[MP.FELIX]:'La acústica de acá es perfecta para relatar. Demasiado perfecta.',[MP.ESTEF]:'Estefanía se escribe cosas en la mano. Buena técnica. Yo hago lo mismo con los horarios de medicación.',[MP.SILV]:'Huele a aceite de motor. Me gusta. Es un olor honesto.',[MP.GERO]:'Cinco sillas y un solo jugador. Estadísticamente triste.',[MP.MANT]:'Si me electrocuto, el procedimiento es: no tocarme. Anotalo.',[MP.GINES]:'Los autitos se mueven solos. No hay pilas. Revisé.',[MP.DUCTO]:'...No hables. Algo respira acá adelante.',[MP.PUERTA5]:'Del otro lado hay alguien. El pulso me lo dice. El mío.',[MP.REMOTO]:'¿Por qué estamos debajo de una escalera? ...No quiero saber.'},
-    silvestre:{[MP.PISO3]:'Una pista en un pasillo. Mi viejo decía que el edificio se arma solo. Yo pensaba que era un chiste.',[MP.FELIX]:'Félix me prestaba el walkman para escuchar los partidos. Era buena. Es buena.',[MP.ESTEF]:'Estefanía me hace té cuando se me quema algo. O sea, seguido.',[MP.SILV]:'Mi taller. No toques el soldador: está siempre prendido. No sé cómo.',[MP.GERO]:'Gerónimo me invitó a jugar mil veces. Nunca vine. Ahora me da culpa.',[MP.MANT]:'La oficina de mi viejo. Todavía está su taza en el escritorio.',[MP.GINES]:'Odio esta pieza. Los autitos me miran.',[MP.DUCTO]:'No me hables. Estoy contando tornillos para no pensar.',[MP.ESCALERA]:'Esta escalera tenía luz. Yo cambié los tubos. Alguien los sacó.',[MP.PUERTA5]:'Esa puerta no está en los planos. Me sé los planos de memoria.',[MP.REMOTO]:'Esto es un hueco de escalera. No debería haber nada acá. ¿Por qué hay algo acá?',[MP.PASILLO]:'Así que este es el cuarto piso. Más feo que el mío.'},
-    geronimo:{[MP.PISO3]:'Entrás a un pasillo largo. Huele a goma de pista. Algo en la tribuna te sigue con la mirada.',[MP.FELIX]:'La guarida de la jefa final. Música épica. Bah, relato épico.',[MP.ESTEF]:'Una habitación segura. Acá se puede descansar. Recuperás un dado de vida. Simbólicamente.',[MP.SILV]:'El taller del herrero. Los jugadores siempre se olvidan del herrero.',[MP.GERO]:'Tu taberna. Bah, mi casa. Es lo mismo.',[MP.MANT]:'Una sala llena de máquinas que zumban. Tirá salvación contra el ruido.',[MP.GINES]:'El cubil del pícaro. Cuidá tus bolsillos.',[MP.DUCTO]:'Un pasadizo estrecho. Oscuro. Si el máster fuera malo, acá habría una trampa. ...Yo no soy el máster acá.',[MP.ESCALERA]:'Una escalera que no lleva a ningún lado. Típico de mazmorra mal diseñada.',[MP.PUERTA5]:'La puerta del jefe. Antes de abrir, guardá la partida. Es broma. ¿Es broma?',[MP.REMOTO]:'Una cámara secreta. Ganás experiencia por encontrarla.'}
+    silvestre:{[MP.PISO3]:'Una pista en un pasillo. Mi viejo decía que el edificio se arma solo. Yo pensaba que era un chiste.',[MP.FELIX]:'Félix me prestaba el walkman para escuchar los partidos. Era buena. Es buena.',[MP.ESTEF]:'Estefanía me hace té cuando se me quema algo. O sea, seguido.',[MP.SILV]:'Mi taller. No toques el soldador: está siempre prendido. No sé cómo.',[MP.GERO]:'Gerónimo me invitó a jugar mil veces. Nunca vine. Ahora me da culpa.',[MP.MANT]:'La oficina de mi viejo. Todavía está su taza en el escritorio.',[MP.GINES]:'Odio esta pieza. Los autitos me miran.',[MP.DUCTO]:'No me hables. Estoy contando tornillos para no pensar.',[MP.ESCALERA]:'Esta escalera tenía luz. Yo cambié los tubos. Alguien los sacó.',[MP.PUERTA5]:'Esa puerta no está en los planos. Me sé los planos de memoria.',[MP.REMOTO]:'Esto es un hueco de escalera. No debería haber nada acá. ¿Por qué hay algo acá?',[MP.PASILLO]:'Así que este es el cuarto piso. Más feo que el mío.',[MP.DEPTO]:'El agua de tu canilla sale con gusto a metal, ¿no? Es el tanque. Hace años que se lo digo al consorcio.',[MP.IVAN]:'Le arreglé la campana de gases a Iván tres veces. Las tres me juró que no la había tocado.',[MP.NICO]:'Nicolás me fía los alfajores. Me los anota en una libretita que nunca vi.',[MP.PEDRO]:'Mi viejo nunca entraba al 4D. Decía que el de acá cambiaba la cerradura todos los meses.'},
+    geronimo:{[MP.PISO3]:'Entrás a un pasillo largo. Huele a goma de pista. Algo en la tribuna te sigue con la mirada.',[MP.FELIX]:'La guarida de la jefa final. Música épica. Bah, relato épico.',[MP.ESTEF]:'Una habitación segura. Acá se puede descansar. Recuperás un dado de vida. Simbólicamente.',[MP.SILV]:'El taller del herrero. Los jugadores siempre se olvidan del herrero.',[MP.GERO]:'Tu taberna. Bah, mi casa. Es lo mismo.',[MP.MANT]:'Una sala llena de máquinas que zumban. Tirá salvación contra el ruido.',[MP.GINES]:'El cubil del pícaro. Cuidá tus bolsillos.',[MP.DUCTO]:'Un pasadizo estrecho. Oscuro. Si el máster fuera malo, acá habría una trampa. ...Yo no soy el máster acá.',[MP.ESCALERA]:'Una escalera que no lleva a ningún lado. Típico de mazmorra mal diseñada.',[MP.PUERTA5]:'La puerta del jefe. Antes de abrir, guardá la partida. Es broma. ¿Es broma?',[MP.REMOTO]:'Una cámara secreta. Ganás experiencia por encontrarla.',[MP.DEPTO]:'La base del héroe. Acá se descansa y se guarda la partida. Bah, la guardás vos. Yo la narro.',[MP.PASILLO]:'El pasillo del cuarto piso. Largo, lleno de puertas. Cada puerta, una aventura. O un vecino, que es peor.',[MP.IVAN]:'El laboratorio del alquimista. Regla número uno: no se tocan los frascos de colores.',[MP.NICO]:'La tienda. Todo juego tiene una tienda. Y el tendero siempre sabe más de lo que dice.',[MP.PEDRO]:'La guarida del primer jefe. Ya pasó todo. Igual no me siento cómodo acá.'}
   }[who]||{};
-  const TP={ivan:{[MP.FOYER5]:'Mármol de verdad en un quinto piso. Calculá el peso. No, mejor no lo calcules.',[MP.SALA5]:'La acústica es perfecta. Demasiado. Escuchá: tu respiración rebota dos veces.',[MP.PASILLO5]:'Huele a laca y a cinta magnética. Una combinación que no debería existir.'},
-    silvestre:{[MP.FOYER5]:'Esa araña de luz no está colgada de nada. Mirá el techo. De nada.',[MP.SALA5]:'Los grabadores no tienen enchufe. Ninguno. Y andan igual.',[MP.PASILLO5]:'Las cañerías de acá no van a ningún lado. Las sigo y se terminan en la pared.'},
-    geronimo:{[MP.FOYER5]:'El hall del castillo. Seguro hay un jefe atrás del escenario. Siempre hay un jefe atrás del escenario.',[MP.SALA5]:'Escenario de jefe. Seguro. Mirá el telón: ahí atrás hay algo con mucha vida.',[MP.PASILLO5]:'Pasillos de servicio. Acá los jugadores siempre encuentran las cosas importantes. Y los gatos.'}}[who]||{};
+  const TP={ivan:{[MP.FOYER5]:'Mármol de verdad en un quinto piso. Calculá el peso. No, mejor no lo calcules.',[MP.SALA5]:'La acústica es perfecta. Demasiado. Escuchá: tu respiración rebota dos veces.',[MP.PASILLO5]:'Huele a laca y a cinta magnética. Una combinación que no debería existir.',[MP.SELENE5]:'Un croma verde en 1995. O Selene está adelantada, o el teatro está atrasado. No sé cuál me preocupa más.',[MP.HABIT5]:'La pieza de Ciro tiene más discos que muebles. Es una proporción saludable.',[MP.FRIGO5]:'La carne está a cuatro bajo cero y no se congela. Eso no es posible. Lo anoto igual.',[MP.CUARTO12]:'El reloj adelanta un minuto cada vez que entramos. Lo medí. No es el reloj.',[MP.CANO5]:'Un caño de este diámetro no tendría que pasar por esta pared. Pasa.'},
+    silvestre:{[MP.FOYER5]:'Esa araña de luz no está colgada de nada. Mirá el techo. De nada.',[MP.SALA5]:'Los grabadores no tienen enchufe. Ninguno. Y andan igual.',[MP.PASILLO5]:'Las cañerías de acá no van a ningún lado. Las sigo y se terminan en la pared.',[MP.SELENE5]:'Esos reflectores tiran más corriente de la que entra en todo el piso. Alguien está pagando la luz. No quiero saber quién.',[MP.HABIT5]:'Habitaciones adentro de un teatro. Nadie construye habitaciones en un teatro. Y sin embargo.',[MP.FRIGO5]:'El compresor suena y no hay compresor. Busqué. Hay un ruido y no hay nada que lo haga.',[MP.CUARTO12]:'Las bisagras están recién aceitadas. Acá no entra nadie. ¿Quién aceita bisagras acá?',[MP.CANO5]:'Hierro fundido. Ya no se fabrica. Hace treinta años que no se fabrica, y este está nuevo.'},
+    geronimo:{[MP.FOYER5]:'El hall del castillo. Seguro hay un jefe atrás del escenario. Siempre hay un jefe atrás del escenario.',[MP.SALA5]:'Escenario de jefe. Seguro. Mirá el telón: ahí atrás hay algo con mucha vida.',[MP.PASILLO5]:'Pasillos de servicio. Acá los jugadores siempre encuentran las cosas importantes. Y los gatos.',[MP.SELENE5]:'El set de la directora. Los PNJ que te dan misiones secundarias siempre viven en lugares así.',[MP.HABIT5]:'Las habitaciones del castillo. Una está cerrada desde siempre. Esas son las que importan.',[MP.FRIGO5]:'La mazmorra de hielo. Siempre hay una mazmorra de hielo. Y siempre es la peor.',[MP.CUARTO12]:'Un cuarto que se repite. El máster se quedó sin ideas. ...El máster no soy yo. ¿Quién es el máster?',[MP.CANO5]:'Un túnel tan angosto que el grupo va en fila. Clásico. Nunca separes al grupo.'}}[who]||{};
   return L[m]||TP[m]||{ivan:'No me gusta acá. Nada de acá.',silvestre:'No me gusta acá. Nada de acá.',geronimo:'Entrás a un lugar raro. El máster no lo preparó. Improvisemos.'}[who];
 }
 // Estefanía
@@ -2944,7 +2925,7 @@ function ivanProof(pr){
     {l:'Preguntarle algo',f(){ivanPre();}},
     {l:'Irte',f(){}}]};
 }
-const IVAN_COR=()=>[{who:'Iván',t:'Y lo más importante, te lo digo como estudiante de medicina: cuidá la cordura.'},
+const IVAN_COR=()=>[{who:'Iván',t:'Y lo más importante, te lo digo como estudiante de bioquímica: cuidá la cordura.'},
   {who:'Iván',t:'Es lo que te mantiene de este lado. Cada cosa horrible que mirás, cada crueldad que hacés y cada ataque violeta de esas cosas te saca un poco.'},
   {who:'Iván',t:'Cuando baja, se nota: todo se oscurece, ves gente donde no hay nadie y el pasillo empieza a hablarte.'},
   {who:'Iván',t:'Aunque... dicen que los que están mal ven cosas que están de verdad. Cosas escondidas, que nadie más ve. No te lo recomiendo como método.'},
@@ -2961,7 +2942,7 @@ function ivanTalk(){
 function ivanPre(){
   talkMenu({who:'Iván',id:'ivp',first:'Preguntá. Pero desde ahí, lejos. No te acerques todavía.',again:['¿Algo más?','Seguí. Estoy anotando.'],endL:'Ya está',end(){say([ivanProof('Bueno. Ahora demostralo. Las copias no tienen sombra.')]);},topics:[
     {k:'pas',l:'¿Qué está pasando?',f(b){say([W_('Iván','No sé cuándo empezó. Un día me di cuenta de que el del 4A no pestañeaba.'),W_('Iván','Después vi otros. Primero dejan de pestañear. Después dejan de hablar.'),W_('Iván','Lo anoté todo. Tengo tablas. Tengo gráficos. No tengo a quién mostrárselos.')],b);}},
-    {k:'qui',l:'¿Quién sos?',f(b){say([W_('Iván','Iván. Estudiante de medicina. Cuarto año. Bueno, tercero y medio.'),W_('Iván','Vivo acá porque era barato. Ahora el precio es otro.')],b);}},
+    {k:'qui',l:'¿Quién sos?',f(b){say([W_('Iván','Iván. Estudiante de bioquímica. Cuarto año. Bueno, tercero y medio.'),W_('Iván','Vivo acá porque era barato. Ahora el precio es otro.')],b);}},
     {k:'gen',l:'¿Gente que no es gente?',f(b){say([W_('Iván','En el pasillo. Caminan como nosotros, pero no tienen sombra.'),W_('Iván','Si algo te habla con la voz de un vecino y no tiene sombra, no es tu vecino.'),{who:'Iván',t:'¿Viste alguno?',choices:[
       {l:'Sí',f(){say([W_('Iván','Entonces ya sabés. No les contestes. Aunque sepan tu nombre.')],b);}},
       {l:'No sé',f(){say([W_('Iván','Ese es el problema. Nunca se sabe. Por eso la lámpara.')],b);}}]}]);}},
@@ -3460,7 +3441,7 @@ function itemIdx(mode){const out=[];S.items.forEach((id,i)=>{if((IT[id].t==='key
 const KEY_HINT={
   lentes:'Pista: llevaselos a Selene, en los pasillos de atrás del teatro.',
   tubo:'Pista: Silvestre funde metal en su taller del 3. Necesita tres piezas.',plomos:'Pista: Silvestre funde metal en su taller del 3. Necesita tres piezas.',platillo:'Pista: Silvestre funde metal en su taller del 3. Necesita tres piezas.',
-  sardinas:'Pista: dejalas en la caja de cartón de los pasillos y alejate.',estano:'Pista: con esto se cortan los caños donde suena la guitarra.',cinta5:'Pista: se mira en una videocasetera. Hay una en el set de Selene.',pua:'Pista: Ciro toca pegado a los caños. Pasásela por ahí.',
+  sardinas:'Pista: dejalas en la caja de cartón al lado del foso y salí de la sala un rato.',estano:'Pista: con esto se cortan los barrotes de la rejilla, adentro del caño, y se vuelven a soldar.',cinta5:'Pista: solo se ve en la videocasetera de tu departamento, en el 4.',pua:'Pista: Ciro toca pegado a los caños. Pasásela por ahí.',
   cinta1:'Pista: se mira en la videocasetera de tu departamento.',
   tubos:'Pista: Iván los está esperando. Llevaselos a su laboratorio: el horno o la gradilla.',
   cascoU:'Pista: Pedro solo le abre a soldados. Casco, insignia y borcegos.',
@@ -3633,7 +3614,8 @@ function drawUI(){
 }
 
 /* ================= tiles ================= */
-const hash=(x,y)=>((x*73856093)^(y*19349663))>>>0;
+/* 31 bits: con el bit de arriba prendido, los (h>>n)%m daban negativos y las vetas se salían del tile */
+const hash=(x,y)=>((x*73856093)^(y*19349663))&0x7fffffff;
 /* sprites de personas: se dibujan una vez en caché con sombreado y contorno */
 const PCACHE=new Map();
 function shadePix(c,q,mc,base){q=q||1;mc=mc||0;const g=c.getContext('2d'),W2=c.width,H2=c.height,im=g.getImageData(0,0,W2,H2),d=im.data;
@@ -3818,7 +3800,7 @@ function shd(c,k){const key=c+'|'+k;if(SHC[key])return SHC[key];let r,g,b;
   if(c[0]==='#'){const n=parseInt(c.length===4?c[1]+c[1]+c[2]+c[2]+c[3]+c[3]:c.slice(1),16);r=n>>16;g=n>>8&255;b=n&255;}else{const m=c.match(/\d+/g);r=+m[0];g=+m[1];b=+m[2];}
   if(k>=0){r+=(255-r)*k;g+=(255-g)*k;b+=(255-b)*k;}else{r*=1+k;g*=1+k;b*=1+k;}
   return SHC[key]=`rgb(${r|0},${g|0},${b|0})`;}
-const wh=(a,b)=>{let n=(Math.imul(a+977,374761393)+Math.imul(b+131,668265263))|0;n=Math.imul(n^(n>>>13),1274126177);return (n^(n>>>16))>>>0;};
+const wh=(a,b)=>{let n=(Math.imul(a+977,374761393)+Math.imul(b+131,668265263))|0;n=Math.imul(n^(n>>>13),1274126177);return (n^(n>>>16))&0x7fffffff;};
 const thKey=th=>th._k||(th._k=Object.keys(TH).find(k=>TH[k]===th)||'home');
 const isFace=(x,y)=>isWall(tileAt(x,y))&&!isWall(tileAt(x,y+1));
 function wallTop(px,py,tx,ty,th){
@@ -4878,7 +4860,7 @@ const WANDER={[MP.CASA]:['augusto','joaquin','selene','catalina','bianca','tomas
 const CHATS=[
   {map:MP.CASA,ids:['milagros','manuel'],s:[[['a','¿Tocamos "Espejo" después de la torta?'],['b','Solo si tiene solo de batería.'],['a','No tiene solo de batería.'],['b','Todavía.']],[['b','Mirá, traje los palillos.'],['a','Ya los vi. Los llevás a todos lados.'],['b','Un baterista nunca sale desarmado.']]]},
   {map:MP.CASA,ids:['matias','sofia'],s:[[['a','Mañana a las ocho, gimnasio.'],['b','Mañana es domingo, Mati.'],['a','El músculo no sabe qué día es.']],[['b','¿Dónde quedó el helado?'],['a','Atrás de la carne de Brian.'],['b','Voy a rescatarlo.']]]},
-  {map:MP.CASA,ids:['isidoro_in','selene'],s:[[['a','¿Cuántos gatos tenías?'],['b','Ocho. Uno se agregó solo.'],['a','Ese no es un gato. Es un inquilino.']],[['b','¿Entendés lo del meteorito?'],['a','Dicen que pasa cerca y que no hay que preocuparse.'],['b','Eso dicen siempre antes de que haya que preocuparse.']]]},
+  {map:MP.CASA,ids:['isidoro_in','selene'],s:[[['a','¿Cuántos gatos tenías?'],['b','Seis. Uno se agregó solo.'],['a','Ese no es un gato. Es un inquilino.']],[['b','¿Entendés lo del meteorito?'],['a','Dicen que pasa cerca y que no hay que preocuparse.'],['b','Eso dicen siempre antes de que haya que preocuparse.']]]},
   {map:MP.CASA,ids:['ivan','roman'],s:[[['a','La limonada tiene un pH de 2,8.'],['b','¿Eso es malo?'],['a','Es limonada. Es lo esperable.'],['b','¿Y para qué la mediste?']],[['b','¿Probaste la torta?'],['a','Espero los resultados del laboratorio.'],['b','Sos insoportable.']]]},
   {map:MP.CASA,ids:['brian','angie'],s:[[['b','¡Brian, sonreí!'],['a','Estoy sonriendo.'],['b','Más.'],['a','Esto es lo máximo que da la cara.']],[['a','¿Le sacaste foto a la carne?'],['b','A la carne no.'],['a','Es la mejor del frigorífico.'],['b','...Bueno, una.']]]},
   {map:MP.CASA,ids:['catalina','ciro'],s:[[['a','¿"Here Comes the Sun" o "Let It Be"?'],['b','...'],['a','"Here Comes the Sun". Sabía.']],[['b','♪ ...'],['a','¡Esa no la conozco! ¿Es tuya?'],['b','...Es de George.']]]},
@@ -5010,7 +4992,7 @@ function updCut(dt){
   if(CUT.t>=6.2){const idle=CUT.idle;CUT=null;if(idle){scene='pdeath';PD={t:0,sel:0};}else startWake();}
 }
 const FLAT='g-:.,r¡';let GC={key:null,c:null};
-function groundLayer(m,th,t){const key=S.map+'|'+(S.map===MP.PASILLO?(S.hall&&S.hall.rows.join('')):S.map===MP.PISO3?(S.p3&&S.p3.rows.join('')):'');if(GC.key===key&&GC.c)return GC.c;
+function groundLayer(m,th,t){/* la clave incluye las filas y las variantes: si no, el ducto (largo/corto) y los pisos sorteados del 5 quedaban con el piso viejo */const key=objSig();if(GC.key===key&&GC.c)return GC.c;
   const W2=m.rows[0].length,H2=m.rows.length,c=mk(W2*T,H2*T),gx=c.getContext('2d'),saved=ctx;gx.imageSmoothingEnabled=false;ctx=gx;
   try{for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){const ch=tileAt(x,y);if(FLAT.includes(ch))drawTile(ch,x*T,y*T,x,y,th,0);}
     for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){const ch=tileAt(x,y);if(!FLAT.includes(ch)||ch==='g')continue;const px=x*T,py=y*T,wl=(a,b)=>{const q=tileAt(a,b);return q!==undefined&&isWall(q);};
@@ -5060,7 +5042,7 @@ function dynTest(ch,x,y,th){const sv=ctx;let dyn=false;
     const d1=rr(DYNA,.13),d2=rr(DYNB,1.77);for(let i=0;i<d1.length;i+=4){if(d1[i]!==d2[i]||d1[i+1]!==d2[i+1]||d1[i+2]!==d2[i+2]||d1[i+3]!==d2[i+3]){dyn=true;break;}}}catch(e){dyn=true;}finally{ctx=sv;}
   return dyn;}
 function objSig(){if(!DRAWFLAGS){const src=drawTile.toString()+(typeof drawPropArt==='function'?drawPropArt.toString():'');DRAWFLAGS=[...new Set((src.match(/S\.flags\.(\w+)/g)||[]).map(z=>z.slice(8)))];}
-  let k=S.map+'|'+S.canal+'|'+(S.pro?1:0)+'|'+S.flags.lv5+S.flags.dv5+S.flags.fv5+'|'+(S.map===MP.PASILLO?(S.hall&&S.hall.rows.join('')):S.map===MP.PISO3?(S.p3&&S.p3.rows.join('')):'');for(const f of DRAWFLAGS)k+='|'+(S.flags[f]===undefined?'':S.flags[f]);return k;}
+  let k=S.map+'|'+S.canal+'|'+(S.pro?1:0)+'|'+S.flags.lv5+S.flags.dv5+S.flags.fv5+'|'+(MAPS[S.map]&&MAPS[S.map].rows||[]).join('');for(const f of DRAWFLAGS)k+='|'+(S.flags[f]===undefined?'':S.flags[f]);return k;}
 function objLayer(m,th){const key=objSig();if(OBJC.key===key&&OBJC.c)return OBJC.c;
   const W2=m.rows[0].length,H2=m.rows.length,c=mk(W2*T*2,H2*T*2),g=c.getContext('2d'),bc=mk(W2*T*2,H2*T*2),bg=bc.getContext('2d'),sv=ctx;g.setTransform(2,0,0,2,0,0);bg.setTransform(2,0,0,2,0,0);g.imageSmoothingEnabled=false;
   const floorOf=(x,y)=>{for(const [a,b] of [[0,1],[-1,0],[1,0],[0,-1],[1,1],[-1,1]]){const q=tileAt(x+a,y+b);if(q&&FLAT.includes(q))return q;}return S.map===MP.CASA?'g':'.';};
@@ -6914,7 +6896,7 @@ let TR=null;
 function transition(dur,mid){TR={t:0,dur,mid,fired:false};}
 let GO=null;
 function tutoLose(){const onEnd=B.onEnd;B=null;transition(.8,()=>{scene='map';S.hp=maxHP();P.moving=false;
-  say(['El dragón de cartón te pasa por encima. Caés al piso del living.',{who:'Gerónimo',t:'...'},{who:'Gerónimo',t:'Valen. Perdiste contra un dragón de cartón.'},{who:'Gerónimo',t:'En mis 18 años de vida nunca vi a alguien tan malo.'},{who:'Gerónimo',t:'Bueno. Cuenta igual. Anotalo como una derrota honrosa.'}],()=>{onEnd&&onEnd();});});}
+  say(['El dragón de cartón te pasa por encima. Caés al piso del living.',{who:'Gerónimo',t:'...'},{who:'Gerónimo',t:'Valen. Perdiste contra un dragón de cartón.'},{who:'Gerónimo',t:'En mis 17 años de vida nunca vi a alguien tan malo.'},{who:'Gerónimo',t:'Bueno. Cuenta igual. Anotalo como una derrota honrosa.'}],()=>{onEnd&&onEnd();});});}
 let CHASE=null;
 function shadowStart(){if(CHASE||(B&&B.shadow))return;B=null;DLG=null;UI=null;startBattle(['sombra'],{shadow:true,onEnd:startChase});}
 function mapBFS(sx,sy,tx,ty){const m=MAPS[S.map],W2=m.rows[0].length,H2=m.rows.length,key=(x,y)=>y*W2+x,prev=new Map([[key(sx,sy),-1]]),q=[[sx,sy]];
