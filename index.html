@@ -1669,7 +1669,7 @@ MAPS[MP.FRIGO5]={title:'Teatro del Quinto · la cámara de frío',theme:'frigo',
   act(ch,x,y){
     if(S.flags.c5tp===1&&DEN&&DEN.x===x&&DEN.y===y)return denPush();
     switch(ch){
-      case 'Ӧ':return say([c3Next('cajL',['Cajones de telgopor apilados. Dicen "FRIGORÍFICO LIBERTAD". Están vacíos y escarchados.','Un cajón tiene una bolsa de hielo derretido y una foto de Brian y Den, sonriendo. Den sonríe con todos los dientes.'])]);
+      case 'Ӧ':return say([c3Next('cajL',['Cajones de telgopor apilados, vacíos y escarchados.','Un cajón tiene una bolsa de hielo derretido y una foto de Brian y Den, sonriendo. Den sonríe con todos los dientes.'])]);
       case 'Ө':if(c5Hard()&&S.flags.c5fight&&!has('quimicos')&&!S.flags.c5quim){S.flags.c5quim=1;return say(['Un estante con productos de limpieza industrial de Brian. Etiquetas con calaveras.',gotLine('quimicos')]);}
         return say(['Un estante con productos de limpieza industrial. Etiquetas con calaveras. Mejor no tocarlos.']);
       case 'Ӫ':return say([S.flags.c5brian==='dead'?'El sillón de Brian, vacío.':'El sillón de Brian. Está hundido con la forma de una persona grandota, y al lado, otro hundido más chico.']);
@@ -2052,7 +2052,7 @@ function frigoDoor(){const F=S.flags;
   if(c5Gen()&&has('guitarra')){F.c5frigo=1;S.items=S.items.filter(i=>i!=='guitarra');AU.nz(.5,.4);sfx.hit();return say(['Levantás la guitarra de Ciro con las dos manos.','La estrellás contra el pestillo. Una vez. Dos. A la tercera, la guitarra se parte y la puerta cede.','Las cuerdas siguen vibrando un rato largo.'],()=>goMap(MP.FRIGO5,16,18,'up'));}
   if(F.grabMel&&has('camara')){F.c5frigo=1;sfx.item();return say(['Apuntás la cámara al parlantito de la puerta y apretás PLAY.','Sale la voz de Den, tarareando. Cinco notas.','La puerta suspira. Se abre una rendija de aire helado.'],()=>goMap(MP.FRIGO5,16,18,'up'));}
   F.c5frigoSeen=1;
-  return say(['Una puerta de cámara frigorífica, gruesa como un colchón. Dice "FRIGORÍFICO LIBERTAD".','No tiene cerradura. Tiene un parlantito y un micrófono, como un portero eléctrico.'].concat(c5Gen()?['Hay que romperla con algo pesado.']:!F.c5grabQ&&!S.flags.c5selDead?['Selene seguro sabe algo.']:[]));
+  return say(['Una puerta de cámara frigorífica, gruesa como un colchón.','No tiene cerradura. Tiene un parlantito y un micrófono, como un portero eléctrico.'].concat(c5Gen()?['Hay que romperla con algo pesado.']:!F.c5grabQ&&!S.flags.c5selDead?['Selene seguro sabe algo.']:[]));
 }
 /* ---------- cinemáticas: te atrapa Den, Den queda encerrada ---------- */
 let CINE=null;
