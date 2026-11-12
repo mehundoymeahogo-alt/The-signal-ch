@@ -6586,7 +6586,8 @@ function menuCore(){
   const f=a[(rnd()*a.length)|0],d=f.def;
   const calm=f.id==='pedro'?pedroCalm(f):f.calm>=d.need;
   B.flav=calm&&d.calmFlav?d.calmFlav:d.flav[(rnd()*d.flav.length)|0];
-  if(f.id==='brian'&&calm&&(B.bAtk||0)<10)B.flav=(B.bAtk||0)>=7?'Brian casi no puede levantar los brazos. Quedan pocos ataques.':'Brian tiembla. Ya no quiere pegarte, pero no puede parar. Aguantá.';
+  if(f.id==='brian'&&calm&&atkLeft(f)>0)B.flav=atkLeft(f)<=3?'Brian casi no puede levantar los brazos. Quedan pocos ataques.':'Brian tiembla. Ya no quiere pegarte, pero no puede parar. Aguantá.';
+  if(f.id==='piano'&&calm&&atkLeft(f)>0)B.flav=atkLeft(f)<=2?'Al piano le cuesta levantar la tapa. Quedan pocos ataques.':'El piano ya no quiere pelear, pero las teclas no paran. Aguantá.';
   if(f.id==='pedro'){const r=f.hp/d.hp,acts=(f.used.o?1:0)+(f.used.c?1:0)+(f.used.r?1:0);
     if(r<.25)B.flav='Pedro apenas se sostiene. Un golpe más y se cae.';
     else if(r<.5)B.flav='A Pedro le tiemblan las piernas. Ya no grita tan fuerte.';
@@ -6615,7 +6616,10 @@ function choose(i){
   else if(i===2){if(!S.items.some(id=>IT[id].t==='food'||IT[id].t==='med'))bSay(['No tenés nada para usar en los bolsillos.'],menuCore);else{B.state='item';B.sub=0;}}
   else{B.state='mercy';B.sub=0;}
 }
-function spareables(){return alive().filter(f=>f.id==='pedro'?false:f.id==='brian'&&(B.bAtk||0)<10?false:f.calm>=f.def.need);}
+/* algunos no se pueden perdonar hasta aguantarles cierta cantidad de ataques, como Félix y Pedro */
+const ATK_REQ={brian:10,piano:7};
+const atkLeft=f=>ATK_REQ[f.id]?Math.max(0,ATK_REQ[f.id]-(f.atkN||0)):0;
+function spareables(){return alive().filter(f=>f.id==='pedro'?false:atkLeft(f)>0?false:f.calm>=f.def.need);}
 function doMercy(k){
   if(B.shadow){if(k===1){B.fled=true;sfx.sel();return bSay(['Te das vuelta y corrés. La Sombra no se apura.','Sabe que la vas a tener atrás.'],()=>endBattle());}return afterPlayer(['La Sombra no entiende de perdón.'],false);}
   if(k===1){
@@ -6627,7 +6631,7 @@ function doMercy(k){
   if(B.felix)return afterPlayer(['Félix: "¡EL PARTIDO NO TERMINÓ! ¡Acá se gana con goles!"','(Llevás '+(B.goals||0)+' de 3 goles.)'],false);
   if(B.boss){const f=B.foes[0];if(pedroCalm(f)){B.dz=B.turn+1;B.dzN=(B.dzN||0)+1;}return afterPlayer([pedroCalm(f)?(B.attacks>=9?'Lo desintonizás. Pedro baja los brazos un poco. Un ataque más.':'Lo desintonizás. Pedro afloja un poco. Seguí así, y aguantá.'):'Pedro no baja la guardia. Parece que solo responde a órdenes.'],false);}
   const sp=spareables();
-  {const br=alive().find(f=>f.id==='brian');if(br&&br.calm>=br.def.need&&(B.bAtk||0)<10&&!sp.length){const q=10-(B.bAtk||0);return afterPlayer(['Brian ya no quiere pelear. Pero no puede parar: los puños se le siguen moviendo solos.',q<=1?'(Aguantá un ataque más.)':'(Aguantá '+q+' ataques más.)'],false);}}
+  {const w=alive().find(f=>f.calm>=f.def.need&&atkLeft(f)>0);if(w&&!sp.length){const q=atkLeft(w);return afterPlayer([w.id==='brian'?'Brian ya no quiere pelear. Pero no puede parar: los puños se le siguen moviendo solos.':'El Piano de cola ya no quiere pelear. Pero las teclas siguen bajando solas, como si alguien tocara.',q<=1?'(Aguantá un ataque más.)':'(Aguantá '+q+' ataques más.)'],false);}}
   if(!sp.length)return afterPlayer(['Nadie quiere irse todavía.'],false);
   const L=[];sp.forEach(f=>{f.spared=true;L.push(f.def.spare[0]);});sfx.item();
   if(!alive().length)return bSay(L,()=>endBattle());
@@ -6696,7 +6700,7 @@ function enemyTurn(){
   B.lessT=B.less;B.slowT=B.slow;B.less=0;B.slow=0;
   B.state='dodge';B.lane=null;B.sv=null;B.corSeen=false;B.pel=null;B.run=null;B.tk=null;B.ballP=null;B.svy=0;B.dbox=null;B.tbox=BD;B.dt=0;B.bul=[];B.accs={};B.mira=null;B.soul={x:BD.x+BD.w/2-3,y:BD.y+BD.h/2-3};
   B.turn++;
-  if(B.foes.some(f=>f.id==='brian'&&!f.dead&&!f.spared))B.bAtk=(B.bAtk||0)+1;
+  for(const f of B.foes)if(ATK_REQ[f.id]&&!f.dead&&!f.spared)f.atkN=(f.atkN||0)+1;
   if(B.felix){B.attacks++;const n=B.attacks,X=['tiki','saque','penal','pique'];B.pats=B.fx2?(n%2?['partido']:['partido','relato']):n<2?['partido']:n<5?['partido','relato']:['partido','relato',X[(n-5)%4]];B.dur=B.fx2?14:12;return;}
   if(B.boss){B.attacks++;const n=B.attacks,P5=['fuego','botas','mira','minas','firmes'];
     if(n>=10&&pedroCalm(B.foes[0])&&B.dz===B.turn)B.pats=['retirada'];
@@ -7564,7 +7568,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.2.0';
+const GAME_VER='1.2.1';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
