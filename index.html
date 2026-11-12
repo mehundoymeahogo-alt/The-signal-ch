@@ -260,7 +260,7 @@ const CAST=['IVAN','ISIDORO','ISI','GERONIMO','AUGUSTO','SELENE','SILVESTRE','MA
 
 const CASTMSG={"IVAN": "Iván ya existe. Uno solo alcanza, creeme.", "ISIDORO": "Isi te mira: \"¿Y yo cómo me llamo, entonces?\"", "ISI": "Isi te mira: \"¿Y yo cómo me llamo, entonces?\"", "GERONIMO": "El narrador dice: \"Ese nombre ya tiene ficha.\"", "AUGUSTO": "Ya hay un Augusto. Y un perro llamado Simón.", "SELENE": "\"Ni lo pienses.\" Cinco gatos te miran mal.", "SILVESTRE": "\"Mi nombre no rima con el tuyo.\" —Silvestre", "MANUEL": "*Tun-tun-tsss* Ese nombre ya tiene batería.", "ROMAN": "\"...¿Seguís enojado? Igual ese nombre es mío.\"", "MATIAS": "\"Ese nombre entrena todos los días. Otro.\"", "MILAGROS": "\"Ese nombre ya tiene canción. Buscá la tuya.\"", "SOFIA": "\"¡Es mío! Pero te convido helado.\"", "BRIAN": "\"Ese nombre es de primera. Y ya tiene dueño.\"", "FELIX": "\"¡Y se lo quiere robar! ¡Tarjeta amarilla!\"", "ESTEFANIA": "*Se cruza de brazos.* \"No.\"", "ANGELINA": "\"Ya salgo en todas las fotos con ese nombre.\"", "ANGIE": "\"Ya salgo en todas las fotos con ese nombre.\"", "PEDRO": "Ya hay dos Pedros. Un tercero es un pelotón.", "MAXIMO": "\"Ese nombre tiene raíces acá. No se mueve.\"", "NICOLAS": "\"Ya lo conté tres veces: ese nombre es mío.\"", "BIANCA": "\"Probabilidad de que te lo preste: 0%.\"", "TOMAS": "\"Propiedad privada. Es un chiste. Más o menos.\"", "VALENTINO": "\"Llegué veinte minutos antes. Es mío.\"", "JOAQUIN": "\"Lo leí en un foro: ese nombre ya está tomado.\"", "CIRO": "(Ciro niega con la cabeza, muy despacio.)", "CATALINA": "\"¡Ese es mío! Elegí otro, ¡dale, dale!\"", "DEN": "\"Ese es mío. Buscate otro.\""};
 const FOES={
-  pelota:{name:'Pelota de cuero',hp:34,atk:7,xp:8,pesos:[10,14],sp:5,need:2,pats:['penal','tiki'],
+  pelota:{name:'Pelota de cuero',hp:72,atk:7,xp:8,pesos:[10,14],sp:5,need:2,pats:['penal','tiki'],
     flav:['La Pelota de cuero rebota sola, siempre a la misma altura.','La pelota tiene la costura abierta. Respira por ahí.','Huele a pasto mojado y a vestuario.'],
     calmFlav:'La pelota rebota contenta, al lado tuyo.',
     acts:[
@@ -270,7 +270,7 @@ const FOES={
     ],
     spare:['La pelota se va rebotando por el pasillo, haciendo jueguito sola.'],
     kill:['La pelota se desinfla con un silbido largo, como un final de partido.']},
-  naranja:{name:'Pelota de básquet',hp:38,atk:7,xp:8,pesos:[10,14],sp:5,need:2,pats:['triple','pique'],
+  naranja:{name:'Pelota de básquet',hp:76,atk:7,xp:8,pesos:[10,14],sp:5,need:2,pats:['triple','pique'],
     flav:['La Pelota de básquet pica en el lugar. Pum. Pum. Pum.','Tiene los gajos negros despintados de tanto uso.','Hace un amague. No sabés para qué lado.'],
     calmFlav:'La pelota pica tranquila, al ritmo de tu corazón.',
     acts:[
@@ -280,7 +280,7 @@ const FOES={
     ],
     spare:['La pelota se va picando hacia la escalera. Pum. Pum. Pum.'],
     kill:['La pelota se aplasta contra el piso y no vuelve a subir.']},
-  raqueta:{name:'Raqueta destensada',hp:30,atk:8,xp:8,pesos:[10,14],sp:5,need:2,pats:['saque','peloteo'],
+  raqueta:{name:'Raqueta destensada',hp:74,atk:8,xp:8,pesos:[10,14],sp:5,need:2,pats:['saque','peloteo'],
     flav:['La Raqueta destensada hace swing al aire. Fiu.','Le cuelgan dos cuerdas sueltas, como bigotes.','Grita "¡AFUERA!" cada vez que respirás.'],
     calmFlav:'La raqueta descansa, apoyada contra la pared.',
     acts:[
@@ -290,7 +290,7 @@ const FOES={
     ],
     spare:['La raqueta se va, haciendo swing de revés, muy elegante.'],
     kill:['Las cuerdas se cortan todas a la vez. Suena como un acorde roto.']},
-  valla:{name:'Valla de atletismo',hp:42,atk:7,xp:9,pesos:[10,14],sp:5,need:3,pats:['vallas','posta'],
+  valla:{name:'Valla de atletismo',hp:80,atk:7,xp:9,pesos:[10,14],sp:5,need:3,pats:['vallas','posta'],
     flav:['La Valla de atletismo se para firme. Te desafía con la mirada.','Está despintada en las patas, de tantas patadas.','Se escucha un disparo de largada lejano. Nadie corre.'],
     calmFlav:'La valla te espera, bajita, para que la saltes cuando quieras.',
     acts:[
@@ -330,7 +330,7 @@ const FOES={
     ],
     spare:['El dragón se retira volando, sostenido por Gerónimo.','Gerónimo: "¡Victoria pacífica! Te ponés un 10."'],
     kill:['El dragón se desarma en pedacitos de cartón.','Gerónimo: "...Bueno. Era de cartón. Igual me dolió."']},
-  soldadito:{name:'Soldadito de plomo',hp:30,atk:6,xp:6,pesos:[8,12],sp:4,need:3,pats:['marcha','corcho'],
+  soldadito:{name:'Soldadito de plomo',hp:44,atk:6,xp:6,pesos:[8,12],sp:4,need:3,pats:['marcha','corcho'],
     flav:['El Soldadito de plomo marcha en el lugar.','Al Soldadito se le traba la llave de la espalda.','Huele a pintura vieja y a juguetería cerrada.'],
     calmFlav:'El Soldadito marcha tranquilo, al lado tuyo.',
     acts:[
@@ -340,7 +340,7 @@ const FOES={
     ],
     spare:['El Soldadito se va marchando por el pasillo.'],
     kill:['El Soldadito cae y se abolla.']},
-  casco:{name:'Casco vacío',hp:26,atk:6,xp:6,pesos:[8,12],sp:4,need:1,pats:['cascos','rebote'],
+  casco:{name:'Casco vacío',hp:38,atk:6,xp:6,pesos:[8,12],sp:4,need:1,pats:['cascos','rebote'],
     flav:['El Casco vacío flota a la altura de una cabeza.','Adentro del casco no hay nadie. Hace mucho.','El casco tiene un número pintado. Está borrado.'],
     calmFlav:'El casco sonríe con la cara que le dibujaste.',
     acts:[
@@ -350,7 +350,7 @@ const FOES={
     ],
     spare:['El casco se aleja flotando, con su cara nueva.'],
     kill:['El casco cae y rueda hasta la pared.']},
-  radio:{name:'Radio de campaña',hp:28,atk:5,xp:6,pesos:[8,12],sp:4,need:2,pats:['estatica','morse'],
+  radio:{name:'Radio de campaña',hp:41,atk:5,xp:6,pesos:[8,12],sp:4,need:2,pats:['estatica','morse'],
     flav:['La Radio de campaña chilla en una frecuencia que no existe.','La radio repite: "...repito, nadie sube, nadie baja...".','Se le enciende una lucecita verde. Se le apaga.'],
     calmFlav:'La radio pasa un tango, bajito.',
     acts:[
@@ -1421,7 +1421,7 @@ MAPS[MP.DUCTO]={title:'Adentro del ducto',theme:'ducto',get rows(){return ductSh
   under(t){if(DSEE>0){DSEE-=1/60;const p=DSEE_P;ctx.fillStyle='#fff';ctx.fillRect(p[0]*T+5,p[1]*T+6,2,1);ctx.fillRect(p[0]*T+10,p[1]*T+6,2,1);}},
   act(ch){
     switch(ch){
-      case 'ω':return say([{t:'La rejilla por la que entraste. Abajo se ve el departamento de Pedro.',choices:[{l:'Volver',f(){if(S.flags.ductLong&&S.flags.dLongSeen){S.flags.ductLong=0;S.flags.dShortSeen=0;}goMap(MP.PEDRO,11,1,'down');}},{l:'Seguir',f(){}}]}]);
+      case 'ω':return say([{t:'La rejilla por la que entraste. Abajo se ve el departamento de Pedro.',choices:[{l:'Volver',f(){const F=S.flags;if(F.dFrom==='top'){F.ductDone=1;if(F.ductLong){F.ductLong=0;F.dShortSeen=0;}}else if(F.ductLong&&F.dLongSeen){F.ductLong=0;F.dShortSeen=0;}goMap(MP.PEDRO,11,1,'down');}},{l:'Seguir',f(){}}]}]);
       case 'ξ':return say([{t:'Una escalera de mano sube por un tubo vertical. Arriba hay luz.',choices:[{l:'Subir',f(){S.flags.ductDone=1;if(S.flags.ductLong){S.flags.ductLong=0;S.flags.dShortSeen=0;}goMap(MP.PUERTA5,2,5,'up');}},{l:'Todavía no',f(){}}]}]);
       case 'ʘ':if(!S.flags.zapa){S.flags.zapa=1;return say(['Al fondo del ducto hay una zapatilla de nene. Una sola.','Está atada. Como si alguien se la hubiera sacado sin desatarla.']);}return say(['La zapatilla sigue ahí. Ahora está desatada.']);
     }
@@ -1456,7 +1456,7 @@ MAPS[MP.PUERTA5]={title:'Rellano · piso 5',theme:'rellano',rows:[
   enter(){if(!S.flags.p5In){S.flags.p5In=1;say(['Salís por una trampa en el piso. Es un rellano chico, con olor a encierro.','Delante tuyo hay una puerta enorme de metal.'].concat(S.party.includes('silvestre')?[{who:'Silvestre',t:'Las voces vienen de ahí adentro.'}]:[]));}},
   act(ch){
     switch(ch){
-      case 'ξ':return say([{t:'La escalera de mano baja al ducto.',choices:[{l:'Bajar',f(){goMap(MP.DUCTO,31,2,'down');}},{l:'Quedarse',f(){}}]}]);
+      case 'ξ':return say([{t:'La escalera de mano baja al ducto.',choices:[{l:'Bajar',f(){S.flags.dFrom='top';goMap(MP.DUCTO,31,2,'down');}},{l:'Quedarse',f(){}}]}]);
       case 'Ξ':if(S.chapter===3&&c3Open())return goMap(MP.FOYER5,9,8,'up');return say(['Una puerta enorme de metal, remachada. En el medio hay un teclado numérico.'].concat(!S.party.includes('silvestre')?['El teclado es igual al de mantenimiento. La misma marca. El mismo modelo.']:[]).concat(S.party.includes('silvestre')&&!S.flags.p5Hint?[{who:'Silvestre',t:'Es el mismo teclado que el de mantenimiento. Misma marca, mismo modelo.'},{who:'Silvestre',t:'El degenerado ese usa el mismo código para todo. Te apuesto lo que quieras.'}]:[]),()=>{S.flags.p5Hint=1;openPad(S.code3,()=>{sfx.item();say(['Clic. La luz se pone verde.','La puerta se abre despacio, como si pesara una tonelada.','Del otro lado hay una luz blanca. Y una guitarra. Y muchas voces que se callan al mismo tiempo.'],endChapter2);});});
     }
   }};
@@ -1715,8 +1715,9 @@ function seleneDoor(){
 }
 /* ---------- el gato ---------- */
 function drawCatVaca(x,y,t){drawCat(x,y,t,'#ece8e0',true);ctx.fillStyle='#16161a';ctx.fillRect(x+5,y+10,3,2);ctx.fillRect(x+9,y+12,2,1);ctx.fillRect(x+11,y+8,2,2);ctx.fillRect(x+3,y+12,1,2);}
-function drawCat(x,y,t,col,sleep){const F=(c,a,b,w,h)=>{ctx.fillStyle=c;ctx.fillRect(x+a,y+b,w,h);},b=sleep?0:Math.abs(Math.sin(t*9))*1.2;
-  ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(x+8,y+15,6,2,0,0,7);ctx.fill();
+function drawCat(x,y,t,col,sleep){const jy=NPCJ;NPCJ=0;const F=(c,a,b,w,h)=>{ctx.fillStyle=c;ctx.fillRect(x+a,y+b,w,h);},b=sleep||jy>.5?0:Math.abs(Math.sin(t*9))*1.2;
+  ctx.fillStyle='rgba(0,0,0,'+(.35-Math.min(.2,jy*.02))+')';ctx.beginPath();ctx.ellipse(x+8,y+15+jy,6-Math.min(3,jy*.3),2,0,0,7);ctx.fill();
+  if(jy>1.5){/* en el aire: cuerpo estirado, patas recogidas, cola para atrás */F(col,2,8,11,4);F(shd(col,-.25),2,11,11,1);F(shd(col,.18),3,8,8,1);F(col,11,5,5,5);F(shd(col,.15),12,5,3,1);F(col,11,4,1,2);F(col,15,4,1,2);F('#c87a8a',11,5,1,1);F('#c87a8a',15,5,1,1);F('#e8e050',12,7,1,1);F('#e8e050',14,7,1,1);F('#111',12,7,1,1);F('#111',14,7,1,1);F(col,0,7,3,2);F(col,1,12,2,1);F(col,12,12,2,1);if(col!=='#2a2a2e'&&col!=='#d8d0c0')F('#e8c040',10,10,2,1);return;}
   if(sleep){F(col,3,9,10,5);F(shd(col,-.2),3,13,10,1);F(col,10,8,4,4);F(shd(col,.2),4,9,6,1);F('#111',11,10,1,1);F(col,2,11,2,3);return;}
   F(col,3,8-b,9,5);F(shd(col,-.25),3,12-b,9,1);F(shd(col,.18),4,8-b,6,1);F(col,10,5-b,5,5);F(shd(col,.15),11,5-b,3,1);F(col,10,4-b,1,2);F(col,14,4-b,1,2);F('#c87a8a',10,5-b,1,1);F('#c87a8a',14,5-b,1,1);F('#e8e050',11,7-b,1,1);F('#e8e050',13,7-b,1,1);F('#111',11,7-b,1,1);F('#111',13,7-b,1,1);F('#e8e050',11,6-b,1,1);F('#e8e050',13,6-b,1,1);F('#d86a7a',12,9-b,1,1);
   {const sw=Math.round(Math.sin(t*3+x)*1.5);F(col,2,9-b+sw,1,3);F(col,1,8-b+sw,1,2);F(shd(col,-.25),3,13-b,2,1);F(shd(col,-.25),9,13-b,2,1);}
@@ -1729,20 +1730,22 @@ function gatoTalk(){
 let CATCD=0;
 // los gatos se suben a las butacas, a las sillas de la orquesta, a la baranda del foso y al borde del escenario
 const catWalk=t=>walk(t)||'БЬЪФ'.includes(t);
+const catHop=(fx,fy,tx,ty)=>{const a='БЬЪФ'.includes(tileAt(fx,fy)),b='БЬЪФ'.includes(tileAt(tx,ty)),far=Math.abs(tx-fx)+Math.abs(ty-fy)>1;return far?11:(a!==b?7:a&&b?4:0);};
 function catTick(dt){const m=MAPS[MP.SALA5],n=m.npcs.find(q=>q.id==='gato');if(!n||!n.vis()||S.map!==MP.SALA5)return;
   if(c5Gen()||S.flags.tgAbort)return;
   CATCD-=dt;if(CATCD>0||n._mv)return;const d=Math.abs(n.x-S.x)+Math.abs(n.y-S.y);
-  if(d>3){CATCD=.4;if(rnd()<.15){const D=[[1,0],[-1,0],[0,1],[0,-1]][ri(0,3)],nx=n.x+D[0],ny=n.y+D[1];if(catWalk(tileAt(nx,ny))&&!(nx===S.x&&ny===S.y)){n._mv={fx:n.x,fy:n.y,p:0};n.x=nx;n.y=ny;}}return;}
+  if(d>3){CATCD=.4;if(rnd()<.15){const D=[[1,0],[-1,0],[0,1],[0,-1]][ri(0,3)],nx=n.x+D[0],ny=n.y+D[1];if(catWalk(tileAt(nx,ny))&&!(nx===S.x&&ny===S.y)){n._mv={fx:n.x,fy:n.y,p:0,j:catHop(n.x,n.y,nx,ny)};n.x=nx;n.y=ny;}}return;}
   CATCD=.17;let best=null,bd=-1;const d0=Math.abs(n.x-S.x)+Math.abs(n.y-S.y);for(const [a,b] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=n.x+a,ny=n.y+b;if(!catWalk(tileAt(nx,ny))||(nx===S.x&&ny===S.y)||(ny===15&&(nx===9||nx===10)))continue;
     /* si quedó acorralado, se escurre por al lado tuyo: los gatos siempre encuentran por dónde */const dd=Math.abs(nx-S.x)+Math.abs(ny-S.y)+rnd()*.6+(n._last&&n._last[0]===nx&&n._last[1]===ny?-1.2:0);if(dd>bd){bd=dd;best=[nx,ny];}}
   if((!best||bd<d0)&&d0<=1){/* acorralado contra una pared: salta por arriba tuyo al otro lado */const jx=S.x+(S.x-n.x),jy=S.y+(S.y-n.y);if(catWalk(tileAt(jx,jy)))best=[jx,jy];}
-  if(best){n._last=[n.x,n.y];n._mv={fx:n.x,fy:n.y,p:0};n.dir=best[0]>n.x?'right':best[0]<n.x?'left':best[1]>n.y?'down':'up';n.x=best[0];n.y=best[1];
+  if(best){n._last=[n.x,n.y];{const j=catHop(n.x,n.y,best[0],best[1]);n._mv={fx:n.x,fy:n.y,p:0,j,sp:Math.abs(best[0]-n.x)+Math.abs(best[1]-n.y)>1?.55:1};if(j)CATCD=Math.max(CATCD,.3);}n.dir=best[0]>n.x?'right':best[0]<n.x?'left':best[1]>n.y?'down':'up';n.x=best[0];n.y=best[1];
     S.flags.c5chase=(S.flags.c5chase||0)+1;
     if(S.flags.c5chase===28&&!S.flags.c5hint){S.flags.c5hint=1;
       if(S.party.includes('silvestre'))PENDING.push({who:'Silvestre',t:'Pará, pará. Así no lo vas a agarrar nunca.'},{who:'Silvestre',t:'A un gato no se lo persigue: se le tiende una trampa. Una caja y algo que huela fuerte.'},{who:'Silvestre',t:'Al lado del foso hay una caja. Estefanía, la del 3C, siempre tiene sardinas. Trabaja de moza: le sobra de todo.'});
       else PENDING.push({who:'Selene',t:'(desde el hall) ¡Así no! A Pionono hay que tenderle una trampa.'},{who:'Selene',t:'Una caja y comida. Hay una caja al lado del foso. Estefanía, la moza del 3, le guarda sardinas cuando baja por el ducto.'});}}
 }
 function trapBox(){const F=S.flags;
+  if(F.c5gato===2&&F.c5inBox){F.c5gato=3;F.c5inBox=0;sfx.item();return say(['Te agachás despacio y espiás adentro de la caja.','Pionono come sardinas con cara de culpa. Te mira, mastica, y sigue comiendo. Ni se resiste.','Le desenganchás el llavero del collar. Una llave de bronce.',gotLine('llaveHab')].concat(!F.c5selDead?[{who:'Selene',t:'(desde el hall) ¡Pionono! ¡Sinvergüenza!'},{who:'Selene',t:'Esa llave abre el sector de las habitaciones. Tu habitación... y la de Ciro.'}]:[]));}
   if(F.c5gato===2)return say(['La caja con las sardinas. Hay que alejarse para que Pionono se anime.']);
   if(F.c5gato===1&&has('sardinas')){F.c5gato=2;S.items=S.items.filter(i=>i!=='sardinas');sfx.item();return say(['Ponés la lata de sardinas adentro de la caja y la dejás apenas inclinada.','Ahora hay que salir de la sala un rato. Pionono no va a entrar si lo estás mirando.']);}
   if(F.c5gato===1&&F.c5hint)return say(['Una caja de cartón vacía. Serviría de trampa, si tuvieras con qué tentarlo.']);
@@ -2317,7 +2320,7 @@ function c5AfterFight(){const F=S.flags;
 
 /* ---------- la sala: el gato vuelve a la caja y la escalera de servicio ---------- */
 function c5SalaEnter(){const F=S.flags;
-  if(F.c5gato===2){F.c5gato=3;sfx.item();return say(['La caja de cartón al lado del foso se mueve sola.','Adentro, Pionono come sardinas con cara de culpa. Ni se resiste.','En el collar tiene un llavero con una llave de bronce.',gotLine('llaveHab')].concat(!F.c5selDead?[{who:'Selene',t:'(desde el hall) ¡Pionono! ¡Sinvergüenza!'},{who:'Selene',t:'Esa llave abre el sector de las habitaciones. Tu habitación... y la de Ciro.'}]:[]));}
+  if(F.c5gato===2&&!F.c5inBox){F.c5inBox=1;return say(['La caja de cartón al lado del foso se mueve sola.','Desde adentro llega un ruido chiquito y apurado. Alguien está comiendo sardinas.']);}
 }
 function c5SalaUnder(t){const F2=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);},x=21*T,y=7*T;
   F2('#1a1210',x,y-T,T,2*T);F2('#3a2a20',x+1,y-T+2,T-2,2*T-2);
@@ -2833,7 +2836,7 @@ function silvKill(after){AU.nz(.4,.3);BLACKOUT=true;say(['Silvestre desatornilla
 const SILV_FORCED=['...','No me mires.','Hacé lo tuyo y dejame ir.','Félix tenía razón.'];
 function ventAct(){
   if(!S.flags.felix)return say(['Una pared.']);
-  const go={t:'El ducto es angosto. Hay que ir agachado.',choices:[{l:'Meterse',f(){goMap(MP.DUCTO,1,1,'down');}},{l:'Todavía no',f(){}}]};
+  const go={t:'El ducto es angosto. Hay que ir agachado.',choices:[{l:'Meterse',f(){S.flags.dFrom='bot';goMap(MP.DUCTO,1,1,'down');}},{l:'Todavía no',f(){}}]};
   if(S.flags.silvDead||S.flags.ventOpen)return say(['La rejilla está en el piso. Del ducto salen voces.',go]);
   if(S.flags.silvPaid){S.flags.ventOpen=1;return say(['La rejilla ya está desatornillada, apoyada contra la pared.','Al lado hay un papelito: "Estamos a mano. —S."',go]);}
   if(S.flags.silvForced&&S.party.includes('silvestre')&&S.flags.tgAbort){S.flags.ventOpen=1;S.party=S.party.filter(p=>p!=='silvestre');S.flags.silvFree=1;return say(['Silvestre desatornilla la rejilla con las manos temblando.',{who:'Silvestre',t:'Ya está. ¿Y ahora? ¿Me vas a...?'},'No hacés nada. Bajás el arma.',{who:'Silvestre',t:'...'},'Silvestre retrocede sin darte la espalda hasta la puerta. Después corre.',go]);}
@@ -3602,7 +3605,7 @@ function drawUI0(){
     if(S.flags.silv&&!S.party.includes('silvestre'))n.push('Silvestre, del 3A, necesita sus herramientas. Están en mantenimiento, con código.');
     if(S.flags.geroQ===1)n.push('Dados de Gerónimo: '+['dado4','dado6','dado12'].filter(d=>S.items.includes(d)).length+' de 3.');
     if(S.flags.need5&&!S.flags.cap2)n.push('La escalera al 2 pide un código. "EL 5 SABE".');
-    if(S.chapter===3){const F=S.flags;if(F.c5lentesQ&&!F.c5selOpen)n.push('Selene perdió los lentes entre las butacas: fila '+c5Fila(c5Seat()[1])+', lado izquierdo.');if(F.c5gato===1)n.push('Pionono, el gato de Selene, se escapó a la sala del teatro con la llave de las habitaciones.'+(F.c5hint?(has('sardinas')?' Poné las sardinas en la caja del foso y salí de la sala un rato.':' Trampa: la caja del foso y sardinas (Estefanía, 3C).'):''));
+    if(S.chapter===3){const F=S.flags;if(F.c5lentesQ&&!F.c5selOpen)n.push('Selene perdió los lentes entre las butacas: fila '+c5Fila(c5Seat()[1])+', lado izquierdo.');if(F.c5gato===2)n.push(F.c5inBox?'Pionono se metió en la caja del foso. Agachate y sacale la llave del collar.':'Las sardinas están en la caja del foso. Salí de la sala un rato y volvé.');if(F.c5gato===1)n.push('Pionono, el gato de Selene, se escapó a la sala del teatro con la llave de las habitaciones.'+(F.c5hint?(has('sardinas')?' Poné las sardinas en la caja del foso y salí de la sala un rato.':' Trampa: la caja del foso y sardinas (Estefanía, 3C).'):''));
       if(!c5Hard()&&!F.c5rescued&&!F.c5late&&!F.c5fight){
         if(F.c5askSil&&!F.c5pipeOK&&!has('llavei'))n.push('Desde el empalme de caños (pasillos de atrás) Ciro no te escucha. Preguntale a Silvestre, en el 3A.');
         if(has('llavei')&&!F.c5pipeOK)n.push('Con la llave inglesa de Silvestre, sacá la tapa del empalme de caños y metete.');
@@ -4158,7 +4161,8 @@ function drawTeat2(ch,px,py,tx,ty,t){const F=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.f
       for(let k=0;k<6;k++){const q=hash(tx*7+k,ty);F('rgba(240,230,220,.5)',q%14+1,5+(q>>4)%7,2,1);}
       if(!S.flags.c5selDead){if(!lf){F('#2a2a2e',4,6,6,4);F('#2a2a2e',8,5,3,3);F('#e8e050',9,6,1,1);}else{F('#d8d0c0',2,7,7,4);F('#d8d0c0',7,6,3,3);}}return true;}
     case 'Ӌ':{const st=S.flags.c5gato;F('rgba(0,0,0,.3)',2,13,13,3);F('#a8804a',2,6,12,8);F('#8a6438',2,6,12,1);F('#6a4a28',2,13,12,1);F('#c89a5a',2,3,12,3);F('#8a6438',8,3,1,11);
-      if(st===2){F('#b8c0c8',5,7,5,2);F('#e8e8f0',5,7,5,1);}if(st===3){F('#c8843a',5,4,6,3);F('#e8e050',6,5,1,1);F('#e8e050',9,5,1,1);}return true;}
+      if(st===2&&S.flags.c5inBox){const k=Math.sin(t*11)>.55?1:0,w=Math.round(Math.sin(t*3)*1.5);F('#a8804a',2+k,6,12,8);F('#8a6438',2+k,6,12,1);F('#6a4a28',2+k,13,12,1);F('#c89a5a',2+k,3,12,3);F('#8a6438',8+k,3,1,11);F('#c8843a',1+k,2+w,2,5);F('#a86a2a',1+k,2+w,1,2);if(Math.sin(t*1.7)>.3){F('#c8843a',9+k,1,1,2);F('#c8843a',12+k,1,1,2);}}
+      else if(st===2){F('#b8c0c8',5,7,5,2);F('#e8e8f0',5,7,5,1);}if(st===3){F('#c8843a',5,4,6,3);F('#e8e050',6,5,1,1);F('#e8e050',9,5,1,1);}return true;}
     case 'Ӎ':{// cámara en trípode
       F('rgba(0,0,0,.3)',2,13,12,3);F('#2a2a2e',4,8,1,6);F('#2a2a2e',11,8,1,6);F('#2a2a2e',7,8,2,6);F('#3a3a40',5,7,6,2);
       if(!S.flags.c5cam){F('#1a1a1e',3,1,10,6);F('#3a3a42',3,1,10,1);F('#0a0a10',12,2,3,4);F('#4a6a9a',13,3,1,2);F(Math.sin(t*3)>0?'#ff3a2a':'#4a1410',4,2,1,1);F('#8a8a90',5,0,3,1);}return true;}
@@ -5078,10 +5082,10 @@ function lifeInit(){if(LIFE.init)return;LIFE.init=true;
   for(const k in MAPS){const m=MAPS[k];for(const n of m.npcs){const d=Object.getOwnPropertyDescriptor(n,'x');n._fixed=!d||!!d.get;if(!n._fixed){n._h=[n.x,n.y];n._d0=n.dir;n._cd=2+Math.random()*7;}}}}
 function inClosedRoom(x,y){return (MAPS[S.map].rooms||[]).some(r=>!S.flags['dr'+r.door[0]+'_'+r.door[1]]&&x>=r.x&&x<r.x+r.w&&y>=r.y&&y<r.y+r.h);}
 function npcById(m,id){return m.npcs.find(n=>(n.id===id||n.vid===id)&&n.vis());}
-function npcDraw(n){if(n._mv){const p=Math.min(1,n._mv.p);return[(n._mv.fx+(n.x-n._mv.fx)*p)*T,(n._mv.fy+(n.y-n._mv.fy)*p)*T,p<1];}return[n.x*T,n.y*T,false];}
+let NPCJ=0;function npcDraw(n){if(n._mv){const p=Math.min(1,n._mv.p),e=p*p*(3-2*p),j=n._mv.j?Math.sin(p*Math.PI)*n._mv.j:0;NPCJ=j;return[(n._mv.fx+(n.x-n._mv.fx)*(n._mv.j?e:p))*T,(n._mv.fy+(n.y-n._mv.fy)*(n._mv.j?e:p))*T-j,p<1];}NPCJ=0;return[n.x*T,n.y*T,false];}
 function lifeTick(dt){lifeInit();if(scene!=='map'||!S)return;if(!S.pro)for(const v of VISITS)visitOn(v);
   const m=MAPS[S.map],busy=!!(DLG||UI||CUT||TR||PENDING.length||VOID||BLACKOUT);
-  for(const n of m.npcs)if(n._mv){n._mv.p+=dt*3.2;if(n._mv.p>=1){n._mv=null;if(n._d0&&n.x===n._h[0]&&n.y===n._h[1]&&!n._hosting)n.dir=n._d0;}}
+  for(const n of m.npcs)if(n._mv){n._mv.p+=dt*3.2*(n._mv.sp||1);if(n._mv.p>=1){if(n._mv.j){PUFFS.push({x:n.x*T+8,y:n.y*T+14,t:performance.now(),k:'d',m:S.map});PUFFS.push({x:n.x*T+4,y:n.y*T+14,t:performance.now()+40,k:'d',m:S.map});}n._mv=null;if(n._d0&&n.x===n._h[0]&&n.y===n._h[1]&&!n._hosting)n.dir=n._d0;}}
   if(busy)return;
   if(!S.pro&&!S.flags.ivanCor&&S.party.includes('ivan')&&!CHASE){S.flags.ivanCor=1;say([{who:'Iván',t:'Che, me olvidé de decirte algo importante.'}].concat(IVAN_COR()));return;}
   // reloj: en los pisos, el tiempo corre solo (1 minuto cada 2 segundos)
@@ -5219,7 +5223,12 @@ function objLayer(m,th){const key=objSig();if(OBJC.key===key&&OBJC.c)return OBJC
   const W2=m.rows[0].length,H2=m.rows.length,c=mk(W2*T*2,H2*T*2),g=c.getContext('2d'),bc=mk(W2*T*2,H2*T*2),bg=bc.getContext('2d'),sv=ctx;g.setTransform(2,0,0,2,0,0);bg.setTransform(2,0,0,2,0,0);g.imageSmoothingEnabled=false;
   const floorOf=(x,y)=>{if(S.map===MP.CASA&&tileAt(x,y)==='q')return ':';for(const [a,b] of [[0,1],[-1,0],[1,0],[0,-1],[1,1],[-1,1]]){const q=tileAt(x+a,y+b);if(q&&FLAT.includes(q))return q;}return S.map===MP.CASA?'g':'.';};
   try{for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){const ch=tileAt(x,y);if(FLAT.includes(ch)||(S.map===MP.CASA&&SWAYCH.includes(ch)))continue;if(dynCh(ch,x,y,th))continue;if(!isWall(ch)){ctx=bg;drawTile(floorOf(x,y),x*T,y*T,x,y,th,0);}ctx=g;drawTile(ch,x*T,y*T,x,y,th,.13);ctx=sv;}}catch(e){console.error(e);}finally{ctx=sv;}
-  shadePix(c,2,0,bc);OBJC.key=key;OBJC.c=c;return c;}
+  shadePix(c,2,0,bc);OBJC.key=key;OBJC.c=c;
+  /* objetos altos: lo que asoma por encima de su casilla se dibuja después de quien esté parado detrás */
+  OBJC.over=[];try{const solid=ch=>ch&&!walk(ch)&&!FLAT.includes(ch)&&!isWall(ch),om={},g2=c.getContext('2d');
+    for(let y=H2-2;y>=0;y--)for(let x=0;x<W2;x++){const ch=tileAt(x,y);if(!walk(ch)||!FLAT.includes(ch))continue;const by=solid(tileAt(x,y+1))?y+1:om[x+','+(y+1)];if(by==null)continue;
+      const d=g2.getImageData(x*T*2,y*T*2,T*2,T*2).data;let n=0;/* tiene que venir desde abajo: algo opaco en el borde de abajo, no solo la sombra de una pared */for(let xx=4;xx<28;xx++){let hit=0;for(let yy=26;yy<32;yy++)if(d[(yy*32+xx)*4+3]>40){hit=1;break;}n+=hit;}if(n>=4){om[x+','+y]=by;OBJC.over.push([x,y,by]);}}}catch(e){}
+  return c;}
 const FXSC=mk(80,96,1),FXSG=FXSC.getContext('2d');
 function fxSprite(fn,x,y,t){const sv=ctx;FXSG.setTransform(1,0,0,1,0,0);FXSG.clearRect(0,0,80,96);FXSG.setTransform(2,0,0,2,-2*(x-12),-2*(y-20));ctx=FXSG;try{fn(x,y,t);}finally{ctx=sv;}shadePix(FXSC,2);ctx.drawImage(FXSC,x-12,y-20,40,48);}
 let CAMX=0;
@@ -5264,6 +5273,10 @@ function renderMap(t){
   ents.push({y:ppy,d:()=>{drawPerson(Math.round(ppx),Math.round(ppy)-(S.sit?5:0),{...playerLook(),dir:S.dir,sit:S.sit},t,P.moving);if((S.pro&&S.flags.spider)||(S.party.includes('arana')&&S.spiderHP>0)){const sx=Math.round(ppx)+11,sy=Math.round(ppy)+6;ctx.fillStyle='#0a0a0a';ctx.fillRect(sx,sy,3,2);ctx.fillRect(sx-1,sy-1,1,1);ctx.fillRect(sx+3,sy-1,1,1);ctx.fillRect(sx-1,sy+2,1,1);ctx.fillRect(sx+3,sy+2,1,1);ctx.fillStyle='#ff8a2a';ctx.fillRect(sx+1,sy,1,1);}}});
   try{drawPuffs(t);}catch(e){}
   try{drawLiveGlow(t,cx,cy,m);}catch(e){}
+  {const ol=OBJC.c;if(ol&&OBJC.over)for(const [x,y,by] of OBJC.over){if(x<tx0-1||x>tx1+1||y<ty0-1||y>ty1+1)continue;ents.push({y:by*T-.5,d:()=>ctx.drawImage(ol,x*T*2,y*T*2,T*2,T*2,x*T,y*T,T,T)});}
+   /* lo mismo para los objetos que se dibujan en vivo (árboles que se mueven, utilería del teatro) */
+   for(let y=ty0;y<=ty1+2;y++)for(let x=tx0;x<=tx1;x++){const c=tileAt(x,y);if(!c||FLAT.includes(c)||walk(c)||isWall(c))continue;const sway=S.map===MP.CASA&&SWAYCH.includes(c);if(!sway&&!dynCh(c,x,y,th))continue;if(!walk(tileAt(x,y-1)))continue;
+     ents.push({y:y*T-.5,d:()=>{ctx.save();ctx.beginPath();ctx.rect(x*T-T,(y-3)*T,3*T,3*T);ctx.clip();if(sway)swayTile(c,x,y,th,t);else drawTile(c,x*T,y*T,x,y,th,t);ctx.restore();}});}}
   ents.sort((a,b)=>a.y-b.y).forEach(e=>e.d());
   if(S.map===MP.CASA&&S.canal!==11)drawLeaves(t,cx,cy);
   if(!S.pro&&S.map!==MP.FRIGO5&&S.map!==MP.CANO5&&S.map!==MP.DUCTO&&!p3DarkOn())drawMotes(t,cx,cy);
@@ -6154,7 +6167,7 @@ const BT={x:16,y:112,w:288,h:70},BD={x:110,y:100,w:100,h:84};
 function startBattle(ids,opts){
   sfx.stat();
   transition(.8,()=>{
-    const foes=ids.map(id=>({id,def:FOES[id],hp:FOES[id].boss||['felix','pedro','ivan','tuto','sombra'].includes(id)?FOES[id].hp:Math.round(FOES[id].hp*1.25),calm:0,used:{},spared:false,dead:false,fade:1,shake:0}));
+    const foes=ids.map(id=>({id,def:FOES[id],hp:FOES[id].boss||['felix','pedro','ivan','tuto','sombra'].includes(id)?FOES[id].hp:Math.round(FOES[id].hp*1.25*(1+.06*(S.lv-1)))/* los comunes crecen con tu nivel: siempre aguantan al menos dos golpes */,calm:0,used:{},spared:false,dead:false,fade:1,shake:0}));
     B={foes,boss:!!opts.boss,tuto:!!opts.tuto,ivanFight:!!opts.ivan,felix:!!opts.felix,leftKey:opts.leftKey||'left',goals:0,fgoals:0,onEnd:opts.onEnd,state:'text',box:{...BT},tbox:BT,menu:0,sub:0,target:0,targetFor:null,
       soul:{x:157,y:145},bul:[],accs:{},t:0,inv:0,screen:0,pops:[],lines:[],li:0,shown:0,next:null,flav:'',turn:0,attacks:0,fp:0,fpStop:0,ft:0,mira:null,fled:false,pats:[],dur:3,dt:0};
     for(const f of foes)f.mhp=f.hp;
@@ -6386,7 +6399,7 @@ const PAT={
 };
 /* ===== Capítulo 3 · enemigos del teatro ===== */
 Object.assign(FOES,{
-  saxo:{name:'Saxofón tenor',hp:56,atk:8,xp:10,pesos:[12,16],sp:6,need:2,pats:['jazz','soplido','solo'],
+  saxo:{name:'Saxofón tenor',hp:100,atk:8,xp:10,pesos:[12,16],sp:6,need:2,pats:['jazz','soplido','solo'],
     flav:['El Saxofón tenor improvisa algo que suena a madrugada.','Le falta una llave. Por ahí se le escapa el aire, como un suspiro.','Huele a caña mojada y a humo de otro siglo.'],
     calmFlav:'El saxofón toca bajito, una balada.',
     acts:[
@@ -6396,7 +6409,7 @@ Object.assign(FOES,{
     ],
     spare:['El saxofón se va hacia el foso, tocando una balada.'],
     kill:['El saxofón suelta todo el aire de golpe. Una nota larga, larguísima, que se apaga.']},
-  plato:{name:'Platillo crash',hp:48,atk:8,xp:9,pesos:[10,14],sp:5,need:2,pats:['crash','rebotin','redoble'],
+  plato:{name:'Platillo crash',hp:90,atk:8,xp:9,pesos:[10,14],sp:5,need:2,pats:['crash','rebotin','redoble'],
     flav:['El Platillo crash vibra solo. No para nunca de vibrar.','Tiene una rajadura que le cruza la cara.','Cada vez que respirás, hace "tssss".'],
     calmFlav:'El platillo se queda quieto. Por primera vez en años, en silencio.',
     acts:[
@@ -6406,7 +6419,7 @@ Object.assign(FOES,{
     ],
     spare:['El platillo rueda hacia el foso, despacito, sin hacer ruido.'],
     kill:['El platillo se parte en dos. Cada mitad suena una nota distinta.']},
-  trian:{name:'Triángulo',hp:40,atk:7,xp:8,pesos:[8,12],sp:4,need:1,pats:['ding','prisma','trino'],
+  trian:{name:'Triángulo',hp:80,atk:7,xp:8,pesos:[8,12],sp:4,need:1,pats:['ding','prisma','trino'],
     flav:['El Triángulo cuelga de un hilo. Espera.','El Triángulo cuenta compases en voz baja. Va por el ciento ocho.','Brilla como una sonrisa de metal.'],
     calmFlav:'El triángulo hizo su "ding". Está en paz.',
     acts:[
@@ -6416,7 +6429,7 @@ Object.assign(FOES,{
     ],
     spare:['El triángulo se va colgado de su hilo, balanceándose.'],
     kill:['El triángulo se dobla en una línea recta. Ya no es nada.']},
-  uke:{name:'Ukelele',hp:46,atk:7,xp:9,pesos:[10,14],sp:5,need:2,pats:['cuerdas','rasgueo','acorde'],
+  uke:{name:'Ukelele',hp:86,atk:7,xp:9,pesos:[10,14],sp:5,need:2,pats:['cuerdas','rasgueo','acorde'],
     flav:['El Ukelele salta en el lugar, nervioso.','Tiene una calcomanía de una palmera despegada.','Rasguea solo. Siempre los mismos cuatro acordes.'],
     calmFlav:'El ukelele tararea algo de playa.',
     acts:[
@@ -6461,7 +6474,7 @@ Object.assign(FOES,{
 Object.assign(SIL_HINT,{saxo:'Los saxos son como los motores: hay que agarrarles el ritmo. Primero el ritmo, después que haga su solo.',plato:'Ese platillo no para de vibrar. Tapate los oídos y después frenalo con la mano.',trian:'Un triángulo toca una vez por obra. Esperá su entrada y listo.',uke:'Está desafinado. Afinalo y después cantale algo.',piano:'Tiene una tecla trabada. Tocá una escala para encontrarla, sacala y después aplaudile.',brian:'Brian no sabe nada. Contale lo de Ciro y preguntale por Den. Si tenés la cámara, mostrásela.',den:'A esa no la convencés. Eso no es una persona.'});
 /* ===== Capítulo 3 · la carne contaminada de Brian ===== */
 Object.assign(FOES,{
-  chori:{name:'Chorizo',hp:50,atk:8,xp:10,pesos:[10,14],sp:5,need:2,pats:['parrilla','grasa'],
+  chori:{name:'Chorizo',hp:92,atk:8,xp:10,pesos:[10,14],sp:5,need:2,pats:['parrilla','grasa'],
     flav:['El Chorizo chisporrotea aunque no hay fuego.','Tiene una mancha gris en la tripa, igual a las de los brazos de Brian.','Huele a domingo. A un domingo que salió mal.'],
     calmFlav:'El chorizo se acomoda en su pan, satisfecho.',
     acts:[
@@ -6471,7 +6484,7 @@ Object.assign(FOES,{
     ],
     spare:['El chorizo se va rodando, adentro de su pan.'],
     kill:['El chorizo se parte al medio. Adentro, en vez de carne, hay algo gris que se mueve.']},
-  morci:{name:'Morcilla',hp:52,atk:8,xp:10,pesos:[10,14],sp:5,need:2,pats:['salpica','enrollar'],
+  morci:{name:'Morcilla',hp:94,atk:8,xp:10,pesos:[10,14],sp:5,need:2,pats:['salpica','enrollar'],
     flav:['La Morcilla se enrosca y se desenrosca, como si le costara respirar.','Es negra. Bueno: más negra de lo normal.','Tiene escarcha en la piel y no se derrite.'],
     calmFlav:'La morcilla se enrosca tranquila, como un gato.',
     acts:[
@@ -6481,7 +6494,7 @@ Object.assign(FOES,{
     ],
     spare:['La morcilla se va enroscada, rodando como una rueda.'],
     kill:['La morcilla se abre. Lo que sale es gris y frío, y se arrastra hacia la pared.']},
-  costi:{name:'Asado de tira',hp:60,atk:9,xp:11,pesos:[12,16],sp:6,need:3,pats:['huesos','cuchillo'],
+  costi:{name:'Asado de tira',hp:104,atk:9,xp:11,pesos:[12,16],sp:6,need:3,pats:['huesos','cuchillo'],
     flav:['El Asado de tira se para sobre sus huesos, como una mesa.','Cada hueso cruje con un ritmo distinto.','Tiene sal gruesa pegada. Brilla bajo el tubo fluorescente.'],
     calmFlav:'El asado se acuesta sobre la parrilla imaginaria, tranquilo.',
     acts:[
@@ -6491,7 +6504,7 @@ Object.assign(FOES,{
     ],
     spare:['El asado de tira se va caminando sobre sus huesos, despacio.'],
     kill:['Los huesos se desarman uno por uno y caen como palitos chinos.']},
-  chinchu:{name:'Chinchulín',hp:42,atk:7,xp:9,pesos:[8,12],sp:4,need:2,pats:['tripa','humo'],
+  chinchu:{name:'Chinchulín',hp:82,atk:7,xp:9,pesos:[8,12],sp:4,need:2,pats:['tripa','humo'],
     flav:['El Chinchulín se trenza y se destrenza, buscando algo.','Es larguísimo. No se le ve el final.','Del chinchulín sale un humo gris que no huele a nada.'],
     calmFlav:'El chinchulín se enrolla en un caracol perfecto.',
     acts:[
@@ -7046,28 +7059,8 @@ function renderBattle(t){
       ctx.save();ctx.beginPath();ctx.rect(b.x+1,b.y+1,b.w-2,b.h-2);ctx.clip();
       if(B.mira&&B.pats.includes('mira')){const m=B.mira;ctx.strokeStyle='#e8505b';ctx.lineWidth=1;ctx.beginPath();ctx.arc(m.x,m.y,7,0,7);ctx.moveTo(m.x-10,m.y);ctx.lineTo(m.x+10,m.y);ctx.moveTo(m.x,m.y-10);ctx.lineTo(m.x,m.y+10);ctx.stroke();}
       for(const u of B.bul){
-        if(u.warn>0){if(Math.floor(t*14)%2){ctx.strokeStyle='#e8505b';ctx.lineWidth=1;ctx.strokeRect(u.x+.5,u.y+.5,u.w-1,u.h-1);}continue;}
-        const c=u.k==='cor'?'#a78bfa':(u.col||'#e6e8ef');
-        if(u.w<40&&u.h<40&&u.dr!=='text'&&u.dr!=='word'){ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.1;ctx.fillStyle=u.k==='cor'?'#a78bfa':'#ffffff';ctx.fillRect(u.x-2,u.y-2,u.w+4,u.h+4);ctx.restore();}
-        if(u.dr==='soldier'){ctx.fillStyle='#3a5a8c';ctx.fillRect(u.x,u.y+2,u.w,u.h-2);ctx.fillStyle='#2b2f3a';ctx.fillRect(u.x+1,u.y,u.w-2,3);}
-        else if(u.dr==='helmet'){ctx.fillStyle='#7a8a56';ctx.beginPath();ctx.ellipse(u.x+u.w/2,u.y+u.h,u.w/2,u.h,0,Math.PI,0);ctx.fill();}
-        else if(u.dr==='ball'){ctx.fillStyle='#c9a070';ctx.beginPath();ctx.arc(u.x+u.w/2,u.y+u.h/2,u.w/2,0,7);ctx.fill();}
-        else if(u.dr==='boot'){ctx.fillStyle='#1a1a14';ctx.fillRect(u.x,u.y,u.w,u.h);ctx.fillStyle='#55663a';ctx.fillRect(u.x,u.y,u.w,2);}
-        else if(u.dr==='mine'||u.dr==='shot'){ctx.fillStyle=u.dr==='shot'?'#ff5a3a':'#e3a849';ctx.fillRect(u.x,u.y,u.w,u.h);ctx.fillStyle='#fff';ctx.fillRect(u.x+u.w/2-1,u.y+u.h/2-1,2,2);}
-        else if(u.dr==='text')txt('¡FIRMES!',u.x,u.y+7,c,10);
-        else if(u.dr==='word')txt(u.word,u.x,u.y+7,c,10);
-        else if(u.dr==='futbol'){const r=u.w/2;ctx.fillStyle=u.k==='cor'?'#c8b8ff':'#f0eee6';ctx.beginPath();ctx.arc(u.x+r,u.y+r,r,0,7);ctx.fill();ctx.fillStyle='#1a1a1a';ctx.fillRect(u.x+r-1,u.y+r-1,2,2);if(u.w>6){ctx.fillRect(u.x+1,u.y+2,2,2);ctx.fillRect(u.x+u.w-3,u.y+u.h-4,2,2);}}
-        else if(u.dr==='basket'){const r=u.w/2;ctx.fillStyle='#e07a2a';ctx.beginPath();ctx.arc(u.x+r,u.y+r,r,0,7);ctx.fill();ctx.fillStyle='#2a1408';ctx.fillRect(u.x+r-.5,u.y,1,u.h);ctx.fillRect(u.x,u.y+r-.5,u.w,1);}
-        else if(u.dr==='tennis'){ctx.fillStyle=u.k==='cor'?'#a78bfa':'#d8f040';ctx.beginPath();ctx.arc(u.x+u.w/2,u.y+u.h/2,u.w/2,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(u.x+1,u.y+u.h/2,u.w-2,1);}
-        else if(u.dr==='hurdle'){ctx.fillStyle='#d8d8d8';ctx.fillRect(u.x,u.y+3,1,u.h-3);ctx.fillRect(u.x+u.w-1,u.y+3,1,u.h-3);ctx.fillStyle='#c82a2a';ctx.fillRect(u.x-1,u.y,u.w+2,3);ctx.fillStyle='#f0f0f0';ctx.fillRect(u.x+1,u.y,1,3);}
-        else if(u.dr==='runner'){ctx.fillStyle='#e8e4dc';ctx.fillRect(u.x+1,u.y,3,3);ctx.fillStyle='#2a6aaa';ctx.fillRect(u.x,u.y+3,5,3);ctx.fillStyle='#e8e4dc';ctx.fillRect(u.x+(Math.floor(t*12)%2),u.y+6,1,1);ctx.fillRect(u.x+3-(Math.floor(t*12)%2),u.y+6,1,1);}
-        else if(u.dr==='baton'){ctx.fillStyle=u.k==='cor'?'#a78bfa':'#e8c040';ctx.fillRect(u.x,u.y,u.w,u.h);}
-        else if(u.dr==='tube'){ctx.fillStyle='#d8e8e0';ctx.fillRect(u.x,u.y,u.w,u.h);ctx.fillStyle='#4af07a';ctx.fillRect(u.x+1,u.y+u.h-4,u.w-2,3);ctx.fillStyle='#fff';ctx.fillRect(u.x,u.y,u.w,1);}
-        else if(u.dr==='drop'){ctx.fillStyle=u.k==='cor'?'#9a7aff':'#4af07a';ctx.fillRect(u.x,u.y+1,u.w,u.h-1);ctx.fillRect(u.x+1,u.y,u.w-2,1);ctx.fillStyle='rgba(200,255,210,.8)';ctx.fillRect(u.x+1,u.y+1,1,1);}
-        else if(u.dr==='hand'){ctx.fillStyle='#0a0a0e';ctx.fillRect(u.x,u.y+3,u.w,u.h-3);for(let k=0;k<3;k++)ctx.fillRect(u.x+k*2,u.y,1,4);ctx.strokeStyle='#5a5a6a';ctx.lineWidth=1;ctx.strokeRect(u.x+.5,u.y+3.5,u.w-1,u.h-4);}
-        else if(u.dr==='eye'){ctx.fillStyle='#e6e8ef';ctx.beginPath();ctx.ellipse(u.x+2.5,u.y+2.5,3,2,0,0,7);ctx.fill();ctx.fillStyle='#000';ctx.fillRect(u.x+2,u.y+2,1,1);}
-        else if(BDR[u.dr])BDR[u.dr](u,t);
-        else{ctx.fillStyle=c;ctx.fillRect(u.x,u.y,u.w,u.h);}
+        if(u.warn>0){if(Math.floor(t*14)%2){ctx.strokeStyle='#e8505b';ctx.lineWidth=1;ctx.strokeRect(u.x+.5,u.y+.5,u.w-1,u.h-1);}u._t0=null;continue;}
+        bulFx(u,t);
       }
       if(B.pats.includes('saque')){ctx.fillStyle='rgba(240,236,224,.25)';for(let k=b.x;k<b.x+b.w;k+=4)ctx.fillRect(k,b.y+b.h/2,2,1);}
       if(B.felix){const cy2=b.y+b.h/2;ctx.fillStyle='rgba(240,236,224,.18)';ctx.fillRect(b.x+b.w/2,b.y,1,b.h);ctx.strokeStyle='rgba(240,236,224,.18)';ctx.beginPath();ctx.arc(b.x+b.w/2,cy2,12,0,7);ctx.stroke();
@@ -7111,6 +7104,45 @@ function renderBattle(t){
     txt(l,x+w/2,y+14-lift,(i===3&&canSpare)?'#ffe27a':(sel?'#e3a849':'#c9ccd8'),(()=>{let z=13;ctx.font=FONT(z);while(z>8&&ctx.measureText(l).width>w-8){z--;ctx.font=FONT(z);}return z;})(),'center',i===3&&canSpare);});
 }
 
+/* ---------- proyectiles: un solo dibujo, y alrededor lo que los mete en la escena ---------- */
+function bulDraw(u,t){const c=u.k==='cor'?'#a78bfa':(u.col||'#e6e8ef');
+        if(u.dr==='soldier'){ctx.fillStyle='#3a5a8c';ctx.fillRect(u.x,u.y+2,u.w,u.h-2);ctx.fillStyle='#2b2f3a';ctx.fillRect(u.x+1,u.y,u.w-2,3);}
+        else if(u.dr==='helmet'){ctx.fillStyle='#7a8a56';ctx.beginPath();ctx.ellipse(u.x+u.w/2,u.y+u.h,u.w/2,u.h,0,Math.PI,0);ctx.fill();}
+        else if(u.dr==='ball'){ctx.fillStyle='#c9a070';ctx.beginPath();ctx.arc(u.x+u.w/2,u.y+u.h/2,u.w/2,0,7);ctx.fill();}
+        else if(u.dr==='boot'){ctx.fillStyle='#1a1a14';ctx.fillRect(u.x,u.y,u.w,u.h);ctx.fillStyle='#55663a';ctx.fillRect(u.x,u.y,u.w,2);}
+        else if(u.dr==='mine'||u.dr==='shot'){ctx.fillStyle=u.dr==='shot'?'#ff5a3a':'#e3a849';ctx.fillRect(u.x,u.y,u.w,u.h);ctx.fillStyle='#fff';ctx.fillRect(u.x+u.w/2-1,u.y+u.h/2-1,2,2);}
+        else if(u.dr==='text')txt('¡FIRMES!',u.x,u.y+7,c,10);
+        else if(u.dr==='word')txt(u.word,u.x,u.y+7,c,10);
+        else if(u.dr==='futbol'){const r=u.w/2;ctx.fillStyle=u.k==='cor'?'#c8b8ff':'#f0eee6';ctx.beginPath();ctx.arc(u.x+r,u.y+r,r,0,7);ctx.fill();ctx.fillStyle='#1a1a1a';ctx.fillRect(u.x+r-1,u.y+r-1,2,2);if(u.w>6){ctx.fillRect(u.x+1,u.y+2,2,2);ctx.fillRect(u.x+u.w-3,u.y+u.h-4,2,2);}}
+        else if(u.dr==='basket'){const r=u.w/2;ctx.fillStyle='#e07a2a';ctx.beginPath();ctx.arc(u.x+r,u.y+r,r,0,7);ctx.fill();ctx.fillStyle='#2a1408';ctx.fillRect(u.x+r-.5,u.y,1,u.h);ctx.fillRect(u.x,u.y+r-.5,u.w,1);}
+        else if(u.dr==='tennis'){ctx.fillStyle=u.k==='cor'?'#a78bfa':'#d8f040';ctx.beginPath();ctx.arc(u.x+u.w/2,u.y+u.h/2,u.w/2,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(u.x+1,u.y+u.h/2,u.w-2,1);}
+        else if(u.dr==='hurdle'){ctx.fillStyle='#d8d8d8';ctx.fillRect(u.x,u.y+3,1,u.h-3);ctx.fillRect(u.x+u.w-1,u.y+3,1,u.h-3);ctx.fillStyle='#c82a2a';ctx.fillRect(u.x-1,u.y,u.w+2,3);ctx.fillStyle='#f0f0f0';ctx.fillRect(u.x+1,u.y,1,3);}
+        else if(u.dr==='runner'){ctx.fillStyle='#e8e4dc';ctx.fillRect(u.x+1,u.y,3,3);ctx.fillStyle='#2a6aaa';ctx.fillRect(u.x,u.y+3,5,3);ctx.fillStyle='#e8e4dc';ctx.fillRect(u.x+(Math.floor(t*12)%2),u.y+6,1,1);ctx.fillRect(u.x+3-(Math.floor(t*12)%2),u.y+6,1,1);}
+        else if(u.dr==='baton'){ctx.fillStyle=u.k==='cor'?'#a78bfa':'#e8c040';ctx.fillRect(u.x,u.y,u.w,u.h);}
+        else if(u.dr==='tube'){ctx.fillStyle='#d8e8e0';ctx.fillRect(u.x,u.y,u.w,u.h);ctx.fillStyle='#4af07a';ctx.fillRect(u.x+1,u.y+u.h-4,u.w-2,3);ctx.fillStyle='#fff';ctx.fillRect(u.x,u.y,u.w,1);}
+        else if(u.dr==='drop'){ctx.fillStyle=u.k==='cor'?'#9a7aff':'#4af07a';ctx.fillRect(u.x,u.y+1,u.w,u.h-1);ctx.fillRect(u.x+1,u.y,u.w-2,1);ctx.fillStyle='rgba(200,255,210,.8)';ctx.fillRect(u.x+1,u.y+1,1,1);}
+        else if(u.dr==='hand'){ctx.fillStyle='#0a0a0e';ctx.fillRect(u.x,u.y+3,u.w,u.h-3);for(let k=0;k<3;k++)ctx.fillRect(u.x+k*2,u.y,1,4);ctx.strokeStyle='#5a5a6a';ctx.lineWidth=1;ctx.strokeRect(u.x+.5,u.y+3.5,u.w-1,u.h-4);}
+        else if(u.dr==='eye'){ctx.fillStyle='#e6e8ef';ctx.beginPath();ctx.ellipse(u.x+2.5,u.y+2.5,3,2,0,0,7);ctx.fill();ctx.fillStyle='#000';ctx.fillRect(u.x+2,u.y+2,1,1);}
+        else if(BDR[u.dr])BDR[u.dr](u,t);
+        else{ctx.fillStyle=c;ctx.fillRect(u.x,u.y,u.w,u.h);}
+}
+const BCOL={soldier:'90,120,190',helmet:'150,170,100',ball:'220,180,120',boot:'120,140,80',mine:'255,190,90',shot:'255,110,70',futbol:'240,236,224',basket:'240,140,60',tennis:'220,240,80',hurdle:'230,230,230',runner:'120,170,230',baton:'240,200,80',tube:'110,240,150',drop:'90,240,130',hand:'120,40,60',eye:'240,240,250'};
+function bulFx(u,t){
+  if(u._t0==null){u._t0=t;u._h=[];}
+  const age=t-u._t0,sp=Math.hypot(u.vx||0,u.vy||0),cx=u.x+u.w/2,cy=u.y+u.h/2,big=u.w>=40||u.h>=40,txt0=u.dr==='text'||u.dr==='word';
+  const rgb=u.k==='cor'?'167,139,250':(u.col&&/^#/.test(u.col)?parseInt(u.col.slice(1,3),16)+','+parseInt(u.col.slice(3,5),16)+','+parseInt(u.col.slice(5,7),16):(BCOL[u.dr]||'230,232,239'));
+  /* rastro: dos o tres copias apagadas donde estuvo hace un instante */
+  const h=u._h;if(!h.length||Math.hypot(h[h.length-1][0]-u.x,h[h.length-1][1]-u.y)>1.5){h.push([u.x,u.y]);if(h.length>4)h.shift();}
+  if(!big&&!txt0&&sp>35&&h.length>1){const ox=u.x,oy=u.y;for(let k=0;k<h.length-1;k++){ctx.globalAlpha=.07+.07*k;u.x=h[k][0];u.y=h[k][1];try{bulDraw(u,t);}catch(e){}}u.x=ox;u.y=oy;ctx.globalAlpha=1;}
+  if(!big&&!txt0){/* sombra sobre el piso de la caja: le da volumen */ctx.fillStyle='rgba(0,0,0,.32)';ctx.beginPath();ctx.ellipse(cx+1.5,u.y+u.h+1.5,Math.max(2,u.w*.5),Math.max(1,Math.min(2.5,u.h*.22)),0,0,7);ctx.fill();
+    /* luz propia del color del objeto, que late apenas */const r=Math.max(u.w,u.h)*.9+4,a=.16+.06*Math.sin(t*9+u._t0*7);ctx.save();ctx.globalCompositeOperation='lighter';const g=ctx.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,'rgba('+rgb+','+a+')');g.addColorStop(1,'rgba('+rgb+',0)');ctx.fillStyle=g;ctx.fillRect(cx-r,cy-r,r*2,r*2);ctx.restore();}
+  /* aparece de golpe pero no de la nada: escala con rebote en los primeros cuadros */
+  const e=Math.min(1,age/.14),sc=e<1?(1+2.2*Math.pow(e-1,3)+1.2*Math.pow(e-1,2)):1;
+  /* estirado en la dirección en que viaja */const st=!big&&!txt0?Math.min(.22,sp/600):0,ang=Math.atan2(u.vy||0,u.vx||0);
+  if(sc!==1||st>0){ctx.save();ctx.translate(cx,cy);if(st>0){ctx.rotate(ang);ctx.scale(1+st,1-st*.6);ctx.rotate(-ang);}ctx.scale(sc,sc);ctx.translate(-cx,-cy);ctx.globalAlpha=Math.min(1,.35+e);try{bulDraw(u,t);}catch(err){}ctx.restore();ctx.globalAlpha=1;}
+  else bulDraw(u,t);
+  if(!big&&!txt0&&sp>70){ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.22;ctx.fillStyle='rgba(255,40,60,1)';ctx.fillRect(u.x-1-Math.sign(u.vx||0),u.y,1,u.h);ctx.fillStyle='rgba(40,120,255,1)';ctx.fillRect(u.x+u.w+Math.sign(u.vx||0)*.5,u.y,1,u.h);ctx.restore();}
+}
 /* ================= transitions, game over, end ================= */
 let TR=null;
 function transition(dur,mid){TR={t:0,dur,mid,fired:false};}
@@ -7195,7 +7227,7 @@ function cheatJump(ch){let nm=null;try{const j=JSON.parse(localStorage.getItem(S
   if(rt==='ESTÁTICA'){S.kills=k1+5;S.spares=s1+16;S.xp+=41;}
   if(rt==='INTERFERENCIA'||rt==='ANIQUILACIÓN'){S.kills=k1+21;S.spares=0;S.xp+=225;F.felix='kill';delete F.silv;delete F.ch2Sp;S.party=[];S.items=it1.concat(['cinta3']);}
   if(rt==='ANIQUILACIÓN'){F.estefDead=1;F.geroDead=1;F.silvDead=1;}
-  cheatLv();startChapter3();}
+  F.ductDone=1;cheatLv();startChapter3();}
 function titleOpts(){const o=hasSave()?(chapStart()?['CONTINUAR','REINICIAR CAPÍTULO','NUEVA PARTIDA']:['CONTINUAR','NUEVA PARTIDA']):['NUEVA PARTIDA'];if(cheatsOn())o.push('TRUCOS');return o;}
 function newGame(){clearSave();SNAP=null;S=newState();if(cheatsOn()&&CHEAT.canal)S.canal=CHEAT.canal;IN={i:0,shown:0};TVON=false;CUT=null;if(cheatsOn()&&CHEAT.skip){startWake();return;}scene='intro';}
 
