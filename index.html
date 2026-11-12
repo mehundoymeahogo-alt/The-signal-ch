@@ -7445,24 +7445,36 @@ function opFlare(sx,sy,I){if(I<=0)return;ctx.save();ctx.globalCompositeOperation
   for(let k=0;k<8;k++){const a=k*Math.PI/4+.2,l=(k%2?20:34)*I;ctx.strokeStyle='rgba(255,240,210,'+(.28*I)+')';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(sx+Math.cos(a)*l,sy+Math.sin(a)*l);ctx.stroke();}
   const dx=W/2-sx,dy=H/2-sy;[[.5,5,'120,200,255'],[.9,3,'255,180,120'],[1.4,9,'150,255,200'],[1.9,14,'180,150,255']].forEach(([f,r,c])=>{ctx.fillStyle='rgba('+c+','+(.11*I)+')';ctx.beginPath();ctx.arc(sx+dx*f,sy+dy*f,r,0,7);ctx.fill();});
   ctx.restore();}
-function opMusic(){const T=TRACKS.menu;if(OP.src||!AU.c||!T||!T.buf||OP.st!==1||OP.out)return;try{const c=AU.c,b=T.buf,sr=b.sampleRate,d0=b.getChannelData(0),N=d0.length;
-    let tot=0;for(let i=0;i<N;i+=64)tot+=d0[i]*d0[i];const rms=Math.sqrt(tot/(N/64)),win=Math.floor(sr*.25);let end=N;
-    for(let p=N-win;p>win;p-=win){let s=0;for(let i=p;i<p+win;i+=16)s+=d0[i]*d0[i];if(Math.sqrt(s/(win/16))>rms*.5){end=Math.min(N,p+win+Math.floor(sr*.6));break;}}
-    const len=Math.min(end,Math.floor(sr*15)),rb=c.createBuffer(b.numberOfChannels,len,sr);
-    for(let ch=0;ch<b.numberOfChannels;ch++){const s=b.getChannelData(ch),o=rb.getChannelData(ch);for(let i=0;i<len;i++)o[i]=s[end-1-i];}
-    const src=c.createBufferSource(),g=c.createGain();src.buffer=rb;src.playbackRate.value=.3;g.gain.setValueAtTime(0,c.currentTime);g.gain.linearRampToValueAtTime(1,c.currentTime+2.5);src.connect(g);g.connect(AU.mus||AU.master);src.start();OP.src=src;OP.g=g;}catch(e){OP.src=1;}}
+function opRev(b,mk2){/* recorta el final en silencio y da vuelta los últimos 15 s de la canción */
+  const sr=b.sampleRate,d0=b.getChannelData(0),N=d0.length;let tot=0;for(let i=0;i<N;i+=64)tot+=d0[i]*d0[i];const rms=Math.sqrt(tot/(N/64)),win=Math.floor(sr*.25);let end=N;
+  for(let p=N-win;p>win;p-=win){let s=0;for(let i=p;i<p+win;i+=16)s+=d0[i]*d0[i];if(Math.sqrt(s/(win/16))>rms*.5){end=Math.min(N,p+win+Math.floor(sr*.6));break;}}
+  const len=Math.min(end,Math.floor(sr*15)),rb=mk2(b.numberOfChannels,len,sr);
+  for(let ch=0;ch<b.numberOfChannels;ch++){const s=b.getChannelData(ch),o=rb.getChannelData(ch);for(let i=0;i<len;i++)o[i]=s[end-1-i];}return rb;}
+function opPrep(){/* se prepara todo mientras está la pantalla de la cinta, así al apretar Z arranca enseguida */
+  OP.f=(OP.f||0)+1;if(OP.f>3&&!OPD.ok){try{opInit();}catch(e){}}
+  if(OP.rb||OP.dec)return;const T=TRACKS.menu;if(!T)return;
+  if(T.buf){try{OP.rb=opRev(T.buf,(n,l,r)=>new AudioBuffer({numberOfChannels:n,length:l,sampleRate:r}));}catch(e){OP.dec=1;}return;}
+  const OC=window.OfflineAudioContext||window.webkitOfflineAudioContext;if(!OC||OP.f<6){return;}OP.dec=1;
+  try{const bin=atob(T.data.split(',')[1]),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);const oc=new OC(2,1,44100);
+    const ok=b=>{try{OP.rb=opRev(b,(n,l,r)=>oc.createBuffer(n,l,r));if(!T.buf)T.buf=b;}catch(e){}};const pr=oc.decodeAudioData(u.buffer,ok,()=>{});if(pr&&pr.catch)pr.catch(()=>{});}catch(e){}}
+function opMusic(){if(OP.src||!AU.c||OP.st!==1||OP.out)return;
+  if(!OP.rb){const T=TRACKS.menu;musLoad('menu');if(T&&T.buf){try{OP.rb=opRev(T.buf,(n,l,r)=>AU.c.createBuffer(n,l,r));}catch(e){OP.src=1;return;}}else return;}
+  try{const c=AU.c,src=c.createBufferSource(),g=c.createGain();src.buffer=OP.rb;src.playbackRate.value=.3;g.gain.setValueAtTime(0,c.currentTime);g.gain.linearRampToValueAtTime(1,c.currentTime+2.5);src.connect(g);g.connect(AU.mus||AU.master);
+    const off=Math.max(0,Math.min(OP.t*.3,OP.rb.duration-1));src.start(c.currentTime+.02,off);OP.src=src;OP.g=g;}catch(e){OP.src=1;}}
 function opStop(f){try{if(OP.src&&OP.src.stop){const c=AU.c;OP.g.gain.cancelScheduledValues(c.currentTime);OP.g.gain.setValueAtTime(OP.g.gain.value,c.currentTime);OP.g.gain.linearRampToValueAtTime(0,c.currentTime+(f||.5));OP.src.stop(c.currentTime+(f||.5)+.05);}}catch(e){}OP.src=1;}
 function opUpdate(dt){
-  if(OP.st===0){if(OP.any||hit('a')||hit('b')||hit('up')||hit('down')||hit('left')||hit('right')){OP.st=1;OP.t=0;OP.w=0;OP.any=false;for(const k in pressed)pressed[k]=false;try{AU.un();}catch(e){}musLoad('menu');}return;}
-  musLoad('menu');opMusic();OP.w+=dt;if(!OP.src&&OP.w<2.5&&AU.c&&!AU.m)return;
-  OP.t+=dt;if(OP.t<=.6){pressed.a=false;pressed.b=false;}
+  if(OP.st===0){opPrep();if(OP.any||hit('a')||hit('b')||hit('up')||hit('down')||hit('left')||hit('right')){OP.st=1;OP.t=0;OP.w=0;OP.any=false;OP.ask=0;for(const k in pressed)pressed[k]=false;try{AU.un();}catch(e){}try{AU.t(1600,.04,'square',.04);AU.nz(.45,.06);}catch(e){}if(!OPD.ok){try{opInit();}catch(e){}}}return;}
+  OP.w+=dt;if(OP.w<.5){pressed.a=pressed.b=false;return;}/* medio segundo de cinta arrancando */
+  opMusic();if(!OP.src&&OP.w<1.6&&AU.c&&!AU.m){pressed.a=pressed.b=false;return;}
+  OP.t+=dt;if(OP.ask>0)OP.ask-=dt;
   if(!OP.s1&&OP.t>33.5){OP.s1=1;AU.t(46,4.2,'sine',.22,95);AU.t(70,4,'sawtooth',.05,130);}
   if(!OP.s2&&OP.t>37.6){OP.s2=1;opStop(.08);AU.nz(.7,.22);}
-  if(OP.t>.6&&!OP.out&&(hit('a')||hit('b'))){OP.out=1;opStop(.6);transition(.9,()=>{scene='title';TS={sel:0};});}
+  if(!OP.out&&(hit('a')||hit('b'))){if(OP.ask>0){OP.out=1;opStop(.6);transition(.9,()=>{scene='title';TS={sel:0};});}else{OP.ask=2.5;sfx.sel();}}
   if(OP.t>=OP_END&&!OP.out){OP.out=1;opStop(.1);scene='title';TS={sel:0};}}
 function drawOpen(t){const e=OP.t;ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
   if(OP.st===0){ctx.fillStyle='#0a0d2a';ctx.fillRect(0,0,W,H);ctx.fillStyle='rgba(255,255,255,.03)';for(let i=0;i<H;i+=4)ctx.fillRect(0,i,W,1);const by=((t*22)%(H+60))-30;ctx.fillStyle='rgba(255,255,255,.035)';ctx.fillRect(0,by,W,14);
     txt('CINTA SIN ETIQUETA',W/2,104,'#9aa0c4',12,'center');if(Math.sin(t*4)>-.4)txt('▶ REPRODUCIR',W/2,128,'#e6e8ef',18,'center',true);txt('Apretá Z o tocá la pantalla',W/2,150,'#6b7096',10,'center');return;}
+  if(OP.w<.5){const k=OP.w/.5;ctx.drawImage(noiseC[(rnd()*4)|0],0,0,W,H);ctx.fillStyle='rgba(10,13,42,'+(1-k)*.7+')';ctx.fillRect(0,0,W,H);const y=((OP.w*600)%(H+30))-15;ctx.fillStyle='rgba(255,255,255,.25)';ctx.fillRect(0,y,W,12);ctx.fillStyle='rgba(4,6,18,.82)';ctx.fillRect(W/2-52,106,104,26);txt('▶ PLAY',W/2,124,'rgba(240,242,250,'+(1-k*.6)+')',20,'center',true);return;}
   opInit();
   const sm=(a,b,x)=>{const u=clamp((x-a)/(b-a),0,1);return u*u*(3-2*u);},nrm=(x,y,z)=>{const l=Math.hypot(x,y,z);return [x/l,y/l,z/l];};
   ctx.save();
@@ -7470,7 +7482,7 @@ function drawOpen(t){const e=OP.t;ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
     opStars(e*5,e*1.5,t,1);const u=e/7,mx=58+u*14,my=66+u*9,b=sm(1.5,6,e);
     ctx.save();ctx.globalCompositeOperation='lighter';const g=ctx.createRadialGradient(mx,my,0,mx,my,5+b*5);g.addColorStop(0,'rgba(220,225,240,'+(.5*b)+')');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(mx-12,my-12,24,24);ctx.restore();
     ctx.fillStyle='rgba(200,196,190,'+b+')';ctx.fillRect(Math.round(mx),Math.round(my),1+(u>.6?1:0),1);if(u>.8)ctx.fillRect(Math.round(mx),Math.round(my)+1,1,1);
-    const f=Math.max(1-sm(0,3,e),sm(6.4,7,e));if(f>0){ctx.fillStyle='rgba(0,0,0,'+f+')';ctx.fillRect(0,0,W,H);}}
+    const f=Math.max(1-sm(0,1.6,e),sm(6.4,7,e));if(f>0){ctx.fillStyle='rgba(0,0,0,'+f+')';ctx.fillRect(0,0,W,H);}}
   else if(e<15){// 2 · pasa al lado de la cámara
     const u=(e-7)/8,p=Math.exp(u*3.45),w=(p-1)/30.5,size=7*p,mx=96+(262-96)*w,my=84+(214-84)*w,sh=sm(.7,.98,u)*5;
     ctx.translate((rnd()-.5)*sh,(rnd()-.5)*sh);opStars(35+u*6,10+u*3,t,1);
@@ -7509,7 +7521,7 @@ function drawOpen(t){const e=OP.t;ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
     if(e>37.6){ctx.fillStyle='#000';ctx.fillRect(-10,-10,W+20,H+20);ctx.globalAlpha=.9;ctx.drawImage(noiseC[(rnd()*4)|0],0,0,W,H);ctx.globalAlpha=1;const y=((t*200)%(H+30))-15;ctx.fillStyle='rgba(255,255,255,.2)';ctx.fillRect(0,y,W,10);}}
   ctx.restore();
   if(e<=37.6){ctx.fillStyle='#000';ctx.fillRect(0,0,W,20);ctx.fillRect(0,H-20,W,20);}
-  {const a=Math.max(0,1-e/5)*.6;if(a>0&&!OP.out)txt('Z: saltar',W-10,H-7,'rgba(230,232,239,'+a+')',9,'right');}}
+  if(!OP.out){const a=OP.ask>0?Math.min(1,OP.ask*2)*(.75+.25*Math.sin(t*8)):Math.max(0,1-e/6)*.55;if(a>0)txt(OP.ask>0?'Z otra vez para saltar':'Z dos veces: saltar',W-10,H-7,'rgba(230,232,239,'+a+')',OP.ask>0?11:9,'right');}}
 /* ---------- cronómetro invisible: cuánto tarda cada capítulo ---------- */
 function ctKey(){return S.pro?'p':(S.chapter||1);}
 function ctTick(dt){if(!S||PAUSE||QUIT||scene==='title'||scene==='end'||scene==='intro'||document.hidden)return;S.ct=S.ct||{};const k=ctKey();S.ct[k]=(S.ct[k]||0)+dt*1000;}
