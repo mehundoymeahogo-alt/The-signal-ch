@@ -7160,9 +7160,10 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}return c;})();
-function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip}));}catch(e){}}
+function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
 const JUMPN=['PRÓLOGO','CAPÍTULO 1','CAPÍTULO 2','CAPÍTULO 3'];
+const JROUTES=['SINTONÍA','ESTÁTICA','INTERFERENCIA','ANIQUILACIÓN'];
 function jumpMax(){return 3;}
 function cheatJump(ch){let nm=null;try{const j=JSON.parse(localStorage.getItem(SAVE)||'null');nm=j&&!j.pro&&j.name;}catch(e){}
   clearSave();SNAP=null;S=newState();if(CHEAT.canal)S.canal=CHEAT.canal;IN={i:0,shown:0};TVON=false;CUT=null;B=null;DLG=null;UI=null;
@@ -7171,9 +7172,19 @@ function cheatJump(ch){let nm=null;try{const j=JSON.parse(localStorage.getItem(S
   const F=S.flags;S.pro=false;S.name=nm||'Valen';
   Object.assign(F,{cap1:1,tape:1,depHint:1,depKey:1,pedro:'spare',corRec1:1});
   S.chapter=1;S.left=0;S.spares=16;S.lv=5;S.xp=140;S.baseHP=20;S.hp=37;S.items=['cinta1'];S.eq.armor='chaqueta';S.party=['ivan'];
+  const rt=JROUTES[CHEAT.route||0];
+  /* cómo llegaste al final del capítulo 1 */
+  if(rt==='ESTÁTICA'){S.kills=4;S.spares=12;S.xp=170;}
+  if(rt==='INTERFERENCIA'||rt==='ANIQUILACIÓN'){S.kills=16;S.spares=0;S.xp=260;S.lv=6;S.hp=42;F.pedro='kill';F.empty=1;S.party=[];S.items=['cinta1'];}
+  if(rt==='ANIQUILACIÓN'){F.ivanDead=1;F.trueGeno=1;F.nicoDead=1;F.cinta=1;S.items=['cinta1','anillo'];S.eq.acc='anillo';}
   if(ch===2){startChapter2();return;}
+  const k1=S.kills,s1=S.spares,p1=S.party.slice(),it1=S.items.slice();
   Object.assign(F,{cap2:1,silv:1,lever:1,ginesMet:1,raceWon:1,ginesDone:1,tape3:1,warned:1,mantOpen:1,tools:1,felix:'spare',ch2Sp:1,ventSeen:1,ventOpen:1,ductoIn:1,p5In:1,p5Hint:1,corRec2:1});
   S.chapter=2;S.left3=0;S.spares=37;S.lv=7;S.xp=300;S.hp=45;S.items=['cinta1','cinta3'];S.eq.weapon='batT';S.party=['silvestre','ivan'];
+  /* cómo llegaste al final del capítulo 2 */
+  if(rt==='ESTÁTICA'){S.kills=k1+5;S.spares=s1+16;}
+  if(rt==='INTERFERENCIA'||rt==='ANIQUILACIÓN'){S.kills=k1+21;S.spares=0;S.lv=8;S.xp=420;S.baseHP=30;S.hp=55;F.felix='kill';delete F.silv;delete F.ch2Sp;S.party=[];S.items=it1.concat(['cinta3']);}
+  if(rt==='ANIQUILACIÓN'){F.estefDead=1;F.geroDead=1;F.silvDead=1;}
   startChapter3();}
 function titleOpts(){const o=hasSave()?(chapStart()?['CONTINUAR','REINICIAR CAPÍTULO','NUEVA PARTIDA']:['CONTINUAR','NUEVA PARTIDA']):['NUEVA PARTIDA'];if(cheatsOn())o.push('TRUCOS');return o;}
 function newGame(){clearSave();SNAP=null;S=newState();if(cheatsOn()&&CHEAT.canal)S.canal=CHEAT.canal;IN={i:0,shown:0};TVON=false;CUT=null;if(cheatsOn()&&CHEAT.skip){startWake();return;}scene='intro';}
@@ -7231,13 +7242,15 @@ function update(dt){
       if(TS.c3pad){EN=EN||{t:0};c3PadUpd();if(c3Open()){TS.c3pad=false;EN=null;TS.confirm='jump';TS.csel=1;}else if(!EN.pad){TS.c3pad=false;EN=null;TS.cheat={i:2};}break;}
       if(TS.confirm){if(hit('up')||hit('down')){TS.csel=1-TS.csel;sfx.sel();}if(hit('b')){TS.confirm=false;break;}if(hit('a')){sfx.ok();const rc=TS.confirm==='cap',rj=TS.confirm==='jump';TS.confirm=false;if(TS.csel===0){if(rj){const n=CHEAT.jump||0;transition(.8,()=>cheatJump(n));}else if(rc)restartChapter();else transition(.8,newGame);}}break;}
       if(TS.cheat){const c=TS.cheat;
-        if(hit('up')){c.i=(c.i+3)%4;sfx.sel();}if(hit('down')){c.i=(c.i+1)%4;sfx.sel();}
+        if(hit('up')){c.i=(c.i+4)%5;sfx.sel();}if(hit('down')){c.i=(c.i+1)%5;sfx.sel();}
         const l=hit('left'),r=hit('right');
         if(c.i===0&&(l||r)){let v=CHEAT.canal||0;v+=r?1:-1;if(v>100)v=0;if(v<0)v=100;CHEAT.canal=v||null;saveCheat();sfx.sel();}
         if(c.i===0&&hit('a')){const q=[null,3,4,6,7,8,9,10,11,13,19,20,33,47,55,86,95],k=q.indexOf(CHEAT.canal);CHEAT.canal=q[(k+1)%q.length];saveCheat();sfx.ok();}
         if(c.i===1&&(l||r||hit('a'))){CHEAT.skip=!CHEAT.skip;saveCheat();sfx.sel();}
+        if(c.i===3&&pressed.a&&(CHEAT.jump||0)>=2){c.i=2;}
         if(c.i===2){const m=jumpMax();if(CHEAT.jump==null||CHEAT.jump>m)CHEAT.jump=0;if(l){CHEAT.jump=(CHEAT.jump+m)%(m+1);sfx.sel();}if(r){CHEAT.jump=(CHEAT.jump+1)%(m+1);sfx.sel();}if(hit('a')){sfx.ok();TS.cheat=null;if(CHEAT.jump===3&&!c3Open()){EN={t:0,pad:{d:[0,0,0,0,0,0,0,0],p:0,msg:''}};TS.c3pad=true;}else{TS.confirm='jump';TS.csel=1;}break;}}
-        if((c.i===3&&hit('a'))||hit('b')){TS.cheat=null;sfx.ok();}
+        if(c.i===3&&(CHEAT.jump||0)>=2){const n=JROUTES.length;if(l){CHEAT.route=((CHEAT.route||0)+n-1)%n;saveCheat();sfx.sel();}if(r){CHEAT.route=((CHEAT.route||0)+1)%n;saveCheat();sfx.sel();}}
+        if((c.i===4&&hit('a'))||hit('b')){TS.cheat=null;sfx.ok();}
         break;}
       const opts=titleOpts();if(TS.sel>=opts.length)TS.sel=0;
       {const d=['up','down','left','right'].find(k=>pressed[k]);if(d){TS.code=((TS.code||[]).concat(d)).slice(-8);if(TS.code.join()==='up,up,down,down,left,right,left,right'&&!cheatsOn()){try{localStorage.setItem('piso13_trucos','1');}catch(e){}CHEAT.on=true;sfx.item();TS.code=[];}}}
@@ -7280,10 +7293,10 @@ function render(t){
       if(TS.c3pad&&EN&&EN.pad){drawC3Pad();break;}
       if(TS.cheat){const c=TS.cheat;ctx.fillStyle='rgba(6,8,24,.92)';ctx.fillRect(36,124,248,110);ctx.strokeStyle='#e3a849';ctx.lineWidth=1;ctx.strokeRect(36.5,124.5,247,109);
         txt('TRUCOS',W/2,138,'#e3a849',13,'center');
-        const jm=jumpMax(),jv=CHEAT.jump==null||CHEAT.jump>jm?0:CHEAT.jump,rows=['CANAL: '+(CHEAT.canal?'◀ '+CHEAT.canal+' ▶':'◀ ALEATORIO ▶'),'SALTAR EL PRÓLOGO: '+(CHEAT.skip?'SÍ':'NO'),'IR AL: ◀ '+JUMPN[jv]+' ▶','VOLVER'];
-        rows.forEach((o,i)=>txt((i===c.i?'▶ ':'  ')+o,52,156+i*15,i===c.i?'#e3a849':'#c9ccd8',13));
-        txt(c.i===2?(jv===3&&!c3Open()?'Z: pide el código de acceso':'←→ elige · Z: empezar ahí (borra la partida)'):'←→ cambia · Z: canales con secreto',W/2,226,'#6b7096',10,'center');}
-      else if(TS.confirm){const rc=TS.confirm==='cap',cs=rc&&chapStart();if(TS.confirm==='jump'){txt('¿Empezar en el '+JUMPN[CHEAT.jump||0].toLowerCase()+'?',W/2,140,'#e8505b',12,'center');txt('Se borra la partida guardada.',W/2,154,'#e8505b',12,'center');}else if(rc){txt('¿Volver al principio del capítulo '+(cs?cs.ch:'')+'?',W/2,140,'#e8505b',12,'center');txt('Se pierde lo que hiciste desde ahí.',W/2,154,'#e8505b',12,'center');}else txt('¿Empezar de cero? Se borra la partida guardada.',W/2,148,'#e8505b',12,'center');(TS.confirm==='jump'?['SÍ, IR AHÍ','NO']:rc?['SÍ, REINICIAR CAPÍTULO','NO']:['SÍ, EMPEZAR DE CERO','NO']).forEach((o,i)=>txt((i===TS.csel?'▶ ':'  ')+o,W/2-60,170+i*16,i===TS.csel?'#e3a849':'#c9ccd8',14));}
+        const jm=jumpMax(),jv=CHEAT.jump==null||CHEAT.jump>jm?0:CHEAT.jump,rows=['CANAL: '+(CHEAT.canal?'◀ '+CHEAT.canal+' ▶':'◀ ALEATORIO ▶'),'SALTAR EL PRÓLOGO: '+(CHEAT.skip?'SÍ':'NO'),'IR AL: ◀ '+JUMPN[jv]+' ▶','RUTA: '+(jv>=2?'◀ '+JROUTES[CHEAT.route||0]+' ▶':'—'),'VOLVER'];
+        rows.forEach((o,i)=>txt((i===c.i?'▶ ':'  ')+o,52,152+i*14,i===c.i?'#e3a849':(i===3&&jv<2?'#5a5f7a':'#c9ccd8'),13));
+        txtFit(c.i===3?(jv>=2?'←→ cómo jugaste antes · Z: empezar':'Elegí capítulo 2 o 3 para elegir la ruta'):c.i===2?(jv===3&&!c3Open()?'Z: pide el código de acceso':'←→ elige · Z: empezar ahí (borra la partida)'):'←→ cambia · Z: canales con secreto',W/2,226,'#6b7096',10,'center',236);}
+      else if(TS.confirm){const rc=TS.confirm==='cap',cs=rc&&chapStart();if(TS.confirm==='jump'){txt('¿Empezar en el '+JUMPN[CHEAT.jump||0].toLowerCase()+((CHEAT.jump||0)>=2?' ('+JROUTES[CHEAT.route||0]+')':'')+'?',W/2,140,'#e8505b',12,'center');txt('Se borra la partida guardada.',W/2,154,'#e8505b',12,'center');}else if(rc){txt('¿Volver al principio del capítulo '+(cs?cs.ch:'')+'?',W/2,140,'#e8505b',12,'center');txt('Se pierde lo que hiciste desde ahí.',W/2,154,'#e8505b',12,'center');}else txt('¿Empezar de cero? Se borra la partida guardada.',W/2,148,'#e8505b',12,'center');(TS.confirm==='jump'?['SÍ, IR AHÍ','NO']:rc?['SÍ, REINICIAR CAPÍTULO','NO']:['SÍ, EMPEZAR DE CERO','NO']).forEach((o,i)=>txt((i===TS.csel?'▶ ':'  ')+o,W/2-60,170+i*16,i===TS.csel?'#e3a849':'#c9ccd8',14));}
       else opts.forEach((o,i)=>{const on=i===TS.sel;if(on){ctx.fillStyle='rgba(227,168,73,'+(.07+.04*Math.sin(t*5))+')';ctx.fillRect(W/2-58,137+i*15,128,14);}txt((on?'▶ ':'  ')+o,W/2-46+(on?1.5+Math.sin(t*6)*1.5:0),148+i*15,on?'#e3a849':(o==='TRUCOS'?'#8a8fb0':'#c9ccd8'),15);});
       if(!TS.cheat){let sw=false;try{sw=localStorage.getItem('piso13_switch')==='1';}catch(e){}txt(sw?'Grabación encontrada. No debiste tocarlo.':'Grabación encontrada. Contenido perturbador.',W/2,206,'#6b7096',11,'center');}break;}
     case 'intro':{
