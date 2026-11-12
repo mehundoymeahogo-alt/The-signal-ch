@@ -7448,9 +7448,9 @@ function opFlare(sx,sy,I){if(I<=0)return;ctx.save();ctx.globalCompositeOperation
 function opMusic(){const T=TRACKS.menu;if(OP.src||!AU.c||!T||!T.buf||OP.st!==1||OP.out)return;try{const c=AU.c,b=T.buf,sr=b.sampleRate,d0=b.getChannelData(0),N=d0.length;
     let tot=0;for(let i=0;i<N;i+=64)tot+=d0[i]*d0[i];const rms=Math.sqrt(tot/(N/64)),win=Math.floor(sr*.25);let end=N;
     for(let p=N-win;p>win;p-=win){let s=0;for(let i=p;i<p+win;i+=16)s+=d0[i]*d0[i];if(Math.sqrt(s/(win/16))>rms*.5){end=Math.min(N,p+win+Math.floor(sr*.6));break;}}
-    const len=Math.min(end,Math.floor(sr*12)),rb=c.createBuffer(b.numberOfChannels,len,sr);
+    const len=Math.min(end,Math.floor(sr*15)),rb=c.createBuffer(b.numberOfChannels,len,sr);
     for(let ch=0;ch<b.numberOfChannels;ch++){const s=b.getChannelData(ch),o=rb.getChannelData(ch);for(let i=0;i<len;i++)o[i]=s[end-1-i];}
-    const src=c.createBufferSource(),g=c.createGain();src.buffer=rb;src.playbackRate.value=.2;g.gain.setValueAtTime(0,c.currentTime);g.gain.linearRampToValueAtTime(1,c.currentTime+2.5);src.connect(g);g.connect(AU.mus||AU.master);src.start();OP.src=src;OP.g=g;}catch(e){OP.src=1;}}
+    const src=c.createBufferSource(),g=c.createGain();src.buffer=rb;src.playbackRate.value=.3;g.gain.setValueAtTime(0,c.currentTime);g.gain.linearRampToValueAtTime(1,c.currentTime+2.5);src.connect(g);g.connect(AU.mus||AU.master);src.start();OP.src=src;OP.g=g;}catch(e){OP.src=1;}}
 function opStop(f){try{if(OP.src&&OP.src.stop){const c=AU.c;OP.g.gain.cancelScheduledValues(c.currentTime);OP.g.gain.setValueAtTime(OP.g.gain.value,c.currentTime);OP.g.gain.linearRampToValueAtTime(0,c.currentTime+(f||.5));OP.src.stop(c.currentTime+(f||.5)+.05);}}catch(e){}OP.src=1;}
 function opUpdate(dt){
   if(OP.st===0){if(OP.any||hit('a')||hit('b')||hit('up')||hit('down')||hit('left')||hit('right')){OP.st=1;OP.t=0;OP.w=0;OP.any=false;for(const k in pressed)pressed[k]=false;try{AU.un();}catch(e){}musLoad('menu');}return;}
