@@ -5089,6 +5089,7 @@ function drawP3Dark(t,cx,cy){
   if(k.ghost){const gx=k.ghost[0]*T-cx,gy=k.ghost[1]*T-cy;ctx.fillStyle='rgba(255,255,255,.14)';ctx.fillRect(gx+3,gy-5,10,4);ctx.fillStyle='#fff';ctx.fillRect(gx+5,gy-4,2,1);ctx.fillRect(gx+9,gy-4,2,1);}
 }
 function frigoParty(to){/* a la cámara de frío entrás solo: el equipo te espera afuera */
+  if(to===MP.FRIGO5&&S.map!==MP.FRIGO5&&!S.eq.armor&&!S.pro)PENDING.push('Sin abrigo, el frío te entumece las piernas. Caminás más lento.');
   if(S.map===MP.FRIGO5&&to!==MP.FRIGO5&&S.partyOut){S.party=S.partyOut.filter(p=>!S.party.includes(p)).concat(S.party);delete S.partyOut;}
   if(to===MP.FRIGO5&&S.map!==MP.FRIGO5&&S.party.length&&!S.pro){const L=S.party.slice();S.partyOut=L;S.party=[];
     const nm={ivan:'Iván',silvestre:'Silvestre',geronimo:'Gerónimo',arana:'la araña'},n=L.map(p=>nm[p]||p),who=n.length>1?n.slice(0,-1).join(', ')+' y '+n[n.length-1]:n[0];
@@ -5262,7 +5263,7 @@ function updMap(dt){
     if(S.map===MP.CASA&&ch===';'&&!gate(nx,ny)&&!S.flags.a8){if(bumpCd<=0){bumpCd=.8;secretGap();}return;}
     if(walk(ch)&&!npcAt(nx,ny)){
       {const nf=FOLS().length;if(nf>1){F2.fx=F2.x;F2.fy=F2.y;F2.x=F.x;F2.y=F.y;F2.dir=F.dir;}if(nf){F.fx=F.x;F.fy=F.y;F.x=S.x;F.y=S.y;F.dir=d;}}
-      P.fx=S.x;P.fy=S.y;S.x=nx;S.y=ny;P.prog=0;P.moving=true;P.dur=((dx&&dy)?.27:.2)*(S.map===MP.DUCTO?1.7:1);
+      P.fx=S.x;P.fy=S.y;S.x=nx;S.y=ny;P.prog=0;P.moving=true;P.dur=((dx&&dy)?.27:.2)*(S.map===MP.DUCTO?1.7:1)*(S.map===MP.FRIGO5&&!S.eq.armor?1/.75:1);/* sin abrigo, el frío del frigorífico te hace ir un 25% más lento */
     }else if(bumpCd<=0&&ch==='+'&&!(dx&&dy)){bumpCd=.3;openDoor(nx,ny);}
     else if(bumpCd<=0&&(ch==='D'||ch==='»')&&!(dx&&dy)){bumpCd=.4;MAPS[S.map].act(ch,nx,ny);}
   }
