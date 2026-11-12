@@ -7165,27 +7165,32 @@ function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('pis
 const JUMPN=['PRÓLOGO','CAPÍTULO 1','CAPÍTULO 2','CAPÍTULO 3'];
 const JROUTES=['SINTONÍA','ESTÁTICA','INTERFERENCIA','ANIQUILACIÓN'];
 function jumpMax(){return 3;}
+/* Nivel real según la ruta: la experiencia sale solo de matar (6 por vecino del 4, ~8,25 del 3, Pedro 50, Félix 60).
+   Al terminar el 1: Sintonía 0 (LV 1), Estática 24 (LV 2), Interferencia/Aniquilación 146 (LV 5).
+   Al terminar el 2: Sintonía 0 (LV 1), Estática 65 (LV 3), Interferencia/Aniquilación 371 (LV 8).
+   Al terminar el 3 (para el capítulo 4): Interferencia/Aniquilación ~726 (LV 11). */
+function cheatLv(){S.lv=1;while(S.lv<20&&S.xp>=XPT[S.lv])S.lv++;S.hp=maxHP();}
 function cheatJump(ch){let nm=null;try{const j=JSON.parse(localStorage.getItem(SAVE)||'null');nm=j&&!j.pro&&j.name;}catch(e){}
   clearSave();SNAP=null;S=newState();if(CHEAT.canal)S.canal=CHEAT.canal;IN={i:0,shown:0};TVON=false;CUT=null;B=null;DLG=null;UI=null;
   if(ch===0){scene='intro';return;}
   if(ch===1){startWake();return;}
   const F=S.flags;S.pro=false;S.name=nm||'Valen';
   Object.assign(F,{cap1:1,tape:1,depHint:1,depKey:1,pedro:'spare',corRec1:1});
-  S.chapter=1;S.left=0;S.spares=16;S.lv=5;S.xp=140;S.baseHP=20;S.hp=37;S.items=['cinta1'];S.eq.armor='chaqueta';S.party=['ivan'];
+  S.chapter=1;S.left=0;S.spares=16;S.lv=1;S.xp=0;S.baseHP=20;S.items=['cinta1'];S.eq.armor='chaqueta';S.party=['ivan'];
   const rt=JROUTES[CHEAT.route||0];
   /* cómo llegaste al final del capítulo 1 */
-  if(rt==='ESTÁTICA'){S.kills=4;S.spares=12;S.xp=170;}
-  if(rt==='INTERFERENCIA'||rt==='ANIQUILACIÓN'){S.kills=16;S.spares=0;S.xp=260;S.lv=6;S.hp=42;F.pedro='kill';F.empty=1;S.party=[];S.items=['cinta1'];}
+  if(rt==='ESTÁTICA'){S.kills=4;S.spares=12;S.xp=24;}
+  if(rt==='INTERFERENCIA'||rt==='ANIQUILACIÓN'){S.kills=16;S.spares=0;S.xp=146;F.pedro='kill';F.empty=1;S.party=[];S.items=['cinta1'];}
   if(rt==='ANIQUILACIÓN'){F.ivanDead=1;F.trueGeno=1;F.nicoDead=1;F.cinta=1;S.items=['cinta1','anillo'];S.eq.acc='anillo';}
-  if(ch===2){startChapter2();return;}
+  cheatLv();if(ch===2){startChapter2();return;}
   const k1=S.kills,s1=S.spares,p1=S.party.slice(),it1=S.items.slice();
   Object.assign(F,{cap2:1,silv:1,lever:1,ginesMet:1,raceWon:1,ginesDone:1,tape3:1,warned:1,mantOpen:1,tools:1,felix:'spare',ch2Sp:1,ventSeen:1,ventOpen:1,ductoIn:1,p5In:1,p5Hint:1,corRec2:1});
-  S.chapter=2;S.left3=0;S.spares=37;S.lv=7;S.xp=300;S.hp=45;S.items=['cinta1','cinta3'];S.eq.weapon='batT';S.party=['silvestre','ivan'];
+  S.chapter=2;S.left3=0;S.spares=37;S.items=['cinta1','cinta3'];S.eq.weapon='batT';S.party=['silvestre','ivan'];
   /* cómo llegaste al final del capítulo 2 */
-  if(rt==='ESTÁTICA'){S.kills=k1+5;S.spares=s1+16;}
-  if(rt==='INTERFERENCIA'||rt==='ANIQUILACIÓN'){S.kills=k1+21;S.spares=0;S.lv=8;S.xp=420;S.baseHP=30;S.hp=55;F.felix='kill';delete F.silv;delete F.ch2Sp;S.party=[];S.items=it1.concat(['cinta3']);}
+  if(rt==='ESTÁTICA'){S.kills=k1+5;S.spares=s1+16;S.xp+=41;}
+  if(rt==='INTERFERENCIA'||rt==='ANIQUILACIÓN'){S.kills=k1+21;S.spares=0;S.xp+=225;F.felix='kill';delete F.silv;delete F.ch2Sp;S.party=[];S.items=it1.concat(['cinta3']);}
   if(rt==='ANIQUILACIÓN'){F.estefDead=1;F.geroDead=1;F.silvDead=1;}
-  startChapter3();}
+  cheatLv();startChapter3();}
 function titleOpts(){const o=hasSave()?(chapStart()?['CONTINUAR','REINICIAR CAPÍTULO','NUEVA PARTIDA']:['CONTINUAR','NUEVA PARTIDA']):['NUEVA PARTIDA'];if(cheatsOn())o.push('TRUCOS');return o;}
 function newGame(){clearSave();SNAP=null;S=newState();if(cheatsOn()&&CHEAT.canal)S.canal=CHEAT.canal;IN={i:0,shown:0};TVON=false;CUT=null;if(cheatsOn()&&CHEAT.skip){startWake();return;}scene='intro';}
 
