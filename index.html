@@ -1690,7 +1690,7 @@ MAPS[MP.HABIT5]={title:'Teatro del Quinto · habitaciones',theme:'camarin',rows:
         return say(['Un amplificador. La luz roja está prendida aunque no está enchufado.']);
       case 'Ӟ':if(!has('plomos')&&!S.flags.c5plomos){S.flags.c5plomos=1;sfx.item();return say(['Un piano vertical viejo, con la tapa de abajo floja.','Adentro, en las teclas, hay plomitos para darles peso. Varios están sueltos.','Los juntás. Pesan como un puño.',gotLine('plomos')]);}
         return say(['El piano vertical de Ciro. Algunas teclas ya no bajan: les falta el plomo.']);
-      case 'Ӣ':if((c5Gen()||(S.flags.tgAbort&&!S.flags.c5frigo&&!S.flags.c5rescued))&&S.flags.c5fightReady!==2&&!has('guitarra')&&!S.flags.c5guit){S.flags.c5guit=1;sfx.item();return say(['La guitarra criolla de Ciro, en su pie. Tiene las cuerdas nuevas.','La agarrás del mango. Pesa bien.',gotLine('guitarra')]);}
+      case 'Ӣ':if((c5Gen()||(S.flags.tgAbort&&!(S.flags.c5frigo&&S.flags.c5selOpen)&&!S.flags.c5rescued))&&S.flags.c5fightReady!==2&&!has('guitarra')&&!S.flags.c5guit){S.flags.c5guit=1;sfx.item();return say(['La guitarra criolla de Ciro, en su pie. Tiene las cuerdas nuevas.','La agarrás del mango. Pesa bien.',gotLine('guitarra')]);}
         return say(['El pie de la guitarra de Ciro.'].concat(S.flags.c5guit?['Está vacío.']:['La guitarra criolla está ahí. Tiene stickers de los Beatles y uno de Estudiantes de La Plata.']));
       case 'D':return goMap(MP.PASILLO5,12,1,'down');
     }
@@ -1775,8 +1775,23 @@ function seleneTalk(){
   if(F.c5ciro>=2&&!F.c5rescued)return say([{who:'Selene',t:c3Next('selC',['¿Hablaste con Ciro? ¿Está bien? Cada noche toca más desafinado.','Silvestre, el del 3, suelda cualquier cosa. Si le llevás con qué, te hace el estaño.','Los caños pasan justo por arriba de donde lo tienen. Si se pudieran cortar...'])}]);
   return say([{who:'Selene',t:c3Next('selN',['Este piso antes era una fiesta. Ensayaba la orquesta, filmábamos, Ciro tocaba con su banda.','Los instrumentos se despertaron cuando empezó la guitarra de los caños. Primero el piano. Después todos.','Brian trabajaba en el frigorífico. Un día volvió con manchas grises en los brazos. Desde ese día, la carne de su cámara se mueve.','Vaquito, Mashi, Luna y Niobe son mis gatos. Pionono también, aunque él no lo sabe.','¿Te acordás de tu habitación? Yo me acuerdo de que siempre tenías la luz prendida.'])}]);
 }
+/* la guitarra de Ciro como ariete: aguanta una puerta; con la segunda se hace pedazos */
+let GSH=null;
+function guitarSmash(what,then){const F=S.flags,[dx,dy]=DIRS[S.dir],x=(S.x+dx*.6)*T+8,y=(S.y+dy*.6)*T+6;F.guitHits=(F.guitHits||0)+1;AU.nz(.5,.4);sfx.hit();
+  const L=['Levantás la guitarra de Ciro con las dos manos.','La estrellás contra '+what+'. Una vez. Dos. A la tercera, la puerta cede.'];
+  if(F.guitHits<2){AU.t(196,1.2,'triangle',.05,190);return say(L.concat(['La guitarra queda rajada, con dos cuerdas cortadas. Todavía aguanta.']),then);}
+  S.items=S.items.filter(i=>i!=='guitarra');F.guitShards={m:S.map,x,y};GSH={t0:performance.now(),x,y,m:S.map};
+  for(let k=0;k<14;k++)setTimeout(()=>{AU.nz(.12,.12);AU.t(120+rnd()*900,.4+rnd()*.6,'triangle',.03,60+rnd()*200);},k*45);
+  return say(L.concat(['La guitarra se destroza en tus manos. Astillas, clavijas, la tapa partida en mil pedazos.','Los pedazos quedan desparramados por el piso. Las cuerdas siguen vibrando un rato largo.']),then);}
+function drawGuitarShards(t){const F=S.flags,g=F.guitShards;
+  if(g&&g.m===S.map){for(let k=0;k<26;k++){const h=hash(k,913),a=(h%628)/100,r=4+((h>>>5)%22),x=g.x+Math.cos(a)*r,y=g.y+Math.sin(a)*r*.6+6;ctx.fillStyle=['#c89858','#a87838','#5a3a1a','#3a2414'][k%4];ctx.fillRect(Math.round(x),Math.round(y),1+(h%3===0?2:1),h%4===0?2:1);}
+    ctx.strokeStyle='rgba(220,210,190,.5)';ctx.lineWidth=.5;for(let k=0;k<3;k++){ctx.beginPath();ctx.moveTo(g.x-6+k*4,g.y+8);ctx.quadraticCurveTo(g.x+k*3,g.y+2,g.x+8-k*2,g.y+10);ctx.stroke();}}
+  if(GSH&&GSH.m===S.map){const e=(performance.now()-GSH.t0)/1000;if(e>1.6){GSH=null;return;}
+    for(let k=0;k<70;k++){const h=hash(k,577),a=(h%628)/100,sp=30+((h>>>4)%90),gx=GSH.x+Math.cos(a)*sp*e,gy=GSH.y+Math.sin(a)*sp*e*.7+60*e*e-14*e;ctx.globalAlpha=Math.max(0,1-e/1.6);ctx.fillStyle=['#c89858','#e8c890','#5a3a1a','#d8d0c0'][k%4];ctx.save();ctx.translate(gx,gy);ctx.rotate(e*(5+(h%7)));ctx.fillRect(-1,-1,1+(h%3),1+((h>>>3)%3));ctx.restore();}
+    ctx.globalAlpha=1;}}
 function seleneDoor(){
   if(S.flags.c5selOpen)return goMap(MP.SELENE5,6,6,'up');
+  if(S.flags.tgAbort&&has('guitarra')){S.flags.c5selOpen=1;return guitarSmash('el teclado numérico',()=>goMap(MP.SELENE5,6,6,'up'));}
   if(c5TG()){S.flags.c5selOpen=1;AU.nz(.3,.3);sfx.hit();return say(['Una puerta con un teclado numérico y una calcomanía de una claqueta.','Apretás el puño. El anillo de oro quema.','La puerta se abre de una patada.'],()=>goMap(MP.SELENE5,6,6,'up'));}
   return say(['Una puerta con un teclado numérico y una calcomanía de una claqueta.','El teclado tiene doce botones y ninguno tiene número. Solo Selene sabe el orden.']);
 }
@@ -2129,10 +2144,11 @@ function frigoDoor(){const F=S.flags;
   if(F.c5frigo)return goMap(MP.FRIGO5,16,18,'up');
   if(c5Hard()&&(S.left5==null?15:S.left5)>0){const n=S.left5==null?15:S.left5;return say(['Una puerta de cámara frigorífica, gruesa como un colchón.','Detrás tuyo, el teatro todavía suena.','Todavía '+(n===1?'queda uno':'quedan '+n)+'.']);}
   if(c5TG()){F.c5frigo=1;AU.nz(.5,.4);sfx.hit();return say(['Una puerta de cámara frigorífica, gruesa como un colchón.','Cerrás el puño. El anillo de oro quema.','La puerta se dobla hacia adentro con un ruido de lata.'],()=>goMap(MP.FRIGO5,16,18,'up'));}
-  if((c5Gen()||F.tgAbort)&&has('guitarra')){F.c5frigo=1;S.items=S.items.filter(i=>i!=='guitarra');AU.nz(.5,.4);sfx.hit();return say(['Levantás la guitarra de Ciro con las dos manos.','La estrellás contra el pestillo. Una vez. Dos. A la tercera, la guitarra se parte y la puerta cede.','Las cuerdas siguen vibrando un rato largo.'],()=>goMap(MP.FRIGO5,16,18,'up'));}
+  if(F.tgAbort&&has('guitarra')){F.c5frigo=1;return guitarSmash('el pestillo',()=>goMap(MP.FRIGO5,16,18,'up'));}
+  if(c5Gen()&&has('guitarra')){F.c5frigo=1;S.items=S.items.filter(i=>i!=='guitarra');AU.nz(.5,.4);sfx.hit();return say(['Levantás la guitarra de Ciro con las dos manos.','La estrellás contra el pestillo. Una vez. Dos. A la tercera, la guitarra se parte y la puerta cede.','Las cuerdas siguen vibrando un rato largo.'],()=>goMap(MP.FRIGO5,16,18,'up'));}
   if(F.grabMel&&has('camara')){F.c5frigo=1;sfx.item();return say(['Apuntás la cámara al parlantito de la puerta y apretás PLAY.','Sale la voz de Den, tarareando. Cinco notas.','La puerta suspira. Se abre una rendija de aire helado.'],()=>goMap(MP.FRIGO5,16,18,'up'));}
   F.c5frigoSeen=1;
-  return say(['Una puerta de cámara frigorífica, gruesa como un colchón.','No tiene cerradura. Tiene un parlantito y un micrófono, como un portero eléctrico.'].concat(c5Gen()?['Hay que romperla con algo pesado.']:F.tgAbort?['Hay que romperla con algo pesado. La guitarra de Ciro, en su habitación, pesa bien.']:!F.c5grabQ&&!S.flags.c5selDead?['Selene seguro sabe algo.']:[]));
+  return say(['Una puerta de cámara frigorífica, gruesa como un colchón.','No tiene cerradura. Tiene un parlantito y un micrófono, como un portero eléctrico.'].concat(c5Gen()?['Hay que romperla con algo pesado.']:F.tgAbort&&!F.guitHits?['Hay que romperla con algo pesado. La guitarra de Ciro, en su habitación, pesa bien.']:!F.c5grabQ&&!S.flags.c5selDead?['Selene seguro sabe algo.']:[]));
 }
 /* ---------- cinemáticas: te atrapa Den, Den queda encerrada ---------- */
 let CINE=null;
@@ -5568,6 +5584,7 @@ function renderMap(t){
   if(CHASE&&CHASE.map===S.map&&CHASE.px!=null){const cx2=CHASE.px*T,cy2=CHASE.py*T;ents.push({y:cy2,d:()=>drawShadowFig(cx2,cy2,t)});}
   ents.push({y:ppy,d:()=>{drawPerson(Math.round(ppx),Math.round(ppy)-(S.sit?5:0),{...playerLook(),dir:S.dir,sit:S.sit},t,P.moving);if((S.pro&&S.flags.spider)||(S.party.includes('arana')&&S.spiderHP>0)){const sx=Math.round(ppx)+11,sy=Math.round(ppy)+6;ctx.fillStyle='#0a0a0a';ctx.fillRect(sx,sy,3,2);ctx.fillRect(sx-1,sy-1,1,1);ctx.fillRect(sx+3,sy-1,1,1);ctx.fillRect(sx-1,sy+2,1,1);ctx.fillRect(sx+3,sy+2,1,1);ctx.fillStyle='#ff8a2a';ctx.fillRect(sx+1,sy,1,1);}}});
   try{drawPuffs(t);}catch(e){}
+  try{drawGuitarShards(t);}catch(e){}
   try{drawLiveGlow(t,cx,cy,m);}catch(e){}
   {const ol=OBJC.c;if(ol&&OBJC.over)for(const [x,y,by] of OBJC.over){if(x<tx0-1||x>tx1+1||y<ty0-1||y>ty1+1)continue;ents.push({y:by*T-.5,d:()=>ctx.drawImage(ol,x*T*2,y*T*2,T*2,T*2,x*T,y*T,T,T)});}
    /* lo mismo para los objetos que se dibujan en vivo (árboles que se mueven, utilería del teatro) */
@@ -7568,7 +7585,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.2.2';
+const GAME_VER='1.2.3';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
