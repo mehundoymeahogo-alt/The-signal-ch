@@ -1757,7 +1757,7 @@ MAPS[MP.FRIGO5]={title:'Teatro del Quinto · la cámara de frío',theme:'frigo',
       case 'ѯ':return frigoChest(x,y);
       case 'ѱ':return denNote(x,y);
       case 'Ϻ':return say(['Los caños pasan por arriba del cuarto de máquinas. Por ahí sale el sonido de la guitarra hacia todo el teatro.']);
-      case 'Ӆ':if(frigoLocked())return say(['Empujás la puerta. No se mueve.','Desde adentro no tiene picaporte. El parlantito ni se prende cuando ponés la grabación.','(No vas a salir con las manos vacías. Entre los cajones de telgopor hay algo que vas a necesitar.)']);return goMap(MP.PASILLO5,21,1,'down');
+      case 'Ӆ':if(!frigoLocked()&&c5ShotAsk(2,()=>goMap(MP.PASILLO5,21,1,'down')))return;if(frigoLocked()&&c5ShotOn(2))return c5ShotAsk(2);if(frigoLocked())return say(['Empujás la puerta. No se mueve.','Desde adentro no tiene picaporte. El parlantito ni se prende cuando ponés la grabación.','(No vas a salir con las manos vacías. Entre los cajones de telgopor hay algo que vas a necesitar.)']);return goMap(MP.PASILLO5,21,1,'down');
     }
   }};
 const frigoLit=()=>!!(S.flags.c5trap||S.flags.c5fight||S.flags.c5late||c5Hard());
@@ -1873,12 +1873,12 @@ function camTick(dt){if(S&&!S.pro&&has('camara')&&scene==='map'&&!DLG&&!PAUSE){c
   if(S.map===MP.FRIGO5&&!frigoLit()){if(CAMCUT>0){CAMCUT-=dt;if(CAMCUT<=0){CAMG=6.5+rnd()*5;AU.t(1500,.03,'square',.02);}}else{CAMG-=dt;if(CAMG<=0){CAMCUT=.7+rnd()*.9;AU.nz(.4,.05);AU.t(120,.3,'sawtooth',.03,60);}}}else{CAMCUT=0;CAMG=4;}}
 // dónde está cada plano de la lista de Selene
 function camShotSpots(){const F=S.flags;if(F.selQ!==1)return[];const L=[];const at=(m,ch,k,label)=>{if(S.map!==MP[m]||((F.selP||0)&(1<<k)))return;const p=csecPos({m,ch});if(p)L.push([p[0],p[1],label]);};
-  if(S.map===MP.SALA5&&!((F.selP||0)&1))L.push([8,5,'PLANO 1']);at('SALA5','Ш',1,'PLANO 2');at('PASILLO5','Ӆ',2,'PLANO 3');at('PASILLO5','Ӈ',3,'PLANO 4');at('HABIT5','Ӈ',3,'PLANO 4');return L;}
+  if(S.map===MP.SALA5&&!((F.selP||0)&1))L.push([8,5,'PLANO 1']);at('SALA5','Ш',1,'PLANO 2');at('PASILLO5','Ӆ',2,'PLANO 3');at('FRIGO5','Ӆ',2,'PLANO 3');at('PASILLO5','Ӈ',3,'PLANO 4');at('HABIT5','Ӈ',3,'PLANO 4');return L;}
 function drawCam(t,cx,cy){if(!CAMON||scene!=='map')return;
   // marcas de los planos
   for(const [x,y,l] of camShotSpots()){const sx=x*T-cx,sy=y*T-cy,b=3+Math.sin(t*4)*1.5,a=.6+.3*Math.sin(t*5);ctx.strokeStyle='rgba(255,90,70,'+a+')';ctx.lineWidth=1;
     [[-b,-b,1,1],[T+b,-b,-1,1],[-b,T+b,1,-1],[T+b,T+b,-1,-1]].forEach(([ox,oy,dx,dy])=>{ctx.beginPath();ctx.moveTo(sx+ox,sy+oy+dy*5);ctx.lineTo(sx+ox,sy+oy);ctx.lineTo(sx+ox+dx*5,sy+oy);ctx.stroke();});
-    txt(l,sx+T/2,sy-b-3,'rgba(255,140,120,'+a+')',8,'center');}
+    txt(l,sx+T/2,sy-b-3<58?sy+T+b+9:sy-b-3,'rgba(255,140,120,'+a+')',8,'center');}
   // visor
   ctx.save();ctx.strokeStyle='rgba(230,232,239,.5)';ctx.lineWidth=1;const m=12,L2=16;[[m,m+14,1,1],[W-m,m+14,-1,1],[m,H-m-14,1,-1],[W-m,H-m-14,-1,-1]].forEach(([x,y,dx,dy])=>{ctx.beginPath();ctx.moveTo(x,y+dy*L2);ctx.lineTo(x,y);ctx.lineTo(x+dx*L2,y);ctx.stroke();});
   ctx.strokeStyle='rgba(230,232,239,.25)';ctx.beginPath();ctx.moveTo(W/2-6,H/2);ctx.lineTo(W/2+6,H/2);ctx.moveTo(W/2,H/2-6);ctx.lineTo(W/2,H/2+6);ctx.stroke();
@@ -2398,6 +2398,25 @@ function drawC5Hide(t){const h=C5H,F2=(c,x,y,w,hh)=>{ctx.fillStyle=c;ctx.fillRec
 /* ---------- la cámara de frío: sigilo, Den, la celda ---------- */
 const DENPATH=[[6,4],[17,4],[17,9],[6,9]];
 let DEN=null;
+/* ---------- cortinas de tiras de plástico en los pasos angostos del frigorífico: suenan fuerte al atravesarlas y Den las escucha de lejos ---------- */
+const CURT5={},CURT5S={};
+function curtains5(){const v=frigoV();if(CURT5[v])return CURT5[v];const R=FRIGO_V[v],H5=R.length,W5=R[0].length,ok=(x,y)=>x>=0&&y>=0&&x<W5&&y<H5&&walk(tileAt(x,y)),c=[];
+  for(let y=1;y<H5-1;y++)for(let x=1;x<W5-1;x++){if(!ok(x,y)||(x>=8&&x<=12&&y<=5))continue;/* no frente a la jaula */
+    const lr=!ok(x-1,y)&&!ok(x+1,y)&&ok(x,y-1)&&ok(x,y+1),ud=!ok(x,y-1)&&!ok(x,y+1)&&ok(x-1,y)&&ok(x+1,y);if(lr||ud)c.push([x,y,lr?'h':'v',hash(x*7+v,y*13)]);}
+  c.sort((a,b)=>a[3]-b[3]);const out=[];for(const q of c){if(out.every(o=>Math.abs(o[0]-q[0])+Math.abs(o[1]-q[1])>=6))out.push(q);if(out.length>=6)break;}
+  return CURT5[v]=out;}
+const curtAt=(x,y)=>S.map===MP.FRIGO5&&S.chapter===3&&curtains5().some(c=>c[0]===x&&c[1]===y);
+function curtNoise(x,y,vol){const k=x+','+y;CURT5S[k]=1;if(vol<=0)return;AU.nz(.45,.16*vol);AU.nz(.25,.1*vol);for(let i=0;i<4;i++)AU.t(1800+rnd()*1600,.05,'triangle',.018*vol,900,i*.07);}
+/* vos: hacen más ruido que los pasos. Den escucha hasta 9 casillas y va a ver */
+function curtPlayer(){if(!curtAt(S.x,S.y))return;curtNoise(S.x,S.y,1);const d=DEN;if(!d||d.mode||d.st==='chase'||HIDE5)return;if(Math.abs(S.x-d.x)+Math.abs(S.y-d.y)<=9){if(d.st!=='inv')AU.t(140,.4,'sine',.04,100);d.st='inv';d.lx=S.x;d.ly=S.y;}}
+/* Den: cuando pasa ella también suenan, más bajo cuanto más lejos esté */
+function curtDen(){const d=DEN;if(!d)return;const k=d.x+','+d.y;if(d.lc===k)return;d.lc=k;if(curtAt(d.x,d.y)){const ds=Math.abs(S.x-d.x)+Math.abs(S.y-d.y);curtNoise(d.x,d.y,Math.max(0,1-ds/14)*.8);}}
+function drawCurtains5(t,cx,cy){if(S.chapter!==3)return;for(const [x,y,o] of curtains5()){const k=x+','+y;CURT5S[k]=Math.max(0,(CURT5S[k]||0)-.016);const sw=CURT5S[k],px=x*T-cx,py=y*T-cy,on=(S.x===x&&S.y===y)||(DEN&&DEN.x===x&&DEN.y===y);
+    ctx.fillStyle='#3a4248';if(o==='h')ctx.fillRect(px,py-3,T,2);else ctx.fillRect(px+7,py-6,2,T+4);
+    for(let i=0;i<5;i++){const a=Math.sin(t*9+i*1.7)*sw*3+(on?(i%2?2:-2):0);ctx.fillStyle=i%2?'rgba(110,140,160,.55)':'rgba(140,170,190,.6)';
+      if(o==='h'){ctx.save();ctx.translate(px+1+i*3+1,py-1);ctx.rotate(a*.06);ctx.fillRect(-1,0,2.6,T-1);ctx.fillStyle='rgba(30,45,60,.55)';ctx.fillRect(1.6,0,.7,T-1);ctx.fillRect(-1,T-2,2.6,1);ctx.restore();}
+      else{ctx.save();ctx.translate(px+6+((i%2)?2:0)+a*.4,py-4+i*(T/5));ctx.fillRect(0,0,4,T/5+1);ctx.fillStyle='rgba(30,45,60,.55)';ctx.fillRect(0,T/5,4,.8);ctx.restore();}}
+    ctx.fillStyle='rgba(255,255,255,.12)';if(o==='h')ctx.fillRect(px+2,py+2,1,T-5);}}
 function frigoEnter(){const F=S.flags;DEN=null;if(S.leftCarne==null)S.leftCarne=10;
   if(!c5Hard()&&!F.c5frigoIn){F.c5frigoIn=1;if(!F.c5plat&&!has('platillo'))F.c5frigoLock=1;}
   if(F.c5late&&!F.c5fight&&!c5Hard())return c5BossStart();
@@ -2415,9 +2434,10 @@ function frigoEnter(){const F=S.flags;DEN=null;if(S.leftCarne==null)S.leftCarne=
 function losClear(x0,y0,x1,y1){const n=Math.max(Math.abs(x1-x0),Math.abs(y1-y0));for(let i=1;i<n;i++){const x=Math.round(x0+(x1-x0)*i/n),y=Math.round(y0+(y1-y0)*i/n),c=tileAt(x,y);if(!walk(c)||c==='ѣ')return false;}return true;}
 function denTick(dt){if(!DEN||S.map!==MP.FRIGO5||scene!=='map'||DLG||C5H||frigoLit())return;
   const d=DEN;d.p=Math.min(1,d.p+dt/.48);
-  if(d.mode==='lure'||d.mode==='look'){d.p=Math.min(1,d.p+dt/.6);if(d.mode==='lure'&&d.p>=1){d.cd-=dt;if(d.cd<=0){d.cd=.05;if(!d.path)d.path=denBFS(d.x,d.y,10,4)||[];const nx=d.path.shift();if(!nx){d.mode='look';d.dir='up';d.lt=7.5;AU.t(110,.5,'sawtooth',.03,80);}else{d.fx=d.x;d.fy=d.y;d.p=0;d.dir=nx[0]>d.x?'right':nx[0]<d.x?'left':nx[1]>d.y?'down':'up';d.x=nx[0];d.y=nx[1];}}}
+  if(d.mode==='lure'||d.mode==='look'){d.p=Math.min(1,d.p+dt/.6);if(d.mode==='lure'&&d.p>=1){d.cd-=dt;if(d.cd<=0){d.cd=.05;if(!d.path)d.path=denBFS(d.x,d.y,10,4)||[];const nx=d.path[0]&&d.path[0][0]===S.x&&d.path[0][1]===S.y?null:d.path.shift();if(!nx&&d.path.length){d.cd=.2;}else if(!nx){d.mode='look';d.dir='up';d.lt=7.5;AU.t(110,.5,'sawtooth',.03,80);}else{d.fx=d.x;d.fy=d.y;d.p=0;d.dir=nx[0]>d.x?'right':nx[0]<d.x?'left':nx[1]>d.y?'down':'up';d.x=nx[0];d.y=nx[1];}}}
     if(d.mode==='look'){d.dir='up';d.lt-=dt;if(d.lt<=0){d.mode=null;d.path=null;d.st='patrol';d.dir='down';AU.t(220,.25,'sine',.04);PENDING.push('Den deja de mirar la jaula y vuelve a patrullar.','(Golpeá los barrotes otra vez.)');}}}
   else denBrain(d,dt);
+  curtDen();
   if(S.canal===5){const dx=S.x-d.x,dy=S.y-d.y;d.mw=(d.mw||0)-dt;if(Math.abs(dx)+Math.abs(dy)<=4&&d.mw<=0){d.mw=2.2;meow();}}
   if(d.grace>0){d.grace-=dt;return;}
   /* te agarra cuando te alcanza: si estás a su lado y no estás escondido (o te vio esconderte) */
@@ -2454,14 +2474,17 @@ function denBrain(d,dt){const DP=DENPATHS[frigoV()];d.st=d.st||'patrol';d.sa=(d.
   if(d.st==='ret'){let bi=0,bd=1e9;DP.forEach((w,i)=>{const q=Math.abs(w[0]-d.x)+Math.abs(w[1]-d.y);if(q<bd){bd=q;bi=i;}});const w=DP[bi];if(d.x===w[0]&&d.y===w[1]){d.st='patrol';d.wp=(bi+1)%DP.length;return;}if(!denStep(d,w[0],w[1]))d.st='patrol';return;}
   /* patrulla */d.cd-=dt;if(d.cd>0)return;d.cd=.02;const w=DP[d.wp%DP.length];if(d.x===w[0]&&d.y===w[1]){d.wp=(d.wp+1)%DP.length;d.cd=.55;return;}
   const sx=Math.sign(w[0]-d.x),sy=Math.sign(w[1]-d.y);d.fx=d.x;d.fy=d.y;d.p=0;if(sx){d.x+=sx;d.dir=sx>0?'right':'left';}else{d.y+=sy;d.dir=sy>0?'down':'up';}}
+/* las frases escondidas del canal 24: solo se ven por el visor (con la cámara prendida, haya luz o no) */
+function frigoWrit(t,cx,cy){if(S.canal===24){const fl=.32+.22*Math.sin(t*3.1)+(Math.sin(t*23)>.9?.3:0);ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,fl));
+      for(const [tx,ty,m] of [[11,.55,'NO LA MIRES A LOS OJOS'],[12.5,5.7,'BRIAN NO SABE'],[12.5,6.7,'EL 5 SABE'],[4,10.5,'24 CUADROS · EN UNO ESTÁS VOS'],[18,2.6,'V. TE ESPERA']])txt(m,tx*T-cx,ty*T-cy,(frigoLit()?'#1c5a2a':'#d8ffe0'),9,'center');ctx.restore();}}
 function frigoPost(t,cx,cy){
+  try{drawCurtains5(t,cx,cy);}catch(e){}
   if(HIDE5){const x=S.x*T-cx,y=S.y*T-cy;ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(x,y+13,T,3);ctx.fillStyle='#d8dee2';ctx.fillRect(x,y+1,T,13);ctx.fillStyle='#b8c2c8';ctx.fillRect(x,y+1,T,3);ctx.fillStyle='#8a969e';ctx.fillRect(x,y+5,T,1);ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(x+2,y+4,T-4,1);txt('escondido',x+8,y-3,'rgba(200,220,230,.7)',8,'center');}
   if(c5Hard()&&!S.flags.c5fight){ctx.save();ctx.globalCompositeOperation='multiply';ctx.fillStyle='rgb(255,'+(150+Math.sin(t*1.7)*8|0)+',150)';ctx.fillRect(0,0,W,H);ctx.restore();}
-  if(frigoLit())return;
+  if(frigoLit()){if(CAMON)frigoWrit(t,cx,cy);return;}
   const nv=camNV();
   if(nv){ctx.save();ctx.globalCompositeOperation='multiply';ctx.fillStyle='rgb(70,255,110)';ctx.fillRect(0,0,W,H);ctx.globalCompositeOperation='lighter';ctx.fillStyle='rgba(10,40,16,.35)';ctx.fillRect(0,0,W,H);ctx.restore();ctx.fillStyle='rgba(0,0,0,.22)';for(let y=0;y<H;y+=3)ctx.fillRect(0,y,W,1);for(let k=0;k<70;k++){ctx.fillStyle=rnd()<.5?'rgba(160,255,170,.18)':'rgba(0,0,0,.25)';ctx.fillRect(rnd()*W,rnd()*H,1,1);}
-    if(S.canal===24){const fl=.32+.22*Math.sin(t*3.1)+(Math.sin(t*23)>.9?.3:0);ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,fl));
-      for(const [tx,ty,m] of [[11,.55,'NO LA MIRES A LOS OJOS'],[12.5,5.7,'BRIAN NO SABE'],[12.5,6.7,'EL 5 SABE'],[4,10.5,'24 CUADROS · EN UNO ESTÁS VOS'],[18,2.6,'V. TE ESPERA']])txt(m,tx*T-cx,ty*T-cy,'#d8ffe0',9,'center');ctx.restore();}
+    frigoWrit(t,cx,cy);
     txt('NOCHE',W-40,56,'#7cff9a',9,'left');}
   if(DEN){const d=DEN,x=(d.fx+(d.x-d.fx)*d.p)*T-cx,y=(d.fy+(d.y-d.fy)*d.p)*T-cy;
     const mvg=d.p<1,dst={moving:mvg,chase:d.st==='chase',dir:d.dir};
@@ -3247,6 +3270,8 @@ const OUTCH='-!*0678)(][<>?Yl;9{}p/';
 function npcAt(x,y){
   const n=MAPS[S.map].npcs.find(n=>n.vis()&&n.x===x&&n.y===y);if(n)return n;
   if(S.map===MP.PEDRO&&!S.flags.pedro&&x===6&&y===1)return{id:'pedroBoss',talk(){}};
+  /* Den ocupa su casilla: no se la atraviesa, y mirándola de frente se la empuja */
+  if(S.map===MP.FRIGO5&&DEN&&DEN.x===x&&DEN.y===y)return{id:'den',talk(){if(S.flags.c5tp===1)return denPush();say(['Los dos ojos blancos te miran desde muy cerca.']);}};
   return null;
 }
 
@@ -5375,6 +5400,7 @@ function arrive(){try{puffStep();}catch(e){}
   copyCheck();
   p3dArrive();
   if(S.pro&&S.map===MP.CASA&&S.canal===9&&!S.flags.msg9){S.flags.casaSteps=(S.flags.casaSteps||0)+1;if(S.flags.casaSteps>=45){S.flags.msg9=1;sfx.beep();PENDING.push('Te vibra el celular. Un mensaje de un número que no tenés agendado:','"No soples las velas."','Respondés "¿quién sos?". El mensaje figura como enviado hace treinta años.');}}
+  if(S.map===MP.FRIGO5)curtPlayer();
   if(S.map===MP.DUCTO&&!ductShort())ductArrive();
   if(MAPS[S.map].step)try{MAPS[S.map].step();}catch(e){}
   if(S.flags.tgAbort&&(S.map===MP.PISO3||(isTeatMap()&&S.map!==MP.FRIGO5&&S.map!==MP.CUARTO12&&S.map!==MP.CANO5))&&!CHASE){S.flags.weirdCd=(S.flags.weirdCd||0)-1;if(S.flags.weirdCd<=0&&rnd()<1/25){weirdConfront(false);return;}}
@@ -7652,7 +7678,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.5.0';
+const GAME_VER='1.6.0';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
