@@ -202,6 +202,10 @@ const IT={
   flan:{n:'Flan casero',t:'food',hp:10,cor:8,d:'Con dulce de leche. +10 PV, +8 COR.'},
   sanguche:{n:'Sándwich de miga',t:'food',hp:20,cor:4,d:'Jamón y queso. +20 PV, +4 COR.'},
   alfajor:{n:'Alfajor triple',t:'food',hp:35,d:'Chocolate negro. +35 PV.'},
+  empanada:{n:'Empanadas de carne',t:'food',hp:28,cor:4,d:'Dos, cortadas a cuchillo. Todavía calientes. +28 PV, +4 COR.'},
+  milapan:{n:'Sánguche de milanesa',t:'food',hp:48,d:'Con lechuga y tomate. Pesa como un ladrillo. +48 PV.'},
+  choripan:{n:'Choripán',t:'food',hp:38,cor:4,d:'Con chimichurri. Este no se mueve. +38 PV, +4 COR.'},
+  pastafrola:{n:'Pastafrola',t:'food',hp:64,d:'Una porción grande, de membrillo. +64 PV.'},
   curita:{n:'Curita',t:'med',hp:8,d:'Con dibujitos. +8 PV.'},
   ibuprofeno:{n:'Ibuprofeno vencido',t:'med',full:1,d:'Venció en 1989. Cura toda la vida.'},
   vitamina:{n:'Vitamina C',t:'med',maxhp:5,d:'Efervescente. +5 PV máximos para siempre.'},
@@ -256,9 +260,10 @@ toma12:{n:'Carrete "Toma 12"',t:'key',d:'Cinta de carrete abierto. Adentro está
   patito:{n:'Patito de goma',t:'key',d:'Amarillo. Hace "cuic". Lo tenías en la mano antes de despertar.'}
 };
 const SHOP_T=[[['sanguche',15],['jean',60],['palo',45],['gomera',40],['destornillador',65],['tijera',50],['walkman',55],['alfajor',25],['vitamina',84]],
-  [['sanguche',15],['cuero',110],['llave',95],['honda',85],['punzon',92],['trincheta',90],['walkman',55],['alfajor',25],['vitamina',84]],
+  /* la comida también se renueva en cada piso: cura más y sale un 15% más que la del piso anterior */
+  [['empanada',17],['cuero',110],['llave',95],['honda',85],['punzon',92],['trincheta',90],['walkman',55],['milapan',29],['vitamina',84]],
   /* quinto piso: lo nuevo sube un 30% menos que el salto anterior */
-  [['sanguche',15],['gamulan',145],['barreta',130],['gomeraA',116],['picahielo',111],['serrucho',118],['walkman',55],['alfajor',25],['vitamina',84]]];
+  [['choripan',20],['gamulan',145],['barreta',130],['gomeraA',116],['picahielo',111],['serrucho',118],['walkman',55],['pastafrola',33],['vitamina',84]]];
 // Nico (o Ginés) renueva armas y abrigos a medida que llegás a pisos nuevos: el 4, el 3 y el 5
 // venta: Nico te compra armas, abrigos y accesorios al 90% de su precio original
 const ITVAL={teclaS:90,teclaD:90,cuchillo:40,pala:70,batT:180,rompeviento:25,chaqueta:100,manto:120,collar:90,diente:120,anillo:110,d20:60,crono:80,auris:60};
@@ -7398,7 +7403,7 @@ function painFace(f,cx,cy,t){
   ctx.fillStyle=f.id==='casco'?'#e6e8ef':'#3a0a0a';const o=Math.sin(t*20)*1;ctx.beginPath();ctx.ellipse(x,y+3,2.5+o*.3,2+Math.abs(o),0,0,7);ctx.fill();
   ctx.fillStyle='#7ab8ff';const ty=(t*30)%10;ctx.fillRect(x-e-2,y+ty*.6,1,2);ctx.fillRect(x+e+2,y+(ty*.6+3)%6,1,2);
 }
-function renderBattle(t){try{renderBattle0(t);}finally{if(B&&B.test){const L=B.foes.map(f=>f.def.name+' '+Math.round(f.hp)+'/'+f.mhp+(f.rest?' ×'+f.rest:''));txt('PRUEBA · '+L.join(' · '),W-6,26,'#7cff9a',9,'right');txt('Tu daño máx: '+Math.round(atkVal()*dmgMult()*1.6)+' · Defensa '+defVal(),W-6,36,'#7cff9a',9,'right');}}}
+function renderBattle(t){try{renderBattle0(t);}finally{if(B&&B.test){const L=B.foes.map(f=>f.def.name+' '+Math.round(f.hp)+'/'+f.mhp+(f.rest?' ×'+f.rest:''));txt('PRUEBA · '+L.join(' · '),W-6,26,'#7cff9a',9,'right');txt('Tu daño máx: '+Math.round(atkVal()*dmgMult()*1.6)+' · Defensa '+defVal(),W-6,36,'#7cff9a',9,'right');if(B.pats&&B.pats.length)txt('Ataque: '+B.pats.join(' + ')+(B.state==='dodge'?'':' (el último)'),W-6,46,'#ffd27a',10,'right',true);}}}
 function renderBattle0(t){
   ctx.fillStyle='#050608';ctx.fillRect(0,0,W,H);
   ctx.fillStyle=B.boss?'#1a1a0d':B.tuto?'#1a120a':'#0e1220';
@@ -7599,7 +7604,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.3.0';
+const GAME_VER='1.3.2';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
