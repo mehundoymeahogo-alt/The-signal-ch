@@ -6544,6 +6544,7 @@ function startBattle(ids,opts){
       soul:{x:157,y:145},bul:[],accs:{},t:0,inv:0,screen:0,pops:[],lines:[],li:0,shown:0,next:null,flav:'',turn:0,attacks:0,fp:0,fpStop:0,ft:0,mira:null,fled:false,pats:[],dur:3,dt:0};
     for(const f of foes)f.mhp=f.hp;
     scene='battle';
+    if(TESTB)testBattleArm();
     B.c5bd=!!opts.c5bd;B.c5bt=!!opts.c5bt;B.tgKill=!!opts.tgKill;
     let intro=opts.intro?opts.intro.slice():B.tuto?['Gerónimo saca un dragón de cartón con ojos de botón. "¡Un dragón salvaje aparece!"','(PELEAR: apretá Z cuando la línea pase por el centro de la barra.)','(ACTUAR: hacé cosas. Algunas calman al enemigo.)','Gerónimo: "¿Ves esa chispita? Es tu voluntad. Lo que te hace seguir adelante y elegir qué hacer."','Gerónimo: "Mientras la cuides, seguís en juego. Si se apaga... bueno, no dejes que se apague."','(Cuando te atacan, mové tu chispa con las flechas y esquivá. Si mantenés X, la chispa va más lenta y precisa.)','(PERDONAR: si el enemigo está calmado, la pelea termina sin lastimar a nadie. Ahí también está HUIR.)']
       :opts.felix?['¡Félix (la relatora) arranca la transmisión!','(Pateá la pelota con tu chispa hasta el arco de la izquierda. Con tres goles se termina el partido.)']
@@ -6643,6 +6644,7 @@ function spareables(){return alive().filter(f=>f.id==='pedro'?false:atkLeft(f)>0
 function doMercy(k){
   if(B.shadow){if(k===1){B.fled=true;sfx.sel();return bSay(['Te das vuelta y corrés. La Sombra no se apura.','Sabe que la vas a tener atrás.'],()=>endBattle());}return afterPlayer(['La Sombra no entiende de perdón.'],false);}
   if(k===1){
+    if(B.test){B.fled=true;sfx.sel();return bSay(['Salís de la prueba.'],()=>endBattle());}
     if(B.boss||B.ivanFight||B.tgKill)return afterPlayer([B.ivanFight?'Rompiste la puerta. Ya no hay a dónde volver.':B.tgKill?'Tu cuerpo no se da vuelta. No lo decidís vos.':'No hay a dónde huir.'],false);
     if(B.tuto)return afterPlayer(['Gerónimo: "¡No se huye de mi campaña!"'],false);
     if(rnd()<.5){B.fled=true;sfx.sel();return bSay(['Salís corriendo por el pasillo.'],()=>endBattle());}
@@ -7105,6 +7107,7 @@ function updBattle(dt){
   }
 }
 function endBattle(){
+  if(B.test)return testBattleEnd();
   if(B.state==='ending')return;B.state='ending';
   const L=[];let xp=0,pesos=0;
   if(!B.tuto&&!B.fled){
@@ -7395,7 +7398,8 @@ function painFace(f,cx,cy,t){
   ctx.fillStyle=f.id==='casco'?'#e6e8ef':'#3a0a0a';const o=Math.sin(t*20)*1;ctx.beginPath();ctx.ellipse(x,y+3,2.5+o*.3,2+Math.abs(o),0,0,7);ctx.fill();
   ctx.fillStyle='#7ab8ff';const ty=(t*30)%10;ctx.fillRect(x-e-2,y+ty*.6,1,2);ctx.fillRect(x+e+2,y+(ty*.6+3)%6,1,2);
 }
-function renderBattle(t){
+function renderBattle(t){try{renderBattle0(t);}finally{if(B&&B.test){const L=B.foes.map(f=>f.def.name+' '+Math.round(f.hp)+'/'+f.mhp+(f.rest?' ×'+f.rest:''));txt('PRUEBA · '+L.join(' · '),W-6,26,'#7cff9a',9,'right');txt('Tu daño máx: '+Math.round(atkVal()*dmgMult()*1.6)+' · Defensa '+defVal(),W-6,36,'#7cff9a',9,'right');}}}
+function renderBattle0(t){
   ctx.fillStyle='#050608';ctx.fillRect(0,0,W,H);
   ctx.fillStyle=B.boss?'#1a1a0d':B.tuto?'#1a120a':'#0e1220';
   {const gc=ctx.fillStyle;ctx.globalAlpha=.45;const o2=(t*3)%32;for(let x=-32;x<W;x+=32)ctx.fillRect(x+o2,0,1,104);for(let y=8;y<104;y+=32)ctx.fillRect(0,y,W,1);ctx.globalAlpha=1;
@@ -7568,7 +7572,7 @@ function chaseUpdate(dt){
   if(CHASE.x===S.x&&CHASE.y===S.y){CHASE=null;AU.nz(.8,.4);return gameOver('cor');}
 }
 function drawShadowFig(x,y,t){ctx.fillStyle='rgba(0,0,0,.5)';ctx.beginPath();ctx.ellipse(x+8,y+15,7,2.5,0,0,7);ctx.fill();const w=Math.sin(t*6);ctx.fillStyle='#000';ctx.fillRect(x+4,y-8,8,22);ctx.fillRect(x+3+w,y-2,1,12);ctx.fillRect(x+12-w,y-2,1,12);ctx.beginPath();ctx.arc(x+8,y-9,5,0,7);ctx.fill();ctx.fillStyle='#fff';if(Math.sin(t*1.3)>-.9){ctx.fillRect(x+5,y-10,2,1);ctx.fillRect(x+9,y-10,2,1);}for(let k=0;k<4;k++){ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(x+rnd()*16,y-12+rnd()*26,1,1);}}
-function gameOver(kind){CHASE=null;B=null;DLG=null;UI=null;scene='over';GO={kind,sel:0,t:0};sfx.stat();}
+function gameOver(kind){if(B&&B.test&&scene==='battle'){S.hp=maxHP();B.pops.push({fi:0,txt:'TE LLENASTE LA VIDA',miss:1,t:0});return;}CHASE=null;B=null;DLG=null;UI=null;scene='over';GO={kind,sel:0,t:0};sfx.stat();}
 function rewind(){
   if(!SNAP){S.hp=maxHP();S.cor=S.maxCor;scene='map';return;}
   const keepMax=S.maxCor,deaths=(S.deaths||0)+1;
@@ -7595,11 +7599,42 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.2.5';
-const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}return c;})();
+const GAME_VER='1.3.0';
+const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
 const JUMPN=['PRÓLOGO','CAPÍTULO 1','CAPÍTULO 2','CAPÍTULO 3'];
+/* ---------- trucos: probador de peleas ----------
+   El enemigo recibe golpes como siempre, pero al llegar a cero se restaura al máximo. Vos tampoco morís: se te llena la vida.
+   No toca la partida guardada. */
+const TB_FOES=[['soldadito'],['casco'],['radio'],['pedro'],['ivan'],['pelota'],['naranja'],['raqueta'],['valla'],['felix'],['saxo'],['plato'],['trian'],['uke'],['piano'],['selene'],['chori'],['morci'],['costi'],['chinchu'],['chori','chori'],['brian'],['brian','den'],['ciro']];
+const tbName=f=>f.length>1?(f[0]===f[1]?'2 × '+FOES[f[0]].name:FOES[f[0]].name+' y '+FOES[f[1]].name):FOES[f[0]].name;
+const TB_W=()=>[null].concat(Object.keys(IT).filter(k=>IT[k].t==='weapon')),TB_A=()=>[null].concat(Object.keys(IT).filter(k=>IT[k].t==='armor')),TB_C=()=>[null].concat(Object.keys(IT).filter(k=>IT[k].t==='acc'));
+let TESTB=false;
+function tbCfg(){if(!CHEAT.bt)CHEAT.bt={foe:0,lv:8,w:0,a:0,c:0};return CHEAT.bt;}
+function testBattleStart(){const c=tbCfg(),ids=TB_FOES[c.foe],id=ids[0],P4=['soldadito','casco','radio','pedro','ivan'],P3=['pelota','naranja','raqueta','valla','felix'],FR=['chori','morci','costi','chinchu','brian','den','ciro'];
+  S=newState();S.pro=false;S.name='PRUEBA';S.flags.cap1=1;S.flags.cap2=1;S.flags.testB=1;S.chapter=P4.includes(id)?1:P3.includes(id)?2:3;S.lv=c.lv;S.xp=XPT[c.lv-1]||0;
+  S.eq.weapon=TB_W()[c.w]||null;S.eq.armor=TB_A()[c.a]||null;S.eq.acc=TB_C()[c.c]||null;S.items=['alfajor','alfajor','sanguche','curita','ibuprofeno'];S.party=[];
+  S.map=S.chapter===1?MP.PASILLO:S.chapter===2?MP.PISO3:FR.includes(id)?MP.FRIGO5:MP.SALA5;S.x=2;S.y=2;S.hp=maxHP();scene='map';OP.out=1;TESTB=true;
+  const o={leftKey:'tbK',intro:['(PRUEBA: '+tbName(ids)+'. Cuando su vida llega a cero, se restaura. Vos tampoco morís. Para salir: DESINTONIZAR → Huir.)']};
+  if(id==='pedro')o.boss=true;if(id==='felix'){o.boss=true;o.felix=true;}if(id==='ivan')o.ivan=true;if(id==='brian'&&ids.length===1)o.c5bt=true;if(ids[1]==='den')o.c5bd=true;if(id==='selene'||id==='ciro')o.tgKill=1;
+  startBattle(ids,o);}
+function testBattleArm(){B.test=1;TESTB=false;B.foes.forEach((f,i)=>{let v=f.hp;Object.defineProperty(f,'hp',{configurable:true,get(){return v;},set(n){if(n<=0){v=f.mhp;f.rest=(f.rest||0)+1;B&&B.pops.push({fi:i,txt:'¡VIDA LLENA!',miss:1,t:0});}else v=n;}});});}
+function tbUpd(){const u=TS.bt,c=tbCfg(),l=hit('left'),r=hit('right'),N=7;if(hit('up')){u.i=(u.i+N-1)%N;sfx.sel();}if(hit('down')){u.i=(u.i+1)%N;sfx.sel();}
+  const step=(k,n)=>{if(l){c[k]=(c[k]+n-1)%n;sfx.sel();saveCheatBT();}if(r){c[k]=(c[k]+1)%n;sfx.sel();saveCheatBT();}};
+  if(u.i===0)step('foe',TB_FOES.length);if(u.i===1&&(l||r)){c.lv=Math.max(1,Math.min(20,c.lv+(r?1:-1)));sfx.sel();saveCheatBT();}
+  if(u.i===2)step('w',TB_W().length);if(u.i===3)step('a',TB_A().length);if(u.i===4)step('c',TB_C().length);
+  if(u.i===5&&hit('a')){sfx.ok();TS.bt=null;TS.cheat=null;transition(.6,testBattleStart);return;}
+  if((u.i===6&&hit('a'))||hit('b')){TS.bt=null;sfx.ok();}}
+function saveCheatBT(){try{localStorage.setItem('piso13_trucos_bt',JSON.stringify(CHEAT.bt));}catch(e){}}
+function drawTB(){const u=TS.bt,c=tbCfg(),nm=k=>k?IT[k].n:'—',W0=TB_W()[c.w],A0=TB_A()[c.a],C0=TB_C()[c.c];
+  ctx.fillStyle='rgba(6,8,24,.95)';ctx.fillRect(16,96,288,140);ctx.strokeStyle='#e3a849';ctx.lineWidth=1;ctx.strokeRect(16.5,96.5,287,139);
+  txt('PROBAR UNA PELEA',W/2,110,'#e3a849',13,'center');
+  const rows=['ENEMIGO: ◀ '+tbName(TB_FOES[c.foe])+' ▶','NIVEL: ◀ '+c.lv+' ▶','ARMA: ◀ '+nm(W0)+(W0?' ('+IT[W0].dmg+')':'')+' ▶','ABRIGO: ◀ '+nm(A0)+(A0?' (+'+IT[A0].def+')':'')+' ▶','ACCESORIO: ◀ '+nm(C0)+' ▶','EMPEZAR','VOLVER'];
+  rows.forEach((o,i)=>txtFit((i===u.i?'▶ ':'  ')+o,28,124+i*13,i===u.i?'#e3a849':'#c9ccd8',12,'left',268));
+  txtFit(u.i<=4?'←→ cambia':u.i===5?'Z: a pelear (no toca tu partida)':'Z: volver',W/2,228,'#6b7096',10,'center',270);}
+function testBattleEnd(){B=null;DLG=null;UI=null;S=null;scene='title';TS={sel:0,cheat:{i:4},bt:{i:0}};try{musStop();}catch(e){}}
+
 const JROUTES=['SINTONÍA','ESTÁTICA','INTERFERENCIA','ANIQUILACIÓN'];
 function jumpMax(){return 3;}
 /* Nivel real según la ruta: la experiencia sale solo de matar (6 por vecino del 4, ~8,25 del 3, Pedro 50, Félix 60).
@@ -7688,7 +7723,8 @@ function update(dt){
       if(TS.c3pad){EN=EN||{t:0};c3PadUpd();if(c3Open()){TS.c3pad=false;EN=null;TS.confirm='jump';TS.csel=1;}else if(!EN.pad){TS.c3pad=false;EN=null;TS.cheat={i:2};}break;}
       if(TS.confirm){if(hit('up')||hit('down')){TS.csel=1-TS.csel;sfx.sel();}if(hit('b')){TS.confirm=false;break;}if(hit('a')){sfx.ok();const rc=TS.confirm==='cap',rj=TS.confirm==='jump';TS.confirm=false;if(TS.csel===0){if(rj){const n=CHEAT.jump||0;transition(.8,()=>cheatJump(n));}else if(rc)restartChapter();else transition(.8,newGame);}}break;}
       if(TS.cheat){const c=TS.cheat;
-        if(hit('up')){c.i=(c.i+4)%5;sfx.sel();}if(hit('down')){c.i=(c.i+1)%5;sfx.sel();}
+        if(TS.bt){tbUpd();break;}
+        if(hit('up')){c.i=(c.i+5)%6;sfx.sel();}if(hit('down')){c.i=(c.i+1)%6;sfx.sel();}
         const l=hit('left'),r=hit('right');
         if(c.i===0&&(l||r)){let v=CHEAT.canal||0;v+=r?1:-1;if(v>100)v=0;if(v<0)v=100;CHEAT.canal=v||null;saveCheat();sfx.sel();}
         if(c.i===0&&hit('a')){const q=[null,3,4,6,7,8,9,10,11,13,19,20,33,47,55,86,95],k=q.indexOf(CHEAT.canal);CHEAT.canal=q[(k+1)%q.length];saveCheat();sfx.ok();}
@@ -7696,7 +7732,8 @@ function update(dt){
         if(c.i===3&&pressed.a&&(CHEAT.jump||0)>=2){c.i=2;}
         if(c.i===2){const m=jumpMax();if(CHEAT.jump==null||CHEAT.jump>m)CHEAT.jump=0;if(l){CHEAT.jump=(CHEAT.jump+m)%(m+1);sfx.sel();}if(r){CHEAT.jump=(CHEAT.jump+1)%(m+1);sfx.sel();}if(hit('a')){sfx.ok();TS.cheat=null;if(CHEAT.jump===3&&!c3Open()){EN={t:0,pad:{d:[0,0,0,0,0,0,0,0],p:0,msg:''}};TS.c3pad=true;}else{TS.confirm='jump';TS.csel=1;}break;}}
         if(c.i===3&&(CHEAT.jump||0)>=2){const n=JROUTES.length;if(l){CHEAT.route=((CHEAT.route||0)+n-1)%n;saveCheat();sfx.sel();}if(r){CHEAT.route=((CHEAT.route||0)+1)%n;saveCheat();sfx.sel();}}
-        if((c.i===4&&hit('a'))||hit('b')){TS.cheat=null;sfx.ok();}
+        if(c.i===4&&hit('a')){TS.bt={i:0};sfx.ok();}
+        if((c.i===5&&hit('a'))||hit('b')){TS.cheat=null;sfx.ok();}
         break;}
       const opts=titleOpts();if(TS.sel>=opts.length)TS.sel=0;
       {const d=['up','down','left','right'].find(k=>pressed[k]);if(d){TS.code=((TS.code||[]).concat(d)).slice(-8);if(TS.code.join()==='up,up,down,down,left,right,left,right'&&!cheatsOn()){try{localStorage.setItem('piso13_trucos','1');}catch(e){}CHEAT.on=true;sfx.item();TS.code=[];}}}
@@ -7737,11 +7774,12 @@ function render(t){
       txt(chapInfo().title,W/2,116,'#9aa0c4',12,'center');
       const opts=titleOpts();
       if(TS.c3pad&&EN&&EN.pad){drawC3Pad();break;}
+      if(TS.cheat&&TS.bt){drawTB();break;}
       if(TS.cheat){const c=TS.cheat;ctx.fillStyle='rgba(6,8,24,.92)';ctx.fillRect(36,124,248,110);ctx.strokeStyle='#e3a849';ctx.lineWidth=1;ctx.strokeRect(36.5,124.5,247,109);
         txt('TRUCOS',W/2,138,'#e3a849',13,'center');txt('v'+GAME_VER,278,136,'#6b7096',9,'right');
-        const jm=jumpMax(),jv=CHEAT.jump==null||CHEAT.jump>jm?0:CHEAT.jump,rows=['CANAL: '+(CHEAT.canal?'◀ '+CHEAT.canal+' ▶':'◀ ALEATORIO ▶'),'SALTAR EL PRÓLOGO: '+(CHEAT.skip?'SÍ':'NO'),'IR AL: ◀ '+JUMPN[jv]+' ▶','RUTA: '+(jv>=2?'◀ '+JROUTES[CHEAT.route||0]+' ▶':'—'),'VOLVER'];
-        rows.forEach((o,i)=>txt((i===c.i?'▶ ':'  ')+o,52,152+i*14,i===c.i?'#e3a849':(i===3&&jv<2?'#5a5f7a':'#c9ccd8'),13));
-        txtFit(c.i===3?(jv>=2?'←→ cómo jugaste antes · Z: empezar':'Elegí capítulo 2 o 3 para elegir la ruta'):c.i===2?(jv===3&&!c3Open()?'Z: pide el código de acceso':'←→ elige · Z: empezar ahí (borra la partida)'):'←→ cambia · Z: canales con secreto',W/2,226,'#6b7096',10,'center',236);}
+        const jm=jumpMax(),jv=CHEAT.jump==null||CHEAT.jump>jm?0:CHEAT.jump,rows=['CANAL: '+(CHEAT.canal?'◀ '+CHEAT.canal+' ▶':'◀ ALEATORIO ▶'),'SALTAR EL PRÓLOGO: '+(CHEAT.skip?'SÍ':'NO'),'IR AL: ◀ '+JUMPN[jv]+' ▶','RUTA: '+(jv>=2?'◀ '+JROUTES[CHEAT.route||0]+' ▶':'—'),'PROBAR UNA PELEA','VOLVER'];
+        rows.forEach((o,i)=>txt((i===c.i?'▶ ':'  ')+o,52,150+i*13,i===c.i?'#e3a849':(i===3&&jv<2?'#5a5f7a':'#c9ccd8'),13));
+        txtFit(c.i===4?'Z: elegí enemigo, nivel y equipo':c.i===3?(jv>=2?'←→ cómo jugaste antes · Z: empezar':'Elegí capítulo 2 o 3 para elegir la ruta'):c.i===2?(jv===3&&!c3Open()?'Z: pide el código de acceso':'←→ elige · Z: empezar ahí (borra la partida)'):'←→ cambia · Z: canales con secreto',W/2,226,'#6b7096',10,'center',236);}
       else if(TS.confirm){const rc=TS.confirm==='cap',cs=rc&&chapStart();if(TS.confirm==='jump'){txt('¿Empezar en el '+JUMPN[CHEAT.jump||0].toLowerCase()+((CHEAT.jump||0)>=2?' ('+JROUTES[CHEAT.route||0]+')':'')+'?',W/2,140,'#e8505b',12,'center');txt('Se borra la partida guardada.',W/2,154,'#e8505b',12,'center');}else if(rc){txt('¿Volver al principio del capítulo '+(cs?cs.ch:'')+'?',W/2,140,'#e8505b',12,'center');txt('Se pierde lo que hiciste desde ahí.',W/2,154,'#e8505b',12,'center');}else txt('¿Empezar de cero? Se borra la partida guardada.',W/2,148,'#e8505b',12,'center');(TS.confirm==='jump'?['SÍ, IR AHÍ','NO']:rc?['SÍ, REINICIAR CAPÍTULO','NO']:['SÍ, EMPEZAR DE CERO','NO']).forEach((o,i)=>txt((i===TS.csel?'▶ ':'  ')+o,W/2-60,170+i*16,i===TS.csel?'#e3a849':'#c9ccd8',14));}
       else opts.forEach((o,i)=>{const on=i===TS.sel;if(on){ctx.fillStyle='rgba(227,168,73,'+(.07+.04*Math.sin(t*5))+')';ctx.fillRect(W/2-58,137+i*15,128,14);}txt((on?'▶ ':'  ')+o,W/2-46+(on?1.5+Math.sin(t*6)*1.5:0),148+i*15,on?'#e3a849':(o==='TRUCOS'?'#8a8fb0':'#c9ccd8'),15);});
       if(!TS.cheat){let sw=false;try{sw=localStorage.getItem('piso13_switch')==='1';}catch(e){}txt(sw?'Grabación encontrada. No debiste tocarlo.':'Grabación encontrada. Contenido perturbador.',W/2,206,'#6b7096',11,'center');}break;}
