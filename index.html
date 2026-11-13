@@ -206,6 +206,13 @@ const IT={
   milapan:{n:'Sánguche de milanesa',t:'food',hp:48,d:'Con lechuga y tomate. Pesa como un ladrillo. +48 PV.'},
   choripan:{n:'Choripán',t:'food',hp:38,cor:4,d:'Con chimichurri. Este no se mueve. +38 PV, +4 COR.'},
   pastafrola:{n:'Pastafrola',t:'food',hp:64,d:'Una porción grande, de membrillo. +64 PV.'},
+  /* lo de Ginés: mismo precio, cura hasta un 50% más. No preguntes de dónde lo saca */
+  sangucheG:{n:'Sánguche de Ginés',t:'food',hp:30,cor:4,d:'Triple. Ginés dice que es de miga. No es de miga. +30 PV, +4 COR.'},
+  alfajorG:{n:'Alfajor de contrabando',t:'food',hp:52,d:'Sin marca. Más grande de lo que debería. +52 PV.'},
+  empanadaG:{n:'Empanadas de Ginés',t:'food',hp:42,cor:4,d:'Media docena, fritas. Chorrean. +42 PV, +4 COR.'},
+  milapanG:{n:'Milanesa completa de Ginés',t:'food',hp:72,d:'Con huevo frito arriba. Ocupa toda la bolsa. +72 PV.'},
+  choripanG:{n:'Choripán de Ginés',t:'food',hp:57,cor:4,d:'Doble chorizo. No preguntes. +57 PV, +4 COR.'},
+  pastafrolaG:{n:'Pastafrola entera',t:'food',hp:96,d:'Entera. Ginés no corta porciones. +96 PV.'},
   curita:{n:'Curita',t:'med',hp:8,d:'Con dibujitos. +8 PV.'},
   ibuprofeno:{n:'Ibuprofeno vencido',t:'med',full:1,d:'Venció en 1989. Cura toda la vida.'},
   vitamina:{n:'Vitamina C',t:'med',maxhp:5,d:'Efervescente. +5 PV máximos para siempre.'},
@@ -3756,7 +3763,8 @@ function drawDlg0(){
 /* ================= menus / UI ================= */
 let UI=null;
 function openStore(cat){UI={kind:'store',cat,tab:0,i:0,msg:''};sfx.sel();}
-function openShop(){SHOP=SHOP_T[shopTier()];const who=S.flags.nicoDead?'Ginés':'Nicolás',go=()=>{UI={kind:'shop',i:0,msg:'',tab:0,conf:null};};
+const GINES_FOOD={sanguche:'sangucheG',alfajor:'alfajorG',empanada:'empanadaG',milapan:'milapanG',choripan:'choripanG',pastafrola:'pastafrolaG'};
+function openShop(){SHOP=SHOP_T[shopTier()];if(S.flags.nicoDead)SHOP=SHOP.map(([id,p])=>[GINES_FOOD[id]||id,p]);const who=S.flags.nicoDead?'Ginés':'Nicolás',go=()=>{UI={kind:'shop',i:0,msg:'',tab:0,conf:null};};
   const L=[];
   if(!S.flags.shopTut){S.flags.shopTut=1;L.push({who,t:'Antes de que compres algo, escuchá, que esto te puede salvar.'},
     {who,t:'Cada arma pega distinto. Si clavás el golpe justo en el centro de la barra, es un crítico, y a veces pasa algo más.'},
@@ -7604,7 +7612,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.3.2';
+const GAME_VER='1.3.3';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
