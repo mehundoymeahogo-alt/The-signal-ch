@@ -1690,7 +1690,7 @@ MAPS[MP.HABIT5]={title:'Teatro del Quinto · habitaciones',theme:'camarin',rows:
         return say(['Un amplificador. La luz roja está prendida aunque no está enchufado.']);
       case 'Ӟ':if(!has('plomos')&&!S.flags.c5plomos){S.flags.c5plomos=1;sfx.item();return say(['Un piano vertical viejo, con la tapa de abajo floja.','Adentro, en las teclas, hay plomitos para darles peso. Varios están sueltos.','Los juntás. Pesan como un puño.',gotLine('plomos')]);}
         return say(['El piano vertical de Ciro. Algunas teclas ya no bajan: les falta el plomo.']);
-      case 'Ӣ':if(c5Gen()&&S.flags.c5fightReady!==2&&!has('guitarra')&&!S.flags.c5guit){S.flags.c5guit=1;sfx.item();return say(['La guitarra criolla de Ciro, en su pie. Tiene las cuerdas nuevas.','La agarrás del mango. Pesa bien.',gotLine('guitarra')]);}
+      case 'Ӣ':if((c5Gen()||(S.flags.tgAbort&&!S.flags.c5frigo&&!S.flags.c5rescued))&&S.flags.c5fightReady!==2&&!has('guitarra')&&!S.flags.c5guit){S.flags.c5guit=1;sfx.item();return say(['La guitarra criolla de Ciro, en su pie. Tiene las cuerdas nuevas.','La agarrás del mango. Pesa bien.',gotLine('guitarra')]);}
         return say(['El pie de la guitarra de Ciro.'].concat(S.flags.c5guit?['Está vacío.']:['La guitarra criolla está ahí. Tiene stickers de los Beatles y uno de Estudiantes de La Plata.']));
       case 'D':return goMap(MP.PASILLO5,12,1,'down');
     }
@@ -2129,10 +2129,10 @@ function frigoDoor(){const F=S.flags;
   if(F.c5frigo)return goMap(MP.FRIGO5,16,18,'up');
   if(c5Hard()&&(S.left5==null?15:S.left5)>0){const n=S.left5==null?15:S.left5;return say(['Una puerta de cámara frigorífica, gruesa como un colchón.','Detrás tuyo, el teatro todavía suena.','Todavía '+(n===1?'queda uno':'quedan '+n)+'.']);}
   if(c5TG()){F.c5frigo=1;AU.nz(.5,.4);sfx.hit();return say(['Una puerta de cámara frigorífica, gruesa como un colchón.','Cerrás el puño. El anillo de oro quema.','La puerta se dobla hacia adentro con un ruido de lata.'],()=>goMap(MP.FRIGO5,16,18,'up'));}
-  if(c5Gen()&&has('guitarra')){F.c5frigo=1;S.items=S.items.filter(i=>i!=='guitarra');AU.nz(.5,.4);sfx.hit();return say(['Levantás la guitarra de Ciro con las dos manos.','La estrellás contra el pestillo. Una vez. Dos. A la tercera, la guitarra se parte y la puerta cede.','Las cuerdas siguen vibrando un rato largo.'],()=>goMap(MP.FRIGO5,16,18,'up'));}
+  if((c5Gen()||F.tgAbort)&&has('guitarra')){F.c5frigo=1;S.items=S.items.filter(i=>i!=='guitarra');AU.nz(.5,.4);sfx.hit();return say(['Levantás la guitarra de Ciro con las dos manos.','La estrellás contra el pestillo. Una vez. Dos. A la tercera, la guitarra se parte y la puerta cede.','Las cuerdas siguen vibrando un rato largo.'],()=>goMap(MP.FRIGO5,16,18,'up'));}
   if(F.grabMel&&has('camara')){F.c5frigo=1;sfx.item();return say(['Apuntás la cámara al parlantito de la puerta y apretás PLAY.','Sale la voz de Den, tarareando. Cinco notas.','La puerta suspira. Se abre una rendija de aire helado.'],()=>goMap(MP.FRIGO5,16,18,'up'));}
   F.c5frigoSeen=1;
-  return say(['Una puerta de cámara frigorífica, gruesa como un colchón.','No tiene cerradura. Tiene un parlantito y un micrófono, como un portero eléctrico.'].concat(c5Gen()?['Hay que romperla con algo pesado.']:!F.c5grabQ&&!S.flags.c5selDead?['Selene seguro sabe algo.']:[]));
+  return say(['Una puerta de cámara frigorífica, gruesa como un colchón.','No tiene cerradura. Tiene un parlantito y un micrófono, como un portero eléctrico.'].concat(c5Gen()?['Hay que romperla con algo pesado.']:F.tgAbort?['Hay que romperla con algo pesado. La guitarra de Ciro, en su habitación, pesa bien.']:!F.c5grabQ&&!S.flags.c5selDead?['Selene seguro sabe algo.']:[]));
 }
 /* ---------- cinemáticas: te atrapa Den, Den queda encerrada ---------- */
 let CINE=null;
@@ -7568,7 +7568,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.2.1';
+const GAME_VER='1.2.2';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
