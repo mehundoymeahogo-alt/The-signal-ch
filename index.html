@@ -1165,10 +1165,10 @@ function p3Data(){if(!S.p3||!S.p3.v||(S.canal===47&&!S.p3.loop)){S.p3=genPista()
 function p3Spot(d){const p=p3Data().doors[d];return[p[0],p[1]+1];}
 /* el piano en el rellano: entero si lo bajaron con el aparejo; hecho pedazos si lo tiraron (Interferencia o Aniquilación) */
 function escPiano(t){const F=S.flags;if(!F.c5stairs||S.chapter<3)return;const F2=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
-  if(F.c5pianoDown){const x=T+4,y=3*T+2;F2('rgba(0,0,0,.35)',x+2,y+20,46,6);ctx.fillStyle='#0c0a0c';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+30,y);ctx.quadraticCurveTo(x+48,y+2,x+46,y+14);ctx.quadraticCurveTo(x+40,y+22,x+26,y+22);ctx.lineTo(x,y+22);ctx.closePath();ctx.fill();
+  if(F.c5pianoDown){const x=T+2,y=5*T-8;F2('rgba(0,0,0,.35)',x+2,y+20,46,6);ctx.fillStyle='#0c0a0c';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+30,y);ctx.quadraticCurveTo(x+48,y+2,x+46,y+14);ctx.quadraticCurveTo(x+40,y+22,x+26,y+22);ctx.lineTo(x,y+22);ctx.closePath();ctx.fill();
     F2('#2a262a',x+2,y+2,26,2);F2('#e8e4d8',x+1,y+16,22,5);for(let k=0;k<11;k++)F2('#141014',x+2+k*2,y+16,1,3);ctx.strokeStyle='rgba(200,170,90,.5)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+6,y+5);ctx.lineTo(x+40,y+12);ctx.stroke();return;}
   /* hecho pedazos: la caja partida, la tapa suelta, las teclas desparramadas escalera abajo, las cuerdas enruladas */
-  const x=T,y=3*T;F2('rgba(0,0,0,.35)',x,y+18,60,10);
+  const x=T,y=5*T-12;F2('rgba(0,0,0,.35)',x,y+18,48,8);
   ctx.save();ctx.translate(x+14,y+12);ctx.rotate(-.35);ctx.fillStyle='#0c0a0c';ctx.beginPath();ctx.moveTo(-12,-8);ctx.lineTo(10,-10);ctx.lineTo(14,-2);ctx.lineTo(6,4);ctx.lineTo(9,9);ctx.lineTo(-10,8);ctx.closePath();ctx.fill();F2('#3a343a',-11,-7,18,1);ctx.fillStyle='#7a6a3a';ctx.fillRect(-6,-4,12,1);ctx.restore();
   ctx.save();ctx.translate(x+40,y+10);ctx.rotate(.5);ctx.fillStyle='#100c10';ctx.beginPath();ctx.moveTo(-10,-6);ctx.quadraticCurveTo(10,-10,14,0);ctx.quadraticCurveTo(8,10,-8,6);ctx.closePath();ctx.fill();F2('#2e2a2e',-8,-5,12,1);ctx.restore();
   ctx.save();ctx.translate(x+30,y+22);ctx.rotate(-.12);F2('#141014',-16,-2,28,4);F2('#2a262a',-16,-2,28,1);ctx.restore();
@@ -1195,6 +1195,7 @@ MAPS[MP.ESCALERA]={title:'Escalera · entre el 4 y el 3',theme:'escalera',rows:[
       case '»':{if(S.canal===47)S.flags.lap47=(S.flags.lap47||46)+1;const sp=p3Spot('D');return goMap(MP.PISO3,sp[0],sp[1],'down');}
       case 'D':return goMap(MP.PEDRO,6,1,'down');
       case 'ħ':return escWall();
+      case 'ϖ':return say([S.flags.c5pianoDown?'El piano de cola, entero, arrimado contra la esquina del rellano. La tapa abierta junta polvo.':'Lo que quedó del piano, amontonado en la esquina: la caja partida, la tapa suelta, teclas sueltas y cuerdas enruladas.']);
       case '#':if(S.map===MP.ESCALERA&&S.x<=3&&S.y===1&&S.dir==='up')return say(['Arriba tuyo, los escalones. Del otro lado se escucha una guitarra, muy lejos.']);break;
     }
   }};
@@ -3229,6 +3230,7 @@ function tileAt(x,y){
   const m=MAPS[S.map];
   if(y<0||y>=m.rows.length||x<0||x>=m.rows[0].length)return '#';
   const ch=m.rows[y][x];
+  if(S.map===MP.ESCALERA&&y===5&&x>=1&&x<=3&&S.flags.c5stairs&&S.chapter>=3)return 'ϖ'; /* el piano del rellano, en la esquina de abajo a la izquierda: no se traspasa */
   return ch==='+'&&S.flags['dr'+x+'_'+y]?'_':ch;
 }
 const walk=ch=>(ch==='ψ'&&!!S&&S.map===MP.GINES)||ch==='ѣ'||ch==='¨'||ch==='¡'||ch==='.'||ch==='r'||ch===','||ch===':'||ch==='g'||ch==='_'||ch==='-'||(ch===';'&&!!(S&&S.flags.a8))||(ch==='?'&&!!(S&&S.flags.gateA11));
@@ -4838,6 +4840,7 @@ function drawDoor1(ch,px,py,tx,ty,t){const F=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.f
   return false;}
 
 function drawTile(ch,px,py,tx,ty,th,t){
+  if(ch==='ϖ')ch='.'; /* bajo el piano del rellano hay piso común */
   if(S&&S.map===MP.CASA&&PROPCH.includes(ch)){{const h=hash(tx,ty);ctx.fillStyle='#24361f';ctx.fillRect(px,py,T,T);ctx.fillStyle='#2e4528';if(h%3===0)ctx.fillRect(px+h%13,py+(h>>>3)%13,1,2);if(h%5===0)ctx.fillRect(px+(h>>>2)%13,py+(h>>>5)%13,1,2);}if(propAnchor(ch,tx,ty))drawPropArt(ch,px,py,tx,ty,t||0);return;}
   if(ch==='~'){ctx.fillStyle='#0a1028';ctx.fillRect(px,py,T,T);const h=hash(tx,ty);if(h%3===0){ctx.fillStyle=h%7===0?'#fff':'#9aa6d0';ctx.fillRect(px+h%14,py+(h>>4)%14,1,1);}if(tx===14&&ty===0){ctx.fillStyle='#e8e6d8';ctx.beginPath();ctx.arc(px+8,py+9,6,0,7);ctx.fill();ctx.fillStyle='#0a1028';ctx.beginPath();ctx.arc(px+11,py+7,5,0,7);ctx.fill();}return;}
   if(ch==='h'){ctx.fillStyle='#0a1028';ctx.fillRect(px,py,T,T);ctx.fillStyle='#050806';const h=hash(tx,ty);ctx.fillRect(px,py+8-(h%5),T,8+(h%5));ctx.beginPath();ctx.arc(px+(h%12)+2,py+8-(h%5),4+(h%3),0,7);ctx.fill();return;}
@@ -7640,7 +7643,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.4.1';
+const GAME_VER='1.4.2';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
