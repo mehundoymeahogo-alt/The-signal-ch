@@ -2172,7 +2172,7 @@ function cineUpd(dt){const c=CINE;c.t+=dt;
     if(c.t>1.3&&!c.op){c.op=1;AU.nz(.5,.03);}if(c.t>2.05&&!c.mo){c.mo=1;AU.t(70,.9,'sawtooth',.05,40);}if(c.t>2.9&&!c.sc){c.sc=1;sfx.scream&&sfx.scream();}}
   if(c.k==='frigo'&&c.t>1.05&&!c.sc){c.sc=1;sfx.scream&&sfx.scream();}
   if(c.k==='resc'){if(c.t>.5&&!c.cr){c.cr=1;AU.t(60,.8,'sawtooth',.06,30);AU.nz(.4,.08);}if(c.t>1.6&&!c.sc){c.sc=1;sfx.scream&&sfx.scream();AU.nz(.6,.2);}}
-  if(c.k==='trap'){if(c.t>.55&&!c.sc){c.sc=1;AU.t(90,.4,'square',.12,50);AU.nz(.4,.25);}if(c.t>1.25&&c.sc===1){c.sc=2;AU.t(1200,.08,'square',.05);AU.t(60,.5,'sine',.15,40);}}
+  if(c.k==='trap'){c.sc=c.sc||0;if(c.t>.08&&c.sc===0){c.sc=1;AU.nz(.08,.06);for(let k=1;k<4;k++)AU.t(85,.07,'triangle',.07,55,k*.13);}if(c.t>.5&&c.sc===1){c.sc=2;AU.t(90,.4,'square',.12,50);AU.nz(.3,.25);}if(c.t>1.2&&c.sc===2){c.sc=3;AU.t(55,.5,'sine',.18,35);AU.nz(.35,.2);AU.t(700,.5,'triangle',.03,690);AU.t(900,.4,'triangle',.02,880,.05);}if(c.t>1.42&&c.sc===3){c.sc=4;AU.t(160,.3,'square',.1,70);AU.nz(.25,.3);AU.t(2200,.15,'sawtooth',.02,800);}if(c.t>1.68&&c.sc===4){c.sc=5;AU.t(1200,.08,'square',.05);AU.t(300,.1,'square',.05,0,.06);}}
   if(c.k==='fall'){if(c.t>.9&&!c.cr1){c.cr1=1;AU.t(150,.5,'sawtooth',.04,90);}if(c.t>1.35&&!c.cr2){c.cr2=1;AU.nz(.25,.3);AU.t(900,.06,'square',.05,300);AU.t(70,.4,'square',.08,40);}
     if(c.t>1.5&&!c.wd){c.wd=1;AU.nz(2.4,.06);AU.t(320,2.2,'sine',.02,60);}if(c.t>4.7&&!c.th){c.th=1;AU.t(50,.7,'sawtooth',.14,30);AU.nz(.35,.35);}}
   if(c.t>=c.dur){const f=c.then;CINE=null;if(f)f();}}
@@ -2263,19 +2263,46 @@ function drawCine(t){const c=CINE,e=c.t;if(c.k==='fall'){drawFallCine(e,t);retur
     photoGrain(.14);vignetteFx(.85);
     if(e>1.6){ctx.fillStyle='rgba(170,0,0,'+Math.min(.45,(e-1.6)*.8)+')';ctx.fillRect(0,0,W,H);glitchFx(6+(rnd()*6|0),44);}
     if(e>2.3){for(let k=0;k<1400;k++){ctx.fillStyle=rnd()<.5?'#000':'#cfe';ctx.fillRect(rnd()*W,rnd()*H,2,1);}if(e>2.7)txt('SEÑAL PERDIDA',W/2,H/2,'#e6e8ef',14,'center',true);}}
-  else if(c.k==='trap'){ctx.fillStyle='#0c0a08';ctx.fillRect(0,0,W,H);const g=ctx.createRadialGradient(160,40,4,160,60,190);g.addColorStop(0,'rgba(255,214,140,.32)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-    ctx.fillStyle='rgba(255,230,170,.8)';ctx.fillRect(159,0,1,30);ctx.beginPath();ctx.arc(160,32,3,0,7);ctx.fill();
-    // la jaula, iluminada por la lamparita
-    ctx.fillStyle='#3a3226';ctx.fillRect(80,60,160,120);ctx.fillStyle='#4a4030';ctx.fillRect(80,150,160,30);{const g2=ctx.createRadialGradient(160,70,4,160,110,120);g2.addColorStop(0,'rgba(255,220,150,.35)');g2.addColorStop(1,'rgba(0,0,0,.3)');ctx.fillStyle=g2;ctx.fillRect(80,60,160,120);}
-    ctx.strokeStyle='rgba(170,170,160,.7)';ctx.lineWidth=1;ctx.strokeRect(80.5,60.5,160,120);for(let k=8;k<160;k+=8){ctx.beginPath();ctx.moveTo(80.5+k,60);ctx.lineTo(80.5+k,180);ctx.stroke();}
-    // Den cae adentro
-    const fall=Math.min(1,e/.55),dx=80+fall*80,dy=40+fall*70+(fall<1?0:Math.sin(e*3)*1);ctx.save();ctx.translate(dx-24,dy);ctx.scale(3,3);drawDenFig(0,0,t*(fall<1?2:1),false,false,fall<1?{fall:true}:{moving:false,dir:'right',chase:e>1.6});ctx.restore();
-    // la puerta se cierra
-    const cl=Math.max(0,Math.min(1,(e-.55)/.6)),doorX=-150+cl*230;ctx.fillStyle='#3a3e44';ctx.fillRect(doorX,40,150,160);ctx.fillStyle='#4a4e56';ctx.fillRect(doorX,40,150,4);ctx.fillStyle='#2a2c30';for(let k=0;k<5;k++)ctx.fillRect(doorX+10,60+k*28,130,2);
-    if(e>1.25){ctx.fillStyle='#8a8070';ctx.fillRect(doorX+130,110,30,6);}
-    if(cl>=1){const sh=e<1.5?(rnd()-.5)*6:0;ctx.translate(sh,0);/* por la rendija: los ojos y una mano */ctx.fillStyle='#000';ctx.fillRect(228,96,14,36);ctx.fillStyle='#f4f4ec';ctx.fillRect(232,104,2,2);ctx.fillRect(237,104,2,2);
-      if(e>1.9){ctx.fillStyle='#07070a';ctx.fillRect(238,124,12,4);ctx.fillRect(246,122,3,8);}}
-    {const u=(e-1.15)/.8;if(u>0&&u<1)for(let j=0;j<22;j++){const h=hash(j,271),px=230+((h%40)-8)*u*(j%3?1:-.5),py=40+((h>>>6)%160)-u*10;ctx.fillStyle='rgba(190,180,160,'+((1-u)*.5)+')';ctx.fillRect(px,py,(h%3)?1:2,1);}}}
+  else if(c.k==='trap'){/* de costado: Den asomada a la jaula, vos que llegás corriendo, el empujón, la caída, la reja que baja */
+    const FL=190,cx0=176,cw=124,ct=72,ease=u=>u<0?0:u>1?1:1-(1-u)*(1-u);
+    const hitT=.5,landT=1.2,doorT=1.42,barT=1.68;
+    const shk=(e>hitT&&e<hitT+.18?(rnd()-.5)*7:0)+(e>landT&&e<landT+.2?(rnd()-.5)*5:0)+(e>doorT&&e<doorT+.25?(rnd()-.5)*8:0);
+    ctx.save();ctx.translate(shk,shk*.4);
+    ctx.fillStyle='#0c0a08';ctx.fillRect(-10,-10,W+20,H+20);
+    {const sw=Math.sin(e*2.2)*(e>hitT?6:2),lx=cx0+cw/2+sw;const g=ctx.createRadialGradient(lx,46,4,lx,110,200);g.addColorStop(0,'rgba(255,214,140,.34)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(255,230,170,.6)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx0+cw/2,0);ctx.lineTo(lx,40);ctx.stroke();ctx.fillStyle='rgba(255,230,170,.9)';ctx.beginPath();ctx.arc(lx,42,3,0,7);ctx.fill();}
+    /* piso escarchado */
+    ctx.fillStyle='#1a1c20';ctx.fillRect(0,FL,W,H-FL);ctx.fillStyle='rgba(200,215,225,.08)';for(let k=0;k<W;k+=6)ctx.fillRect(k,FL+((k*7)%5),3,1);
+    /* la jaula: el fondo, los barrotes (vibran cuando Den cae) */
+    ctx.fillStyle='#2a241c';ctx.fillRect(cx0,ct,cw,FL-ct);
+    const vib=e>landT&&e<landT+.6?Math.sin(e*70)*(1-(e-landT)/.6)*1.5:0;
+    ctx.strokeStyle='rgba(170,170,160,.75)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(cx0,ct+.5);ctx.lineTo(cx0+cw,ct+.5);ctx.stroke();
+    for(let k=10;k<=cw;k+=10){ctx.beginPath();ctx.moveTo(cx0+k+.5,ct);ctx.lineTo(cx0+k+.5+vib*((k/10)%2?1:-1),FL);ctx.stroke();}
+    /* Den */
+    const fl=Math.max(0,Math.min(1,(e-hitT)/(landT-hitT)));let dx,dy,rot;
+    if(e<hitT){dx=cx0-30;dy=FL-42;rot=Math.min(.18,e*.6);}
+    else if(e<landT){const u=ease(fl);dx=cx0-30+u*86;dy=FL-42-Math.sin(fl*Math.PI)*34+fl*fl*30;rot=.18+fl*1.45;}
+    else{const k=e-landT,up=Math.max(0,Math.min(1,(k-.55)/.5));dx=cx0+56+Math.min(6,k*20);dy=FL-12-Math.abs(Math.sin(Math.min(k,.3)*10))*3*(1-k/.3>0?1-k/.3:0)-up*30;rot=1.63-up*1.63;}
+    {const SC=3;ctx.save();ctx.translate(dx+8*SC,dy);ctx.rotate(rot);ctx.translate(-8*SC,0);ctx.scale(SC,SC);
+      const st=e<hitT?{moving:false,dir:'right'}:e<landT+.6?{fall:true}:{moving:false,dir:'left',chase:true};drawDenFig(0,0,e<hitT?t:t*2,false,false,st);ctx.restore();}
+    /* el polvo y la escarcha cuando cae */
+    {const u=(e-landT)/.6;if(u>0&&u<1)for(let j=0;j<26;j++){const h=hash(j,377),a=(h%314)/100,sp=14+((h>>>7)%34),px=dx+20+Math.cos(a)*sp*u*(j%2?1:-1),py=FL-2-Math.sin(a)*sp*u*.6;ctx.fillStyle='rgba(200,205,210,'+((1-u)*.55)+')';ctx.fillRect(px,py,(h%3)?1:2,1);}}
+    /* vos: llegás corriendo, empujás y te quedás con los brazos estirados */
+    {const run=Math.min(1,e/hitT),px=-50+ease(run)*(cx0-30-46+52),lean=e<hitT?0:Math.max(0,1-(e-hitT)/.5);
+      ctx.save();ctx.translate(px+lean*8,FL-72);ctx.scale(3,3);drawPerson(0,0,{...playerLook(),dir:'right'},e<hitT?t*1.6:0,e<hitT);ctx.restore();
+      if(e>hitT-.05&&e<hitT+.55){ctx.fillStyle=playerLook().skin||'#d8b090';ctx.fillRect(px+40+lean*8,FL-46,10+lean*6,4);ctx.fillRect(px+40+lean*8,FL-38,10+lean*6,4);}
+      if(e<hitT){ctx.strokeStyle='rgba(220,220,230,.25)';for(let k=0;k<4;k++){ctx.beginPath();ctx.moveTo(px-6-k*7,FL-60+k*12);ctx.lineTo(px-22-k*7,FL-60+k*12);ctx.stroke();}}}
+    /* el golpe: un fogonazo y líneas de impacto */
+    if(e>hitT&&e<hitT+.14){ctx.fillStyle='rgba(255,250,235,'+(.5*(1-(e-hitT)/.14))+')';ctx.fillRect(0,0,W,H);ctx.strokeStyle='rgba(255,240,210,.8)';for(let k=0;k<7;k++){const a=k/7*Math.PI*2;ctx.beginPath();ctx.moveTo(cx0-14+Math.cos(a)*10,FL-56+Math.sin(a)*10);ctx.lineTo(cx0-14+Math.cos(a)*24,FL-56+Math.sin(a)*24);ctx.stroke();}}
+    /* la reja de la puerta escondida baja de golpe */
+    if(e>doorT-.12){const u=Math.max(0,Math.min(1,(e-doorT+.12)/.12)),hh=FL-ct,gy=ct-hh+u*hh;ctx.save();ctx.beginPath();ctx.rect(cx0-12,ct,24,hh);ctx.clip();ctx.strokeStyle='rgba(190,190,180,.9)';ctx.lineWidth=1;for(let k=-8;k<=8;k+=4){ctx.beginPath();ctx.moveTo(cx0+k+.5,gy);ctx.lineTo(cx0+k+.5,gy+hh);ctx.stroke();}for(let k=0;k<hh;k+=14){ctx.fillStyle='#4a4c52';ctx.fillRect(cx0-9,gy+k,19,2);}ctx.restore();
+      if(u>0&&u<1){ctx.strokeStyle='rgba(220,220,230,.3)';for(let k=0;k<3;k++){ctx.beginPath();ctx.moveTo(cx0-8+k*5,gy-6);ctx.lineTo(cx0-8+k*5,gy-26);ctx.stroke();}}}
+    /* la tranca */
+    if(e>barT){const u=Math.min(1,(e-barT)/.1);ctx.fillStyle='#8a7050';ctx.fillRect(cx0-22,FL-70-(1-u)*14,30,5);ctx.fillStyle='#5a4830';ctx.fillRect(cx0-22,FL-66-(1-u)*14,30,1);}
+    /* después: se para, agarra los barrotes, una mano sale entre las rejas */
+    if(e>landT+1.1){const u=Math.min(1,(e-landT-1.1)/.6);ctx.fillStyle='#07070a';ctx.fillRect(cx0+2-u*14,FL-58,u*14,3);ctx.fillRect(cx0+2-u*14-2,FL-60,3,7);
+}
+    ctx.restore();}
   if(c.k==='rack'&&e>2.9)tearFx(2+Math.floor((e-2.9)*7),22,t);
   if(c.k==='frigo'&&e>.8)tearFx(3+Math.floor((e-.8)*4),24,t);
   ctx.restore();}
@@ -2330,7 +2357,7 @@ function barsNoise(){const d=DEN;AU.t(300,.5,'triangle',.06,280);AU.t(612,.4,'tr
   return say(['Golpeás los barrotes de la jaula con la mano abierta. El metal suena por toda la cámara de frío.','Los dos ojos blancos se dan vuelta hacia el ruido.','(Alejate o escondete. Que no te vea venir.)']);}
 function denPush(){const d=DEN,F=S.flags;if(!d||d.mode!=='look')return say(['Todavía no. Hacé ruido en la jaula y esperá a que vaya a mirar.']);
   DEN=null;F.c5tp=2;F.c5trap=1;F.c5trapOn=0;AU.nz(.3,.2);sfx.hit();
-  cineStart('trap',2.6,()=>{const sel=!F.c5selDead;
+  cineStart('trap',3.6,()=>{const sel=!F.c5selDead;
     say(['Empujás con todo el cuerpo. Den no pesa nada. Cae para adentro, entre los alambres de la jaula.',sel?'Selene cierra la puerta escondida de un golpe y le pasa la tranca.':'Ciro cierra la puerta escondida de un golpe y le pasa la tranca.',{who:'Den',t:'(con la voz de Ciro) ...Me engañaron.'},
       'Una mano blanca, demasiado lisa, asoma por la rendija. Los dedos tantean el aire.','Atrás tuyo se prende un tubo fluorescente.',{who:'Brian',t:'...¿DEN?'},
       'Brian está en la puerta de la cámara de frío. Volvió antes. Ve la tranca, la mano, y a vos al lado.',{who:'Brian',t:'¿QUÉ LE HICIERON? ¡¿QUÉ LE HICIERON A DEN?!'}].concat(S.partyBrian&&S.partyBrian.length?(()=>{const NM={ivan:'Iván',silvestre:'Silvestre',geronimo:'Gerónimo',arana:'la araña'},w=S.partyBrian.map(p=>NM[p]||p);S.party=S.partyBrian.filter(p=>!S.party.includes(p)).concat(S.party);delete S.partyBrian;F.c5selFol=0;placeFollower();return['Atrás de Brian entra'+(w.length>1?'n ':' ')+(w.length>1?w.slice(0,-1).join(', ')+' y '+w[w.length-1]:w[0])+', agitado'+(w.length>1?'s':'')+'. No lo pudieron frenar.'];})():(F.c5selFol=0,placeFollower(),[])),()=>startBattle(['brian'],{c5bt:true,leftKey:'c5btK',intro:['¡Brian se te tira encima!'],onEnd:c5TrapEnd}));});}
@@ -2353,7 +2380,7 @@ function frigoChest(x,y){if(frigoLit())return say(['Un freezer horizontal, de lo
 const DEN_NOTES=[
   ['Una hoja arrancada de un cuaderno, con letra muy prolija. Demasiado prolija.','"Ensayé la sonrisa frente al espejo. Trescientas veces. Brian dice que sonrío raro. Mañana pruebo con más dientes."'],
   ['Un recibo amarillento, doblado en cuatro, pegado con cinta a un cajón.','"CASA DE VIDRIERAS · 1 maniquí femenino articulado, peluca negra, sonrisa pintada. PAGADO."','La fecha está borroneada. Se lee un 74.'],
-  ['Una lista escrita en la pared con marcador, a la altura de los ojos.','"VOCES QUE YA TENGO: la mamá de Ciro. Cata. Brian (fácil). Selene (falta la risa)."','"VOCES QUE ME FALTAN:" y abajo, tu nombre. Escrito con tu letra.']];
+  ['Una lista escrita en la pared con marcador, a la altura de los ojos.','"VOCES QUE YA TENGO: la mamá de Ciro. Cata. Brian (fácil). Selene (falta la risa)."','"VOCES QUE ME FALTAN:" y abajo, tu nombre. Escrito con tu letra.','Al costado, con otra birome, apretando fuerte:','"CIRO: encerrado y cerca mío. De cerca se contagia más rápido. Cuando ya no se acuerde de cómo se llama, lo copio entero."']];
 function denNote(x,y){const F=S.flags,k=(()=>{let n=0;const R=MAPS[MP.FRIGO5].rows;for(let j=0;j<R.length;j++)for(let i=0;i<R[j].length;i++)if(R[j][i]==='ѱ'){if(i===x&&j===y)return n;n++;}return 0;})();F.denN=(F.denN||0)|(1<<k);let n=0;for(let i=0;i<3;i++)if(F.denN&(1<<i))n++;sfx.item();
   return say(DEN_NOTES[k].concat(['(Notas de Den: '+n+' de 3.)'],n===3&&!F.denNall?(F.denNall=1,['(Con las tres notas entendés algo de Den que Brian no sabe. Capaz le sirva a alguien.)']):[]));}
 function denOutTick(dt){const F=S.flags;if(!F.denAway||scene!=='map'||DLG||PAUSE||C5H)return;F.denOut-=dt;
@@ -2434,7 +2461,7 @@ function frigoEnter(){const F=S.flags;DEN=null;if(S.leftCarne==null)S.leftCarne=
 function losClear(x0,y0,x1,y1){const n=Math.max(Math.abs(x1-x0),Math.abs(y1-y0));for(let i=1;i<n;i++){const x=Math.round(x0+(x1-x0)*i/n),y=Math.round(y0+(y1-y0)*i/n),c=tileAt(x,y);if(!walk(c)||c==='ѣ')return false;}return true;}
 function denTick(dt){if(!DEN||S.map!==MP.FRIGO5||scene!=='map'||DLG||C5H||frigoLit())return;
   const d=DEN;d.p=Math.min(1,d.p+dt/.48);
-  if(d.mode==='lure'||d.mode==='look'){d.p=Math.min(1,d.p+dt/.6);if(d.mode==='lure'&&d.p>=1){d.cd-=dt;if(d.cd<=0){d.cd=.05;if(!d.path)d.path=denBFS(d.x,d.y,10,4)||[];const nx=d.path[0]&&d.path[0][0]===S.x&&d.path[0][1]===S.y?null:d.path.shift();if(!nx&&d.path.length){d.cd=.2;}else if(!nx){d.mode='look';d.dir='up';d.lt=7.5;AU.t(110,.5,'sawtooth',.03,80);}else{d.fx=d.x;d.fy=d.y;d.p=0;d.dir=nx[0]>d.x?'right':nx[0]<d.x?'left':nx[1]>d.y?'down':'up';d.x=nx[0];d.y=nx[1];}}}
+  if(d.mode==='lure'||d.mode==='look'){d.p=Math.min(1,d.p+dt/.6);if(d.mode==='lure'&&d.p>=1){d.cd-=dt;if(d.cd<=0){d.cd=.05;if(!d.path)d.path=denBFS(d.x,d.y,10,4)||[];const nx=d.path.shift();if(!nx){d.mode='look';d.dir='up';d.lt=7.5;AU.t(110,.5,'sawtooth',.03,80);}else{d.fx=d.x;d.fy=d.y;d.p=0;d.dir=nx[0]>d.x?'right':nx[0]<d.x?'left':nx[1]>d.y?'down':'up';d.x=nx[0];d.y=nx[1];}}}
     if(d.mode==='look'){d.dir='up';d.lt-=dt;if(d.lt<=0){d.mode=null;d.path=null;d.st='patrol';d.dir='down';AU.t(220,.25,'sine',.04);PENDING.push('Den deja de mirar la jaula y vuelve a patrullar.','(Golpeá los barrotes otra vez.)');}}}
   else denBrain(d,dt);
   curtDen();
@@ -3270,8 +3297,8 @@ const OUTCH='-!*0678)(][<>?Yl;9{}p/';
 function npcAt(x,y){
   const n=MAPS[S.map].npcs.find(n=>n.vis()&&n.x===x&&n.y===y);if(n)return n;
   if(S.map===MP.PEDRO&&!S.flags.pedro&&x===6&&y===1)return{id:'pedroBoss',talk(){}};
-  /* Den ocupa su casilla: no se la atraviesa, y mirándola de frente se la empuja */
-  if(S.map===MP.FRIGO5&&DEN&&DEN.x===x&&DEN.y===y)return{id:'den',talk(){if(S.flags.c5tp===1)return denPush();say(['Los dos ojos blancos te miran desde muy cerca.']);}};
+  /* mientras mira adentro de la jaula, Den ocupa su casilla: no se la atraviesa, y pegado a ella, mirándola, se la empuja */
+  if(S.map===MP.FRIGO5&&DEN&&DEN.mode==='look'&&DEN.x===x&&DEN.y===y)return{id:'den',talk(){if(S.flags.c5tp===1)return denPush();say(['Los dos ojos blancos te miran desde muy cerca.']);}};
   return null;
 }
 
@@ -5379,7 +5406,6 @@ function interact(){
   const[dx,dy]=DIRS[S.dir],tx=S.x+dx,ty=S.y+dy;
   const n=npcAt(tx,ty);
   if(n){if(n.dir)n.dir=OPP[S.dir];WALLN=0;n.talk();return;}
-  if(S.map===MP.FRIGO5&&S.flags.c5tp===1&&DEN&&DEN.mode==='look'&&Math.abs(DEN.x-S.x)+Math.abs(DEN.y-S.y)<=3&&losClear(S.x,S.y,DEN.x,DEN.y))return denPush();
   const ch=tileAt(tx,ty);if(ch!=='x')WALLN=0;
   if(ch==='+')return openDoor(tx,ty);
   if(XTXT[ch])return say([c3Next('x_'+ch.charCodeAt(0),XTXT[ch])]);
@@ -7678,7 +7704,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.6.0';
+const GAME_VER='1.6.1';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
