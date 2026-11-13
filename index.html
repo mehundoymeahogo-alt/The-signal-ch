@@ -7008,8 +7008,10 @@ Object.assign(PAT,{
       const ry=()=>b.y+10+ri(0,4)*((b.h-20)/4),rx=()=>b.x+10+ri(0,5)*((b.w-20)/5);
       if(m===1)H(ry());else if(m===2)V(rx());else if(m===3){const y=ry();H(y);H(y<b.y+b.h/2?y+(b.h-20)/2:y-(b.h-20)/2);}else{H(ry());V(rx());}AU.t(392+ri(0,4)*49,.12,'triangle',.02);}
     for(const u of B.bul)if(u.spawnN&&!(u.warn>0)){u.spawnN=0;const hz=u.dr==='string';for(let k=0;k<3;k++){const px=hz?b.x+10+rnd()*(b.w-20):u.x,py=hz?u.y:b.y+10+rnd()*(b.h-20),s=(rnd()<.5?-1:1)*(34+rnd()*14)*df;B.bul.push({x:px-2,y:py-3,vx:hz?0:s,vy:hz?s:0,w:5,h:6,k:'hp',dr:'note'});}}},
-  rasgueo(dt,df,b){df*=1.35;if(acc('rasgueo',dt,1.3/df)){B.rg=(B.rg||0)+1;const R=B.rg%2===0,sx=R?b.x+b.w-10-rnd()*(b.w*.5):b.x+10+rnd()*(b.w*.5),gap=ri(1,5);
-    for(let i=0;i<8;i++){if(i===gap)continue;B.bul.push({x:sx+(R?i*9:-i*9),y:b.y-6-i*9,vx:(R?-40:40)*df,vy:46*df,w:5,h:6,k:'hp',dr:'note'});}}},
+  rasgueo(dt,df,b){df*=.65;/* un rasguido: una hilera de notas de punta a punta de la caja, inclinada, que baja barriendo todo; hay un solo hueco para pasar */
+    if(acc('rasgueo',dt,1.5/df)){B.rg=(B.rg||0)+1;const R=B.rg%2===0,n=Math.max(8,Math.round((b.w-6)/9)),gap=ri(1,n-3),tilt=26+rnd()*14;
+      for(let i=0;i<n;i++){if(i===gap||i===gap+1)continue;const x=b.x+3+i*(b.w-6)/(n-1),k=R?(n-1-i):i;B.bul.push({x:x-2,y:b.y-6-k*tilt/(n-1),vx:(R?-6:6)*df,vy:46*df,w:5,h:6,k:'hp',dr:'note'});}
+      AU.t(R?330:262,.18,'triangle',.02);AU.t(R?392:330,.18,'triangle',.016,0,.03);AU.t(R?494:392,.18,'triangle',.014,0,.06);}},
   teclas(dt,df,b){B.gl=B.gl||{i:0,d:1};
     /* el piano abre y cierra el teclado: la caja se estira a lo ancho y se vuelve a cerrar */
     if(!B.dbox)B.dbox={x:BD.x,y:BD.y,w:BD.w,h:BD.h};const q=.5-.5*Math.cos(Math.max(0,B.dt-WARN_T)*1.15),w=Math.round(100+120*q),h=BD.h;
@@ -7593,7 +7595,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.2.4';
+const GAME_VER='1.2.5';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
