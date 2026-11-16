@@ -1534,7 +1534,7 @@ const c5Hard=()=>c5TG()||c5Gen();                                   // rutas don
 function c3Next(key,arr){const n=S.flags[key]=(S.flags[key]||0)+1;return arr[(n-1)%arr.length];}
 const has=id=>S.items.includes(id);
 function c5Code(){if(!S.code5)S.code5=String(ri(0,99999)).padStart(5,'0');return S.code5;}
-function c5Seat(){if(!S.c5seat){const fila=[10,12,14][ri(0,2)];S.c5seat=[ri(2,9),fila];}return S.c5seat;}
+function c5Seat(){if(!S.c5seat){const fila=[10,12,14][ri(0,2)];S.c5seat=[rnd()<.75?ri(2,5):ri(6,9),fila];}return S.c5seat;}/* butaca = 10-x: 3 de cada 4 veces quedan en la 5 o más */
 const c5Fila=y=>y===10?11:y===12?12:14;
 const C5F=S0=>S0.flags;
 /* ---------- el hall ---------- */
@@ -1782,6 +1782,25 @@ function seleneTalk(){
   if(!F.c5selOpen){if(has('lentes')){S.items=S.items.filter(i=>i!=='lentes');F.c5selOpen=1;sfx.item();
       return say(['Le das los lentes.',{who:'Selene',t:'¡Ahora sí! Ay, qué feo estás. Mentira.'},'Selene teclea un código larguísimo en la puerta. La puerta hace clic.',{who:'Selene',t:'Pasá cuando quieras. Es mi set. Mi zona. Lo que necesites, agarralo.'}]);}
     return say([{who:'Selene',t:c3Next('selL',['Fila '+c5Fila(c5Seat()[1])+', del lado izquierdo. Entre el asiento y el respaldo, seguro.','Los lentes tienen una patita arreglada con cinta. Si ves algo con cinta, son esos.','Mientras tanto, si querés dormir, la cama de los gatos es toda tuya. A ellos no les molesta.'])}]);}
+  if(!F.c5selAsk){F.c5selAsk=1;}else return say([{t:'Selene te mira por arriba de los lentes.',choices:[{l:'Charlar',f(){seleneChat();}},{l:'¿Qué tengo que hacer?',f(){seleneTasks();}},{l:'Nada',f(){}}]}]);
+  return seleneChat();}
+/* Selene repasa lo que tenés pendiente: sus planos (con dónde está cada uno) y lo que sabe del piso */
+const SHOTW=['El escenario vacío: el borde del escenario, en la sala. Desde ahí se ve toda la platea.','El gramófono de la sala, el de la bocina dorada. Bien de cerca.','La puerta de la cámara de frío, en el pasillo. Si la encuadrás desde adentro también sirve.','Alguien durmiendo: acostate en la cama de los gatos del pasillo con la cámara. Ahí no hace falta prenderla.'];
+function seleneTasks(){const F=S.flags,L=[];
+  if(has('camara')&&!F.selQ)return c5SelStart();
+  if(F.selQ===1){const n=c5ShotN();
+    if(n>=4)return c5SelMore(false);
+    L.push({who:'Selene',t:'Mis planos. Te falta'+(4-n>1?'n '+(4-n):' uno')+':'});
+    SHOTN.forEach((_,i)=>{if(!((F.selP||0)&(1<<i)))L.push({who:'Selene',t:SHOTW[i]});});
+    if(camBat()<=0)L.push({who:'Selene',t:has('pila')?'La cámara está sin batería, pero tenés una pila. Ponésela y listo.':(F.c5ciro||0)<2?'Ah, y la cámara no tiene pilas. Ciro, el de la guitarra de los caños, capaz que tiene.':'Ah, y la cámara está sin batería. Hay pilas tiradas por el piso: buscá.'});
+    else L.push({who:'Selene',t:'Con la cámara prendida (R) te marca dónde. Te parás enfrente y apretás Z. Si está apagada, te pregunta si la prendés.'});}
+  else if(F.selQ===2)L.push({who:'Selene',t:'Los planos ya están. La película está. Lo que falta es la sala llena.'});
+  if(F.c5gato===1)L.push({who:'Selene',t:'Pionono tiene la llave de las habitaciones. Anda por la sala.'});
+  if(F.c5grabQ&&!F.grabMel&&!F.c5frigo)L.push({who:'Selene',t:'La puerta de la cámara de frío: escondete atrás del perchero y grabá la melodía que tararea Den cuando pasa.'});
+  if((F.c5ciro||0)>=2&&!F.c5rescued&&!F.c5ciroDead)L.push({who:'Selene',t:has('estano')?'Ya tenés el estaño. Ciro te espera en los caños.':'Para sacar a Ciro, Silvestre necesita estaño. Llevale lo que te pida.'});
+  if(!L.length)L.push({who:'Selene',t:'¿Qué tenés que hacer? Nada. Andá a dormir con los gatos. Es lo más sano de este piso.'});
+  L.push('(Todo está también en Notas, en el menú.)');return say(L);}
+function seleneChat(){const F=S.flags;
   if(has('camara')&&camBat()<=0&&!has('pila')&&(F.c5ciro||0)<2)return say([{who:'Selene',t:'¿No prende? Se quedó sin pilas. Hace años que no la uso.'},{who:'Selene',t:'Ciro, el de la guitarra de los caños, capaz que tiene. Siempre andaba con pilas para su grabador.'},{who:'Selene',t:'Si lo encontrás, pedile.'}]);
   if(F.c5gato===1)return say([{who:'Selene',t:c3Next('selG',['¡Pionono tiene la llave! Está en la sala, seguro. Si lo agarrás, te la da. Bueno: no te la da. Pero la tiene.','Pionono es rápido. Más rápido que vos. Más rápido que todos.','A Pionono lo único que lo frena es la comida. Bah: eso dice todo el mundo de su gato.'])}]);
   if(c5SelQ())return;
@@ -1859,7 +1878,7 @@ function catBed(){
 }
 /* ---------- la cámara de Selene: R la prende y la apaga ---------- */
 let CAMON=false,CAMG=0,CAMCUT=0;
-function camToggle(){if(!S||S.pro||!has('camara')||scene!=='map'||DLG||UI)return;if(!CAMON&&camBat()<=0){AU.t(300,.12,'square',.03);PENDING.push('La cámara no prende. No le queda batería: hace falta una pila.');return;}CAMON=!CAMON;
+function camToggle(){if(!S||S.pro||!has('camara')||scene!=='map'||DLG||UI||TR)return;if(!CAMON&&camBat()<=0){AU.t(300,.12,'square',.03);PENDING.push('La cámara no prende. No le queda batería: hace falta una pila.');return;}CAMON=!CAMON;
   if(CAMON){AU.t(1800,.03,'square',.03);AU.nz(.25,.03);AU.t(220,.35,'sawtooth',.012,320,.05);if(!S.flags.camTip){S.flags.camTip=1;PENDING.push('(Cámara prendida. Con R la apagás.)','(Por el visor, los lugares que vale la pena grabar aparecen marcados.)');}}
   else{AU.t(900,.04,'square',.025);AU.t(300,.2,'sawtooth',.01,140,.03);}}
 // en la cámara de frío, el frío le hace mal: la visión nocturna anda de a ratos
@@ -1899,15 +1918,23 @@ const SHOTL=[
   ['Encuadrás la puerta de la cámara de frío. ● REC.','En el visor, la puerta está entreabierta. Sale vapor y una luz roja, de carnicería.','Del otro lado, alguien te saluda con la mano. Tiene puesta tu ropa.','Bajás la cámara. La puerta está cerrada. Tiene escarcha en las bisagras.']];
 function c5ShotDone(k,L){const F=S.flags;F.selP=(F.selP||0)|(1<<k);RECT=3.2;sfx.stat&&sfx.stat();AU.nz(.3,.05);
   const left=4-c5ShotN();L=L.concat(left?['(Plano grabado: '+SHOTN[k]+'. Te falta'+(left>1?'n ':' ')+left+'.)']:['(Plano grabado: '+SHOTN[k]+'. Ya están los cuatro. Selene te espera en el set.)']);return say(L);}
-function c5ShotAsk(k,alt){const F=S.flags;if(F.selQ===1&&has('camara')&&!CAMON&&!((F.selP||0)&(1<<k))&&!F.c5selDead){if(alt)return say([{t:'Esto podría ser uno de los planos de Selene: "'+SHOTN[k]+'". (Prendé la cámara con R para grabarlo.)',choices:[{l:F.c5frigo?'Entrar igual':'Seguir',f(){alt();}},{l:'Quedarse',f(){}}]}]),true;say(['Esto podría ser uno de los planos de Selene: "'+SHOTN[k]+'".','(Prendé la cámara con R para grabarlo.)']);return true;}if(!c5ShotOn(k))return false;
-  say([{t:'Es uno de los planos de la lista de Selene: "'+SHOTN[k]+'".',choices:[{l:'Grabarlo',f(){c5ShotDone(k,SHOTL[k]);}},{l:alt?'No grabar':'Ahora no',f(){if(alt)alt();}}]}]);return true;}
-function c5SelQ(){const F=S.flags;if(F.selQ===2||!has('camara'))return false;if(F.c5frigoSeen&&!F.c5grabQ&&!F.c5frigo)return false;
+function c5ShotAsk(k,alt){const F=S.flags;if(!(F.selQ===1&&has('camara')&&!((F.selP||0)&(1<<k))&&!F.c5selDead))return false;
+  const rec=()=>{if(!CAMON){CAMON=true;AU.t(1800,.03,'square',.03);AU.nz(.25,.03);}c5ShotDone(k,SHOTL[k]);},bat=camBat()>0,pil=has('pila'),
+    no={l:alt?(F.c5frigo&&k===2?'Entrar sin grabar':'Seguir sin grabar'):'Ahora no',f(){if(alt)alt();}};
+  if(CAMON||bat){say([{t:'Es uno de los planos de la lista de Selene: "'+SHOTN[k]+'".'+(CAMON?'':' (La cámara está apagada.)'),choices:[{l:CAMON?'Grabarlo':'Prender la cámara y grabarlo',f(){rec();}},no]}]);return true;}
+  if(pil){say([{t:'Es uno de los planos de la lista de Selene: "'+SHOTN[k]+'". La cámara no tiene batería, pero tenés una pila.',choices:[{l:'Ponerle la pila y grabarlo',f(){S.items.splice(S.items.indexOf('pila'),1);F.camB=100;F.camLow=0;sfx.item();rec();}},no]}]);return true;}
+  if(alt){say([{t:'Es uno de los planos de la lista de Selene: "'+SHOTN[k]+'". Pero la cámara no tiene batería: hace falta una pila.',choices:[{l:F.c5frigo&&k===2?'Entrar igual':'Seguir',f(){alt();}},{l:'Quedarse',f(){}}]}]);return true;}
+  say(['Es uno de los planos de la lista de Selene: "'+SHOTN[k]+'".','Pero la cámara no tiene batería. Hace falta una pila.']);return true;}
+function c5SelQ(){const F=S.flags;if(F.selQ===2||!has('camara'))return false;if(!F.selQ&&F.c5frigoSeen&&!F.c5grabQ&&!F.c5frigo)return false;
   const busy=F.c5run&&!F.c5rescued&&!F.c5late;
-  if(!F.selQ){if(busy)return false;F.selQ=1;F.selP=0;sfx.item();
+  if(!F.selQ){if(busy)return false;return c5SelStart();}
+  return c5SelMore(busy);}
+function c5SelStart(){const F=S.flags;F.selQ=1;F.selP=0;sfx.item();
     say([{who:'Selene',t:'¡Esa cámara! ¿Anda? Dejame ver... ¡Anda!'},{who:'Selene',t:'Yo estaba filmando una película cuando volvió la señal. Me faltan cuatro planos. Cuatro. Y no me animo a salir del set.'},
       {who:'Selene',t:'Te los anoto. Uno: el escenario vacío. Dos: el gramófono de la sala, bien de cerca. Tres: la puerta de la cámara de frío. Cuatro: alguien durmiendo.'},
       {who:'Selene',t:'Para el último usá la cama de los gatos. Dormís y dejás la cámara grabando. Los gatos actúan gratis.'},{who:'Selene',t:'Y mirá por el visor, con la cámara prendida: te va a marcar dónde. La cámara tiene ojo de directora.'},
       {who:'Selene',t:'Si me los traés, te doy mi mochila de rodaje. Tiene bolsillos para todo. Hasta para cosas que todavía no existen.'},'(Misión: los planos que faltan. Está en Notas.)']);return true;}
+function c5SelMore(busy){const F=S.flags;
   const n=c5ShotN();
   if(n<4){if(busy)return false;say([{who:'Selene',t:c3Next('selQ',['¿Y mis planos? Me falta'+(4-n>1?'n':'')+': '+c5ShotLeft().join(', ')+'.','Grabá sin miedo. Si sale algo raro, mejor. Lo raro no se puede actuar.','No mires el visor más de la cuenta. Es un consejo de directora.'])}]);return true;}
   F.selQ=2;F.mochila=1;sfx.item();
@@ -2436,7 +2463,7 @@ function curtains5(){const v=frigoV();if(CURT5[v])return CURT5[v];const R=FRIGO_
 const curtAt=(x,y)=>S.map===MP.FRIGO5&&S.chapter===3&&curtains5().some(c=>c[0]===x&&c[1]===y);
 function curtNoise(x,y,vol){const k=x+','+y;CURT5S[k]=1;if(vol<=0)return;AU.nz(.45,.16*vol);AU.nz(.25,.1*vol);for(let i=0;i<4;i++)AU.t(1800+rnd()*1600,.05,'triangle',.018*vol,900,i*.07);}
 /* vos: hacen más ruido que los pasos. Den escucha hasta 9 casillas y va a ver */
-function curtPlayer(){if(!curtAt(S.x,S.y))return;curtNoise(S.x,S.y,1);const d=DEN;if(!d||d.mode||d.st==='chase'||HIDE5)return;if(Math.abs(S.x-d.x)+Math.abs(S.y-d.y)<=9){if(d.st!=='inv')AU.t(140,.4,'sine',.04,100);d.st='inv';d.lx=S.x;d.ly=S.y;}}
+function curtPlayer(){if(!curtAt(S.x,S.y))return;curtNoise(S.x,S.y,1);const d=DEN;if(!d||d.mode||d.st==='chase'||HIDE5)return;if(Math.abs(S.x-d.x)+Math.abs(S.y-d.y)<=18){if(d.st!=='inv')AU.t(140,.4,'sine',.04,100);d.st='inv';d.lx=S.x;d.ly=S.y;}}
 /* Den: cuando pasa ella también suenan, más bajo cuanto más lejos esté */
 function curtDen(){const d=DEN;if(!d)return;const k=d.x+','+d.y;if(d.lc===k)return;d.lc=k;if(curtAt(d.x,d.y)){const ds=Math.abs(S.x-d.x)+Math.abs(S.y-d.y);curtNoise(d.x,d.y,Math.max(0,1-ds/14)*.8);}}
 function drawCurtains5(t,cx,cy){if(S.chapter!==3)return;for(const [x,y,o] of curtains5()){const k=x+','+y;CURT5S[k]=Math.max(0,(CURT5S[k]||0)-.016);const sw=CURT5S[k],px=x*T-cx,py=y*T-cy,on=(S.x===x&&S.y===y)||(DEN&&DEN.x===x&&DEN.y===y);
@@ -2489,7 +2516,7 @@ function denBrain(d,dt){const DP=DENPATHS[frigoV()];d.st=d.st||'patrol';d.sa=(d.
   /* ¿te ve? (si estás en el freezer y no te vio meterte, no) */
   if(denSees(d)){if(d.st!=='chase')denAlert(d);d.sa=0;d.lx=S.x;d.ly=S.y;d.pred=0;}
   /* te escucha: si caminás cerca (3 casillas) sin estar escondido, va a ver qué fue */
-  else if(d.st!=='chase'&&P.moving&&!HIDE5&&Math.abs(S.x-d.x)+Math.abs(S.y-d.y)<=3){if(d.st!=='inv'){AU.t(160,.3,'sine',.035,120);}d.st='inv';d.lx=S.x;d.ly=S.y;}
+  else if(d.st!=='chase'&&P.moving&&!HIDE5&&Math.abs(S.x-d.x)+Math.abs(S.y-d.y)<=6){if(d.st!=='inv'){AU.t(160,.3,'sine',.035,120);}d.st='inv';d.lx=S.x;d.ly=S.y;}
   if(d.p<1)return;
   if(d.st==='inv'){if(d.x===d.lx&&d.y===d.ly||!denStep(d,d.lx,d.ly)){d.st='search';d.lt=3.2;d.turn=.4;}return;}
   if(d.st==='chase'){
@@ -2506,7 +2533,7 @@ function denBrain(d,dt){const DP=DENPATHS[frigoV()];d.st=d.st||'patrol';d.sa=(d.
 function frigoWrit(t,cx,cy){if(S.canal===24){const fl=.32+.22*Math.sin(t*3.1)+(Math.sin(t*23)>.9?.3:0);ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,fl));
       for(const [tx,ty,m] of [[11,.55,'NO LA MIRES A LOS OJOS'],[12.5,5.7,'BRIAN NO SABE'],[12.5,6.7,'EL 5 SABE'],[4,10.5,'24 CUADROS · EN UNO ESTÁS VOS'],[18,2.6,'V. TE ESPERA']])txt(m,tx*T-cx,ty*T-cy,(frigoLit()?'#1c5a2a':'#d8ffe0'),9,'center');ctx.restore();}}
 function frigoPost(t,cx,cy){
-  try{drawCurtains5(t,cx,cy);}catch(e){}
+  if(frigoLit()||camNV())try{drawCurtains5(t,cx,cy);}catch(e){}
   if(HIDE5){const x=S.x*T-cx,y=S.y*T-cy;ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(x,y+13,T,3);ctx.fillStyle='#d8dee2';ctx.fillRect(x,y+1,T,13);ctx.fillStyle='#b8c2c8';ctx.fillRect(x,y+1,T,3);ctx.fillStyle='#8a969e';ctx.fillRect(x,y+5,T,1);ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(x+2,y+4,T-4,1);txt('escondido',x+8,y-3,'rgba(200,220,230,.7)',8,'center');}
   if(c5Hard()&&!S.flags.c5fight){ctx.save();ctx.globalCompositeOperation='multiply';ctx.fillStyle='rgb(255,'+(150+Math.sin(t*1.7)*8|0)+',150)';ctx.fillRect(0,0,W,H);ctx.restore();}
   if(frigoLit()){if(CAMON)frigoWrit(t,cx,cy);return;}
@@ -2739,7 +2766,7 @@ function drawEnd3(t){
   endTitle('FIN DEL CAPÍTULO 3',t);txt('EL QUINTO PISO',W/2,80,'#9aa0b4',12,'center');if(EN.t>.8)drawCT(3);
   if(EN.t>.8){const F=S.flags,L=['Ciro: '+(F.c5ciroDead?'eliminado':F.c5rescued?'rescatado por los caños':'liberado'),'Den: '+(F.c5trap?'encerrada':'eliminada')+' · Brian: '+(F.c5brian==='spare'?'perdonado':F.c5brian==='dead'?'eliminado':'sin pelear'),'Selene: '+(F.c5selDead?'eliminada':F.c5gato===-1?'no te perdona':'te espera en su set'),'LV '+S.lv+' · $'+S.pesos+' · Día '+S.day].concat(F.corGain3>0?['Cordura máxima +'+F.corGain3]:[]).concat(['RUTA: '+routeName()]);
     L.forEach((l,i)=>endLine(l,i,i===L.length-1?'#e3a849':'#c9ccd8'));}
-  if(EN.t>1.6)txt('Capítulo 4 · Próximamente',W/2,186,'#e3a849',14,'center');
+  if(EN.t>1.6)txt(c4Open()?'Capítulo 4 · En construcción':'Capítulo 4 · Próximamente',W/2,186,'#e3a849',14,'center');
   if(EN.t>2&&Math.floor(t*2)%2)txt('Z para volver al título',W/2,214,'#767c92',11,'center');
 }
 // vals de gramófono y la guitarra de Ciro por los caños
@@ -3071,8 +3098,12 @@ function geroAction(){
   const f=a[(rnd()*a.length)|0];
   if(d===20){f.calm=f.def.need;return['Gerónimo tira el dado. ¡VEINTE! Le narra a '+f.def.name+' una vida mejor.',f.def.name+' ya no quiere pelear.'];}
   if(d>=14){f.calm=Math.min(f.def.need,f.calm+1);return['Gerónimo tira el dado: '+d+'. Le describe a '+f.def.name+' un final feliz. Se calma un poco.'];}
+  if(cW('geronimo')){const g=alive();if(g.length){const h=g[(rnd()*g.length)|0],dm=h.id==='sombra'?1:compDmg('geronimo');h.hp=Math.max(0,h.hp-dm);h.shake=4;B.pops.push({fi:B.foes.indexOf(h),txt:String(dm),t:0});const l='Gerónimo tira el dado: '+d+'. "Pifia." Y le pega con '+IT[cEq('geronimo')].n.toLowerCase()+'. ('+dm+' de daño)';if(h.hp<=0){h.dead=true;return[l].concat(h.def.kill);}return[l];}}
   return['Gerónimo tira el dado: '+d+'. '+pick(['"Nada. Ni para describir el clima."','"Pifia. Pasa."','"El dado está cansado."'])];
 }
+function silvAction(attacked){if(!S.party.includes('silvestre')||B.tuto||B.shadow||!attacked||!cW('silvestre')||rnd()<.4)return[];const a=alive();if(!a.length)return[];
+  const f=a.includes(B.foes[B.target])?B.foes[B.target]:a[0],d=f.id==='sombra'?1:compDmg('silvestre');f.hp=Math.max(0,f.hp-d);f.shake=4;B.pops.push({fi:B.foes.indexOf(f),txt:String(d),t:0});
+  const l=pick(['Silvestre se arremanga y le da con','Silvestre suspira, "a ver, correte", y le pega con','Silvestre le acomoda un golpe con'])+' '+IT[cEq('silvestre')].n.toLowerCase()+'. ('+d+' de daño)';if(f.hp<=0){f.dead=true;return[l].concat(f.def.kill);}return[l];}
 const SIL_HINT={pelota:'Las pelotas quieren jugar. Primero jueguito, después gritale un gol.',naranja:'Picala primero. Después tirá al aro. Los pasos ni se te ocurra: es falta.',raqueta:'Esa raqueta está floja. Ajustale las cuerdas y después devolvele la pelota.',valla:'Atletismo, viejo: te ponés en posición, esperás el disparo y recién ahí saltás. En ese orden.',felix:'Con Félix no hay vuelta: goles. Tres. Llevá la pelota al arco de la izquierda.',soldadito:'Es un juguete a cuerda. Dale cuerda, ponelo en fila y saludalo.',casco:'Está vacío. Dibujale una cara, que se sienta alguien.',radio:'Hablale como en la colimba: decí "cambio" y bajale el volumen.',pedro:'Hacé lo que te dice. Obedecé, cuadrate y mostrale respeto. Aguantá.',sombra:'No. Con eso no se pelea. Corré.'};
 function actList(f){const a=f.def.acts.slice();if(S.party.includes('silvestre')&&!S.flags.silvForced&&!B.tuto)a.push({n:'Pista de Silvestre',sil:1,run(){return['Silvestre: "'+(SIL_HINT[f.id]||'Ni idea, che. Probá hablarle.')+'"'];}});return a;}
 // --- autitos de la habitación escondida ---
@@ -3245,12 +3276,13 @@ function endChapter2(){chapterCor(2);if(S.flags.trueGeno&&!S.flags.tgAbort&&(tgB
 // Acceso privado al capítulo 3 (en prueba): sólo con el código del autor.
 const C3K='piso13_c3acc';
 function c3Hash(c){let h=2166136261;for(const ch of 'senal:'+c){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)>>>0;}return h;}
-function c3Open(){try{return localStorage.getItem(C3K)==='1815946508';}catch(e){return false;}}
+function c3Open(){return true;}/* el capítulo 3 ya está terminado: abierto para todos */
+const C4K='piso13_c4acc';function c4Open(){try{return localStorage.getItem(C4K)==='1815946508';}catch(e){return false;}}
 function c3PadUpd(){const u=EN.pad;
   if(hit('left')){u.p=(u.p+7)%8;sfx.sel();}if(hit('right')){u.p=(u.p+1)%8;sfx.sel();}
   if(hit('up')){u.d[u.p]=(u.d[u.p]+1)%10;sfx.beep();}if(hit('down')){u.d[u.p]=(u.d[u.p]+9)%10;sfx.beep();}
   if(hit('b')){EN.pad=null;return;}
-  if(hit('a')){const h=c3Hash(u.d.join(''));if(h===1815946508){try{localStorage.setItem(C3K,String(h));}catch(e){}EN.pad=null;sfx.item();EN.ok=1.5;}else{sfx.buzz();u.msg='Código incorrecto.';}}}
+  if(hit('a')){const h=c3Hash(u.d.join(''));if(h===1815946508){try{localStorage.setItem(C4K,String(h));}catch(e){}EN.pad=null;sfx.item();EN.ok=1.5;}else{sfx.buzz();u.msg='Código incorrecto.';}}}
 function drawC3Pad(){const u=EN.pad;ctx.fillStyle='rgba(0,0,0,.85)';ctx.fillRect(0,0,W,H);panel(30,62,260,104,'#e3a849');txt('ACCESO',160,80,'#e3a849',12,'center');
   for(let i=0;i<8;i++){const x=64+i*24;ctx.strokeStyle=u.p===i?'#e3a849':'#3a3e50';ctx.lineWidth=1;ctx.strokeRect(x+.5,92.5,20,26);txt(String(u.d[i]),x+10,112,'#7cff9a',18,'center');}
   txtFit('▲▼ número · ◀▶ mover · Z probar · X salir',160,136,'#9aa0b4',10,'center',250);if(u.msg)txt(u.msg,160,152,'#e8505b',11,'center');}
@@ -3873,8 +3905,8 @@ const priceLive=()=>(S.flags.distrust?1.5:1)*(1+.126*((S.lv||1)-1));/* suben con
 const priceFreeze=()=>{if(!S.flags.nicoDead)return null;if(S.flags.nicoPM==null){S.flags.nicoPM=priceLive();S.flags.nicoDis=S.flags.distrust?1:0;}return S.flags.nicoPM;};
 const priceMult=()=>{const f=priceFreeze();return f!=null?f:priceLive();};
 // armas, abrigos, accesorios y la vitamina C suben con el nivel; la comida y los remedios suben un 3% por nivel
-const price=(b,id)=>{const it=id&&IT[id],cons=it&&(it.t==='food'||it.t==='med')&&id!=='vitamina',fz=priceFreeze()!=null,dis=fz?S.flags.nicoDis:S.flags.distrust;return Math.ceil(b*(cons?(dis?1.5:1)*(1+.03*((S.lv||1)-1)):priceMult()));};
-const menuOpts=()=>['Bolsillos','Objetos clave','Equipo','Notas'].concat(S.party.includes('ivan')?['Hablar con Iván']:[]).concat(S.party.includes('silvestre')?['Hablar con Silvestre']:[]).concat(S.party.includes('geronimo')?['Hablar con Gerónimo']:[]).concat(['Salir al título','Cerrar']);
+const price=(b,id)=>{const it=id&&IT[id],cons=it&&(it.t==='food'||it.t==='med')&&id!=='vitamina',fz=priceFreeze()!=null,dis=fz?S.flags.nicoDis:S.flags.distrust;return Math.ceil(b*(cons?(dis?1.5:1)*(1+.063*((S.lv||1)-1)):priceMult()));};
+const menuOpts=()=>['Bolsillos','Objetos clave','Equipo','Notas'].concat(teamList().length?['Compañeros']:[]).concat(S.party.includes('ivan')?['Hablar con Iván']:[]).concat(S.party.includes('silvestre')?['Hablar con Silvestre']:[]).concat(S.party.includes('geronimo')?['Hablar con Gerónimo']:[]).concat(['Salir al título','Cerrar']);
 function itemOpts(id){const t=IT[id].t;return(t==='food'||t==='med')?['Usar','Mirar','Tirar']:t==='key'?['Mirar']:['Equipar','Mirar','Tirar'];}
 function itemIdx(mode){const out=[];S.items.forEach((id,i)=>{if((IT[id].t==='key')===(mode==='k'))out.push(i);});return out;}
 const KEY_HINT={
@@ -3904,6 +3936,7 @@ function uiUpdate(){
         else if(c==='Objetos clave')UI={kind:'pockets',i:0,mode:'k'};
         else if(c==='Equipo')UI={kind:'equip',i:0};
         else if(c==='Notas')UI={kind:'notes',i:0};
+        else if(c==='Compañeros')UI={kind:'team',i:0};
         else if(c==='Salir al título'){UI=null;askQuit();}
         else if(c==='Hablar con Gerónimo'){UI=null;geroTalk();}
         else if(c==='Hablar con Silvestre'){UI=null;silvParty();}
@@ -3923,6 +3956,16 @@ function uiUpdate(){
         if(!id){sfx.buzz();return;}
         if(pocketCount()>=pocketMax()){UI=null;say(['No tenés lugar en los bolsillos para guardarlo.']);return;}
         S.eq[slot]=null;S.items.push(id);fixHP();UI=null;say(['Te sacaste: '+IT[id].n+'.']);}
+      break;}
+    case 'team':{const T5=teamList();if(!T5.length){UI={kind:'menu',i:0};return;}if(u.i>=T5.length)u.i=0;const id=T5[u.i];
+      if(u.pick!=null){const L=teamPick(id);if(!L.length){u.pick=null;return;}if(hit('up')){u.pick=(u.pick+L.length-1)%L.length;sfx.sel();}if(hit('down')){u.pick=(u.pick+1)%L.length;sfx.sel();}if(hit('b')){u.pick=null;sfx.sel();return;}
+        if(hit('a')){const o=L[u.pick];S.ceq=S.ceq||{};const old=cEq(id);
+          if(o.off){if(pocketCount()>=pocketMax()){sfx.buzz();u.msg='No tenés lugar en los bolsillos.';return;}S.ceq[id]=null;S.items.push(old);sfx.ok();u.msg=COMP_N[id]+' te devuelve: '+IT[old].n+'.';}
+          else{const it=S.items.splice(o.i,1)[0];S.ceq[id]=it;if(old)S.items.push(old);sfx.item();u.msg='Le diste a '+COMP_N[id]+': '+IT[it].n+'.'+(old?' Te devuelve: '+IT[old].n+'.':'');}
+          u.pick=null;}
+        break;}
+      nav(T5.length);if(hit('b')){UI={kind:'menu',i:Math.max(0,menuOpts().indexOf('Compañeros'))};return;}
+      if(hit('a')){if(!teamPick(id).length){sfx.buzz();u.msg=id==='arana'?'No tenés nada que la araña pueda cargar.':'No tenés armas ni amuletos para darle.';}else{u.pick=0;u.msg='';sfx.ok();}}
       break;}
     case 'notes':{const np=u.np||1;if(hit('right')||hit('down')){if((u.pg||0)<np-1){u.pg=(u.pg||0)+1;sfx.sel();}}if(hit('left')||hit('up')){if((u.pg||0)>0){u.pg--;sfx.sel();}}if(hit('b'))UI={kind:'menu',i:3};else if(hit('a')){if((u.pg||0)<np-1){u.pg=(u.pg||0)+1;sfx.sel();}else UI={kind:'menu',i:3};}break;}
     case 'store':{
@@ -3963,7 +4006,7 @@ function drawUI(){
 }
 function drawUI0(){
   const u=UI;if(!u)return;
-  if(u.kind==='menu'||u.kind==='pockets'||u.kind==='itemopt'||u.kind==='equip'||u.kind==='notes'){
+  if(u.kind==='menu'||u.kind==='pockets'||u.kind==='itemopt'||u.kind==='equip'||u.kind==='notes'||u.kind==='team'){
     panel(8,8,123,Math.max(154,92+menuOpts().length*11));
     txtFit(S.name.toUpperCase(),16,22,'#e3a849',13,'left',110);
     txt('LV '+S.lv+'   $'+S.pesos,16,35,'#e6e8ef',11);
@@ -3972,7 +4015,7 @@ function drawUI0(){
     txt('COR',16,61,'#9aa0b4',11);bar(lx,55,bw,6,S.cor,S.maxCor,'#a78bfa','#251d3a');txt(cs,124,61,'#e6e8ef',10,'right');}
     txt('Día '+S.day+' · '+hhmm(S.min),16,74,'#9aa0b4',11);
     ctx.fillStyle='#2a2d3a';ctx.fillRect(14,80,108,1);
-    menuOpts().forEach((o,i)=>txt((u.kind==='menu'&&u.i===i?'▸ ':'  ')+o,14,94+i*11,(u.kind==='menu'&&u.i===i)?'#e3a849':'#c9ccd8',11));
+    menuOpts().forEach((o,i)=>txtFit((u.kind==='menu'&&u.i===i?'▸ ':'  ')+o,14,94+i*11,(u.kind==='menu'&&u.i===i)?'#e3a849':'#c9ccd8',11,'left',112));
   }
   if(u.kind==='pockets'||u.kind==='itemopt'){
     const L=itemIdx(u.mode),keyMode=u.mode==='k';
@@ -3989,6 +4032,15 @@ function drawUI0(){
     [['Arma',S.eq.weapon],['Abrigo',S.eq.armor],['Accesorio',S.eq.acc]].forEach(([l,id],i)=>{txt((u.i===i?'▸ ':'  ')+l,140,38+i*14,u.i===i?'#e3a849':'#9aa0b4',11);txt(id?IT[id].n:'—',200,38+i*14,'#e6e8ef',11);});
     txt('Daño '+Math.round(atkVal()*dmgMult())+'  ·  Defensa '+defVal(),142,86,'#9aa0b4',10);
     txt('Z: sacártelo',142,98,'#767c92',10);
+  }
+  if(u.kind==='team'){const T5=teamList(),id=T5[Math.min(u.i,T5.length-1)];
+    panel(134,8,178,222);txt('COMPAÑEROS',142,22,'#9aa0b4',11);
+    T5.forEach((p,i)=>txt((u.i===i?'▸ ':'  ')+COMP_N[p],140,36+i*11,u.i===i?'#e3a849':'#c9ccd8',11));
+    const y0=36+T5.length*11+4;ctx.fillStyle='#2a2d3a';ctx.fillRect(140,y0-6,166,1);
+    if(id){txt('Objeto: '+(cEq(id)?IT[cEq(id)].n:'—'),142,y0+6,'#e6e8ef',10);let y=y0+19;for(const l of teamStats(id))for(const w of wrap(l,164,10)){if(y>196)break;txt(w,142,y,'#9aa0b4',10);y+=10;}}
+    txtFit(u.msg||'Z: darle un objeto · X: volver',224,224,u.msg?'#e3a849':'#767c92',9,'center',170);
+    if(u.pick!=null&&id){const L=teamPick(id);const h=Math.min(9,L.length)*11+10;panel(150,60,158,h,'#e3a849');const st=Math.max(0,u.pick-8);
+      L.slice(st,st+9).forEach((o,k)=>{const i=st+k;txtFit((u.pick===i?'▸ ':'  ')+(o.off?'Sacarle el objeto':IT[o.it].n+(IT[o.it].t==='weapon'?' ('+IT[o.it].dmg+')':' ×'+IT[o.it].dmgx)),154,72+k*11,u.pick===i?'#e3a849':'#c9ccd8',10,'left',150);});}
   }
   if(u.kind==='notes'){
     panel(134,8,178,154);txt('NOTAS',142,22,'#9aa0b4',11);
@@ -5434,6 +5486,7 @@ function arrive(){try{puffStep();}catch(e){}
   if(S.map===MP.PISO3){const d=p3Data().dice;if(d&&S.x===d[0]&&S.y===d[1]&&S.flags.geroQ===1&&!S.flags.dado4){S.flags.dado4=1;S.items.push('dado4');sfx.item();PENDING.push('Pisás algo chiquito y duro. Es un dado de cuatro caras, perdido entre las líneas del andarivel.','Agarraste: '+IT.dado4.n+'.');}}
   const m=MAPS[S.map];
   const E=m.enc||{pool:['soldadito','casco','radio'],key:'left',total:15};if(S[E.key]==null)S[E.key]=E.total;
+  if(m.encounters&&!S.pro&&!CHASE&&S[E.key]<=0&&floorKilled(E.key)&&encCd<=0&&ri(1,50)===50){encCd=7;AU.t(90,.6,'sine',.03,60);say(['Estás solo.']);return;}
   if(m.encounters&&!S.pro&&!CHASE&&S.flags.p3dark!==1&&S.flags.p3dark!==3&&S[E.key]>0&&encCd<=0&&(()=>{const N=S.chapter===3?35:30;return ri(1,N)===N;})()){
     const pool=E.pool,ids=[pool[ri(0,pool.length-1)]];
     if(S[E.key]>=2&&rnd()<.3){ids.push(pool[ri(0,pool.length-1)]);if(S[E.key]>=3&&rnd()<.35)ids.push(pool[ri(0,pool.length-1)]);}
@@ -5441,6 +5494,8 @@ function arrive(){try{puffStep();}catch(e){}
     startBattle(ids,{leftKey:E.key});
   }
 }
+/* el piso quedó vacío matando: se mató al menos a uno y no se perdonó a nadie ahí */
+function floorKilled(k){return !!(S.kb&&S.kb[k]>0)&&!(S.sb&&S.sb[k]>0);}
 /* ================= vida en los mapas: paseos, charlas y visitas ================= */
 const LIFE={acc:0,chats:[],cd:3,init:false,hostDir:{}};
 const WANDER={[MP.CASA]:['augusto','joaquin','selene','catalina','bianca','tomas','maximo','valentino','brian','angie','pedrom','manuel','isidoro_in','pedromil','sofia','matias','milagros']};
@@ -5556,6 +5611,7 @@ function updMap(dt){
   if(WEIRDNEXT&&!DLG&&!UI){WEIRDNEXT=false;weirdConfront(true);return;}
   if(S.cor<=0&&!S.pro&&!CHASE)return shadowStart();
   if(CHASE&&!P.moving)chaseUpdate(dt);
+  if(hit('cam'))camToggle();
   if(P.moving){P.prog+=dt/(P.dur||.2);if(P.prog<1)return;P.prog=1;P.moving=false;arrive();if(scene!=='map'||DLG||UI||TR||CUT||PENDING.length)return;}
   if(hit('b'))return;
   if(hit('cam')){camToggle();return;}
@@ -6819,6 +6875,24 @@ function doMercy(k){
   afterPlayer(L,false,true);
 }
 const pick=a=>a[(rnd()*a.length)|0];
+/* ---------- compañeros: sus números y un objeto para cada uno ---------- */
+const COMP_N={ivan:'Iván',silvestre:'Silvestre',geronimo:'Gerónimo',arana:'La araña'};
+const teamList=()=>S&&S.party?['ivan','silvestre','geronimo','arana'].filter(p=>S.party.includes(p)):[];
+const cEq=id=>(S.ceq||{})[id]||null;
+const cW=id=>{const e=cEq(id);return e&&IT[e]&&IT[e].t==='weapon'?IT[e].dmg:0;};
+const cX=id=>{const e=cEq(id);return e&&IT[e]&&IT[e].t==='acc'&&IT[e].dmgx?IT[e].dmgx:1;};
+/* daño de cada uno: el arma suma un tercio de su daño; los accesorios de daño lo multiplican */
+function compDmg(id){const m=(typeof compMul==='function'?compMul():1)*cX(id),w=Math.round(cW(id)*.35);
+  if(id==='ivan')return Math.round((6+w)*m);if(id==='arana')return Math.round(2*m);return w?Math.round(w*m):0;}
+const compPoison=()=>Math.round(3*(typeof compMul==='function'?compMul():1)*cX('arana'));
+function compCanHold(id,it){const I=IT[it];if(!I)return false;if(I.t==='acc')return !!I.dmgx;if(I.t==='weapon')return id!=='arana';return false;}
+function teamPick(id){const L=[];if(cEq(id))L.push({off:1});S.items.forEach((it,i)=>{if(compCanHold(id,it))L.push({i,it});});return L;}
+function teamStats(id){const lv=routeName()==='ESTÁTICA',d=compDmg(id),L=[];
+  if(id==='ivan'){L.push('Tira frascos: '+d+' de daño.','Te cura: '+(4+Math.floor(S.lv/3))+' PV, y '+(8+Math.floor(S.lv/2))+' PV si estás mal (4 por pelea).');}
+  else if(id==='silvestre'){L.push('Da pistas en ACTUAR (gastan el turno).',d?'Con el arma te ayuda a pegar: '+d+' de daño.':'No pelea. Con un arma te ayuda a pegar.');}
+  else if(id==='geronimo'){L.push('Tira el D20: con 14 o más calma a un enemigo; con 20 lo convence.',d?'Si el dado falla, pega con el arma: '+d+' de daño.':'Si le das un arma, pega cuando el dado falla.');}
+  else if(id==='arana'){L.push('Vida '+(S.spiderHP||0)+'/'+(S.spiderMax||0)+'. Dormir la recupera.','Muerde: '+d+' de daño y veneno de '+compPoison()+' por turno, 3 turnos.','No puede cargar armas: solo amuletos de daño.');}
+  L.push(lv?'Sube de nivel con vos (Estática): fuerza ×'+compMul().toFixed(2)+'.':'Fuerza fija.');return L;}
 /* ruta Estática: el equipo sube de nivel con vos. Pegan un poco más fuerte (y la araña envenena más); las habilidades no cambian */
 const compMul=()=>routeName()==='ESTÁTICA'?1+.07*(S.lv-1):1;
 function ivanAction(attacked){
@@ -6827,8 +6901,8 @@ function ivanAction(attacked){
   B.ivCd=(B.ivCd||0)-1;
   if(S.hp<mh*.75&&S.hp>=mh*.5&&B.ivCd<=0&&rnd()<.25){const h=4+Math.floor(S.lv/3);B.ivCd=2;S.hp=Math.min(mh,S.hp+h);return[pick(['Iván te pega una curita en el brazo sin preguntar.','Iván te pasa un algodón con alcohol. Arde, pero ayuda.','Iván: "Quieto. Esto es un raspón, nada más."'])+' (+'+h+' PV)'];}
   if(S.hp<mh*.5&&B.ivCd<=0&&(B.ivN||0)<4){const h=8+Math.floor(S.lv/2);B.ivCd=2;B.ivN=(B.ivN||0)+1;S.hp=Math.min(mh,S.hp+h);return[pick(['Iván te alcanza un frasco de su laboratorio.','Iván te tira un frasquito: "¡Tomá, no preguntes qué tiene!"','Iván te pone una gasa con algo que huele a menta y a cable quemado.','Iván: "Respirá. Tomá esto. Funcionó con las ratas."'])+' (+'+h+' PV)'];}
-  if(attacked){const a=alive();if(a.length){const f=a[(rnd()*a.length)|0],d=f.id==='sombra'?1:Math.round(6*compMul());f.hp=Math.max(0,f.hp-d);f.shake=4;B.pops.push({fi:B.foes.indexOf(f),txt:String(d),t:0});
-    const L=pick(['Iván tira un tubo de ensayo.','Iván le revolea un erlenmeyer.','Iván le tira un frasco que hace "pfff".','Iván grita "¡ácido!" y tira algo que, sinceramente, es agua.'])+' ('+d+' de daño)';
+  if(attacked){const a=alive();if(a.length){const f=a[(rnd()*a.length)|0],d=f.id==='sombra'?1:compDmg('ivan');f.hp=Math.max(0,f.hp-d);f.shake=4;B.pops.push({fi:B.foes.indexOf(f),txt:String(d),t:0});
+    const L=(cW('ivan')&&rnd()<.5?'Iván le pega con '+IT[cEq('ivan')].n.toLowerCase()+', con los ojos cerrados.':pick(['Iván tira un tubo de ensayo.','Iván le revolea un erlenmeyer.','Iván le tira un frasco que hace "pfff".','Iván grita "¡ácido!" y tira algo que, sinceramente, es agua.']))+' ('+d+' de daño)';
     if(f.hp<=0){f.dead=true;return[L].concat(f.def.kill);}return[L];}}
   if(rnd()<.7)return[];
   return[pick(['Iván observa y anota algo en una libretita.','Iván se acomoda los lentes y mide al enemigo con una regla.','Iván murmura: "Interesante. Muy interesante. Horrible, pero interesante."','Iván se esconde un poco atrás tuyo. Para observar mejor, dice.','Iván anota la hora exacta. "Para el informe."'])];
@@ -6837,7 +6911,7 @@ function spiderAction(attacked){
   if(!S.party.includes('arana')||B.tuto||!attacked||!(S.spiderHP>0))return[];
   const a=alive();if(!a.length)return[];
   const f=a.includes(B.foes[B.target])?B.foes[B.target]:a[0];
-  const m=compMul(),sd=f.id==='sombra'?1:Math.round(2*m);f.hp=Math.max(0,f.hp-sd);f.poison=f.id==='sombra'?0:3;f.pDmg=Math.round(3*m);f.shake=3;B.pops.push({fi:B.foes.indexOf(f),txt:String(sd),t:0});
+  const sd=f.id==='sombra'?1:compDmg('arana');f.hp=Math.max(0,f.hp-sd);f.poison=f.id==='sombra'?0:3;f.pDmg=compPoison();f.shake=3;B.pops.push({fi:B.foes.indexOf(f),txt:String(sd),t:0});
   if(f.hp<=0){f.dead=true;return['La araña muerde a '+f.def.name+'.'].concat(f.def.kill);}
   return['La araña muerde a '+f.def.name+'. ('+sd+' de daño. Queda envenenado.)'];
 }
@@ -6851,7 +6925,7 @@ function afterPlayer(lines,attacked,quiet){
   B.sub=0;
   // si después de actuar ya se puede perdonar a todos los que quedan, no hay otro ataque ni charla del equipo: perdonás en el turno siguiente
   const al=alive();if(!attacked&&!B.boss&&!B.shadow&&!B.tuto&&al.length&&al.every(f=>f.id!=='pedro'&&f.calm>=f.def.need&&atkLeft(f)===0))return bSay(lines.length?lines:['...'],menuCore);
-  const L=quiet?lines.slice():lines.concat(ivanAction(attacked),geroAction(),spiderAction(attacked),B.boss?bossQuotes():[]);
+  const L=quiet?lines.slice():lines.concat(ivanAction(attacked),geroAction(),silvAction(attacked),spiderAction(attacked),B.boss?bossQuotes():[]);
   if(!L.length)return alive().length?enemyTurn():endBattle();
   bSay(L,()=>{if(!alive().length)endBattle();else enemyTurn();});
 }
@@ -6889,7 +6963,7 @@ function enemyTurn(){
     else B.pats=[P5[(n-1)%5]];
     B.dur=12;
   }else if(B.shadow){B.esc=B.weird?Math.max(0,B.turn-1):0;B.pats=B.esc>=2||!(B.turn%2)?['sombraManos','sombraOjos']:['sombraManos'];B.dur=12;}
-  else{const act=alive().filter(f=>!(f.calm>=f.def.need));
+  else{const act=alive().filter(f=>!(f.calm>=f.def.need)||atkLeft(f)>0);
     if(!act.length){const a=alive(),nm=a.map(f=>f.def.name).join(' y ');B.state='text';return bSay([nm+(a.length>1?' ya no quieren pelear.':' ya no quiere pelear.'),pick(['Te mira tranquilo. Está esperando que lo dejes ir.','Se queda quieto, contento. No te ataca.','Ya no hay nada que esquivar.'])],()=>toMenu());}
     B.pats=act.map(f=>f.def.pats[ri(0,f.def.pats.length-1)]);B.combo=false;
     if(!B.tuto&&B.turn>=3&&rnd()<.3){const pool=[...new Set(act.flatMap(f=>f.def.pats))];
@@ -7074,7 +7148,7 @@ Object.assign(PAT,{
   salpica(dt,df,b){df*=.75;if(acc('salpica',dt,1.25/df)){const cx=b.x+10+rnd()*(b.w-20),cy=b.y+10+rnd()*(b.h-20);B.bul.push({x:cx-4,y:cy-4,vx:0,vy:0,w:8,h:8,warn:.55,life:.05,k:'hp',dr:'blood'});for(let i=0;i<9;i++){const a=i/9*Math.PI*2+rnd()*.3;B.bul.push({x:cx,y:cy,vx:Math.cos(a)*48*df,vy:Math.sin(a)*48*df,w:4,h:4,k:'hp',dr:'blood',warn:.55});}}},
   enrollar(dt,df,b){B.spin=(B.spin||0)+dt*3.4;if(acc('enrollar',dt,.13/df)){const cx=b.x+b.w/2,cy=b.y+b.h/2,a=B.spin;B.bul.push({x:cx,y:cy,vx:Math.cos(a)*56*df,vy:Math.sin(a)*56*df,w:4,h:4,k:'hp',dr:'blood'});}},
   huesos(dt,df,b){df*=.7*1.15;if(acc('huesos',dt,1.1/df)){const L=rnd()<.5,gap=ri(0,5);for(let i=0;i<7;i++){if(i===gap||i===gap+1)continue;B.bul.push({x:L?b.x-8:b.x+b.w+2,y:b.y+2+i*12,vx:(L?1:-1)*50*df,vy:0,w:5,h:11,k:'hp',dr:'bone'});}}},
-  cuchillo(dt,df,b){df*=1.15;if(acc('cuchillo',dt,.95/df)){const L=rnd()<.5,y=Math.max(b.y+2,Math.min(b.y+b.h-6,B.soul.y+(rnd()-.5)*10));B.bul.push({x:b.x,y:y+1,vx:0,vy:0,w:b.w,h:1,warn:.5,life:.01,k:'hp',dr:'laser',deco:1});B.bul.push({x:L?b.x-16:b.x+b.w+2,y,vx:(L?1:-1)*165*df,vy:0,w:14,h:3,warn:.5,k:'hp',dr:'knife'});}},
+  cuchillo(dt,df,b){df*=1.15;if(acc('cuchillo',dt,.95/df)){const L=rnd()<.5,y=Math.max(b.y+2,Math.min(b.y+b.h-6,B.soul.y+(rnd()-.5)*10));B.bul.push({x:b.x,y:y-1,vx:0,vy:0,w:b.w,h:5,warn:.6,life:.01,k:'hp',dr:'kwarn',deco:1,side:L?1:-1});B.bul.push({x:L?b.x-13:b.x+b.w-1,y,vx:(L?1:-1)*165*df,vy:0,w:14,h:3,warn:.6,k:'hp',dr:'knife'});}},
   tripa(dt,df,b){if(!B.trip||!B.bul.includes(B.trip[0])){B.trip=[];for(let i=0;i<7;i++){const u={x:b.x+2,y:b.y+2,vx:0,vy:0,w:5,h:5,k:'hp',dr:'gut',keep:1};B.trip.push(u);B.bul.push(u);}B.trH=[];}
     const h=B.trip[0],dx=B.soul.x-h.x,dy=B.soul.y-h.y,l=Math.hypot(dx,dy)||1,sp=48*df;h.x+=dx/l*sp*dt;h.y+=dy/l*sp*dt;B.trH.unshift([h.x,h.y]);if(B.trH.length>60)B.trH.pop();
     for(let i=1;i<B.trip.length;i++){const p=B.trH[Math.min(B.trH.length-1,i*6)];if(p){B.trip[i].x=p[0];B.trip[i].y=p[1];}}},
@@ -7211,7 +7285,7 @@ function updDodge(dt){
     if(u.deco)continue;
     if(B.inv<=0&&soulHit(u)){
       B.inv=(S.eq.armor&&IT[S.eq.armor].inv)||1.4;B.screen=6;
-      if(u.k==='cor'){loseCor(6);sfx.cor();}
+      if(u.k==='cor'){loseCor(12);sfx.cor();}
       else if(S.party.includes('arana')&&S.spiderHP>0&&!B.tuto&&rnd()<.2){S.spiderHP=Math.max(0,S.spiderHP-3);sfx.hurt();B.pops.push({fi:0,txt:S.spiderHP>0?'ARAÑA -3':'LA ARAÑA SE ESCONDE',miss:1,t:0});}
       else if(S.eq.acc==='teclaS'&&rnd()<.25){sfx.sel();B.pops.push({fi:0,txt:'¡SUERTE!',miss:1,t:0});}
       else{const e=B.esc||0,atk=Math.max(2,...alive().map(f=>f.def.atk))+2*e,d=Math.min(MAX_HIT+2*e,Math.max(1,Math.round(atk-defVal()*.5)));S.hp=Math.max(0,S.hp-d);sfx.hurt();}
@@ -7273,7 +7347,8 @@ function endBattle(){
   if(!B.tuto&&!B.fled){
     for(const f of B.foes){if(f.dead){xp+=f.def.xp;pesos+=ri(f.def.pesos[0],f.def.pesos[1]);}else if(f.spared)pesos+=f.def.sp;}
     pesos=Math.round(pesos*Math.pow(1.25,shopTier()));
-    const LK=B.leftKey||'left';if(!B.boss&&!B.ivanFight)for(const f of B.foes){if(f.dead){S[LK]--;S.kills++;}else if(f.spared){S[LK]--;S.spares++;}}
+    const LK=B.leftKey||'left';S.kb=S.kb||{};S.sb=S.sb||{};if(!B.boss&&!B.ivanFight&&!B.test)for(const f of B.foes){if(f.dead){S[LK]--;S.kills++;S.kb[LK]=(S.kb[LK]||0)+1;}else if(f.spared){S[LK]--;S.spares++;S.sb[LK]=(S.sb[LK]||0)+1;}}
+    if(!B.boss&&B.leftKey&&(S[LK]||0)<=0&&floorKilled(LK)&&!S.flags['vacio_'+LK]){S.flags['vacio_'+LK]=1;const VT={left3:'La pista quedó en silencio. Ya no queda nadie en el tercer piso.',left5:'El teatro quedó en silencio. Ya no queda nadie en el quinto piso.'}[LK];if(VT&&!(LK==='left5'&&c5Hard()))PENDING.push(VT);}
     S[LK]=Math.max(0,S[LK]||0);
     if(S.spares===0&&S.kills>=5)setGeno(1);
     if(S.flags.pedroNo&&!uniHas('cascoU')){const c=B.foes.find(f=>f.id==='casco'&&(f.dead||f.spared));if(c){uniGive('cascoU');L.push(c.spared?'Antes de irse flotando, el Casco vacío se te posa en la cabeza un segundo. Después se queda ahí. Te queda justo.':'El Casco vacío cae al piso y rueda hasta tus pies. Ya no flota. Lo agarrás.','Agarraste: '+IT.cascoU.n+'.');}}
@@ -7597,7 +7672,10 @@ function renderBattle0(t){
     case 'act':case 'item':case 'mercy':{
       let names;if(B.state==='act')names=actList(B.foes[B.target]).map(a=>a.n);else if(B.state==='item')names=S.items.filter(id=>IT[id].t==='food'||IT[id].t==='med').map(id=>IT[id].n);else names=[S.pro?'Perdonar':'Desintonizar','Huir'];
       const canSp=B.state==='mercy'&&!B.boss&&spareables().length>0;
-      names.forEach((n,i)=>{const cx=tx+(i%2)*138,cy=ty+Math.floor(i/2)*15;txt((i===B.sub?'▸ ':'  ')+n,cx,cy,i===B.sub?'#e3a849':(B.state==='mercy'&&(i===0&&canSp||i===1&&B.shadow)?'#ffe27a':'#c9ccd8'),12);});
+      /* de a 8 por página (4 filas de 2), para que no se salgan del cuadro */
+      const PG=8,pg=Math.floor(Math.max(0,B.sub)/PG),np=Math.ceil(names.length/PG);
+      names.slice(pg*PG,pg*PG+PG).forEach((n,k)=>{const i=pg*PG+k,cx=tx+(k%2)*138,cy=ty+Math.floor(k/2)*15;txtFit((i===B.sub?'▸ ':'  ')+n,cx,cy,i===B.sub?'#e3a849':(B.state==='mercy'&&(i===0&&canSp||i===1&&B.shadow)?'#ffe27a':'#c9ccd8'),12,'left',132);});
+      if(np>1)txt((pg>0?'▲ ':'')+'pág '+(pg+1)+'/'+np+(pg<np-1?' ▼':''),b.x+b.w-10,b.y+b.h-20,'#e3a849',10,'right');
       txt('X volver',b.x+b.w-10,b.y+b.h-6,'#767c92',10,'right');break;}
     case 'itemconf':{const id=S.items[B.ci];if(!id)break;txt(IT[id].n,tx,ty,'#e3a849',12);wrap(itemEffect(id),b.w-20,11).slice(0,3).forEach((l,i)=>txt(l,tx,ty+14+i*12,'#c9ccd8',11));
       ['Usar','Volver'].forEach((n,i)=>txt((B.csub===i?'▸ ':'  ')+n,tx+i*90,b.y+b.h-9,B.csub===i?'#e3a849':'#9aa0b4',12));break;}
@@ -7621,6 +7699,7 @@ function renderBattle0(t){
       ctx.save();ctx.beginPath();ctx.rect(b.x+1,b.y+1,b.w-2,b.h-2);ctx.clip();
       if(B.mira&&B.pats.includes('mira')){const m=B.mira;ctx.strokeStyle='#e8505b';ctx.lineWidth=1;ctx.beginPath();ctx.arc(m.x,m.y,7,0,7);ctx.moveTo(m.x-10,m.y);ctx.lineTo(m.x+10,m.y);ctx.moveTo(m.x,m.y-10);ctx.lineTo(m.x,m.y+10);ctx.stroke();}
       for(const u of B.bul){
+        if(u.warn>0&&u.dr==='kwarn'){const a=.45+.45*Math.abs(Math.sin(t*16)),cy=u.y+2.5,ex=u.side>0?u.x+2:u.x+u.w-2;ctx.fillStyle='rgba(232,80,91,'+(a*.35)+')';ctx.fillRect(u.x,u.y,u.w,u.h);ctx.fillStyle='rgba(255,90,100,'+a+')';for(let x=u.x;x<u.x+u.w;x+=6)ctx.fillRect(x,cy-.5,3,1);/* la punta del cuchillo asomando del lado por donde entra */ctx.fillStyle='rgba(255,230,230,'+Math.min(1,a+.2)+')';ctx.beginPath();ctx.moveTo(ex+u.side*9,cy);ctx.lineTo(ex,cy-3);ctx.lineTo(ex,cy+3);ctx.closePath();ctx.fill();u._t0=null;continue;}
         if(u.warn>0){if(Math.floor(t*14)%2){ctx.strokeStyle='#e8505b';ctx.lineWidth=1;ctx.strokeRect(u.x+.5,u.y+.5,u.w-1,u.h-1);}u._t0=null;continue;}
         bulFx(u,t);
       }
@@ -7760,11 +7839,11 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.8.0';
+const GAME_VER='1.9.0';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
-const JUMPN=['PRÓLOGO','CAPÍTULO 1','CAPÍTULO 2','CAPÍTULO 3'];
+const JUMPN=['PRÓLOGO','CAPÍTULO 1','CAPÍTULO 2','CAPÍTULO 3','CAPÍTULO 4'];
 /* ---------- trucos: probador de peleas ----------
    El enemigo recibe golpes como siempre, pero al llegar a cero se restaura al máximo. Vos tampoco morís: se te llena la vida.
    No toca la partida guardada. */
@@ -7809,7 +7888,7 @@ function sctStart(k){SCTEST=true;TS.cheat=null;OP.out=1;try{musStop();}catch(e){
 function sctUpd(dt){const k=SCT;k.t+=dt;if(k.t>=k.gd&&!k.sc){k.sc=1;sfx.scream();}if(k.t>=k.gd+1.6)sctBack();}
 function sctDraw(t){ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);const k=SCT;if(k&&k.t>=k.gd&&k.t<k.gd+.7){const e=k.t-k.gd;ctx.save();if(e<.4)ctx.translate((rnd()-.5)*18,(rnd()-.5)*18);drawGhostFace();ctx.restore();shockFx(e,t);}}
 const JROUTES=['SINTONÍA','ESTÁTICA','INTERFERENCIA','ANIQUILACIÓN'];
-function jumpMax(){return 3;}
+function jumpMax(){return 4;}
 /* Nivel real según la ruta: la experiencia sale solo de matar (6 por vecino del 4, ~8,25 del 3, Pedro 50, Félix 60).
    Al terminar el 1: Sintonía 0 (LV 1), Estática 24 (LV 2), Interferencia/Aniquilación 146 (LV 5).
    Al terminar el 2: Sintonía 0 (LV 1), Estática 65 (LV 3), Interferencia/Aniquilación 371 (LV 8).
@@ -7892,9 +7971,9 @@ function update(dt){
   if(TR){TR.t+=dt;if(!TR.fired&&TR.t>=TR.dur/2){TR.fired=true;TR.mid();}if(TR.t>=TR.dur)TR=null;for(const k in pressed)pressed[k]=false;return;}
   switch(scene){
     case 'open':opUpdate(dt);break;
-    case 'title':{
+    case 'title':{if(TS&&TS.c4msg>0)TS.c4msg-=dt;
       musPrefetch();
-      if(TS.c3pad){EN=EN||{t:0};c3PadUpd();if(c3Open()){TS.c3pad=false;EN=null;TS.confirm='jump';TS.csel=1;}else if(!EN.pad){TS.c3pad=false;EN=null;TS.cheat={i:2};}break;}
+      if(TS.c3pad){EN=EN||{t:0};c3PadUpd();if(c4Open()){TS.c3pad=false;EN=null;TS.cheat={i:2};TS.c4msg=2.5;}else if(!EN.pad){TS.c3pad=false;EN=null;TS.cheat={i:2};}break;}
       if(TS.confirm){if(hit('up')||hit('down')){TS.csel=1-TS.csel;sfx.sel();}if(hit('b')){TS.confirm=false;break;}if(hit('a')){sfx.ok();const rc=TS.confirm==='cap',rj=TS.confirm==='jump';TS.confirm=false;if(TS.csel===0){if(rj){const n=CHEAT.jump||0;transition(.8,()=>cheatJump(n));}else if(rc)restartChapter();else transition(.8,newGame);}}break;}
       if(TS.cheat){const c=TS.cheat;
         if(TS.bt){tbUpd();break;}
@@ -7904,7 +7983,7 @@ function update(dt){
         if(c.i===0&&hit('a')){const q=[null,3,4,6,7,8,9,10,11,13,19,20,33,47,55,86,95],k=q.indexOf(CHEAT.canal);CHEAT.canal=q[(k+1)%q.length];saveCheat();sfx.ok();}
         if(c.i===1&&(l||r||hit('a'))){CHEAT.skip=!CHEAT.skip;saveCheat();sfx.sel();}
         if(c.i===3&&pressed.a&&(CHEAT.jump||0)>=2){c.i=2;}
-        if(c.i===2){const m=jumpMax();if(CHEAT.jump==null||CHEAT.jump>m)CHEAT.jump=0;if(l){CHEAT.jump=(CHEAT.jump+m)%(m+1);sfx.sel();}if(r){CHEAT.jump=(CHEAT.jump+1)%(m+1);sfx.sel();}if(hit('a')){sfx.ok();TS.cheat=null;if(CHEAT.jump===3&&!c3Open()){EN={t:0,pad:{d:[0,0,0,0,0,0,0,0],p:0,msg:''}};TS.c3pad=true;}else{TS.confirm='jump';TS.csel=1;}break;}}
+        if(c.i===2){const m=jumpMax();if(CHEAT.jump==null||CHEAT.jump>m)CHEAT.jump=0;if(l){CHEAT.jump=(CHEAT.jump+m)%(m+1);sfx.sel();}if(r){CHEAT.jump=(CHEAT.jump+1)%(m+1);sfx.sel();}if(hit('a')){if(CHEAT.jump===4){if(!c4Open()){sfx.ok();TS.cheat=null;EN={t:0,pad:{d:[0,0,0,0,0,0,0,0],p:0,msg:''}};TS.c3pad=true;}else{sfx.buzz();TS.c4msg=2.5;}break;}sfx.ok();TS.cheat=null;TS.confirm='jump';TS.csel=1;break;}}
         if(c.i===3&&(CHEAT.jump||0)>=2){const n=JROUTES.length;if(l){CHEAT.route=((CHEAT.route||0)+n-1)%n;saveCheat();sfx.sel();}if(r){CHEAT.route=((CHEAT.route||0)+1)%n;saveCheat();sfx.sel();}}
         if(c.i===4&&hit('a')){TS.bt={i:0};sfx.ok();}
         if(c.i===5){const n=SCT_N.length;CHEAT.scr=CHEAT.scr||0;if(l){CHEAT.scr=(CHEAT.scr+n-1)%n;sfx.sel();}if(r){CHEAT.scr=(CHEAT.scr+1)%n;sfx.sel();}if(hit('a')){sctStart(CHEAT.scr);break;}}
@@ -7955,7 +8034,7 @@ function render(t){
         txt('TRUCOS',W/2,125,'#e3a849',13,'center');txt('v'+GAME_VER,286,123,'#6b7096',9,'right');
         const jm=jumpMax(),jv=CHEAT.jump==null||CHEAT.jump>jm?0:CHEAT.jump,rows=['CANAL: '+(CHEAT.canal?'◀ '+CHEAT.canal+' ▶':'◀ ALEATORIO ▶'),'SALTAR EL PRÓLOGO: '+(CHEAT.skip?'SÍ':'NO'),'IR AL: ◀ '+JUMPN[jv]+' ▶','RUTA: '+(jv>=2?'◀ '+JROUTES[CHEAT.route||0]+' ▶':'—'),'PROBAR UNA PELEA','SCREAMER: ◀ '+SCT_N[CHEAT.scr||0]+' ▶','VOLVER'];
         rows.forEach((o,i)=>txtFit((i===c.i?'▶ ':'  ')+o,38,138+i*13,i===c.i?'#e3a849':(i===3&&jv<2?'#5a5f7a':'#c9ccd8'),13,'left',250));
-        txtFit(c.i===5?'←→ elige · Z: verlo (no toca tu partida)':c.i===4?'Z: elegí enemigo, nivel y equipo':c.i===3?(jv>=2?'←→ cómo jugaste antes · Z: empezar':'Elegí capítulo 2 o 3 para elegir la ruta'):c.i===2?(jv===3&&!c3Open()?'Z: pide el código de acceso':'←→ elige · Z: empezar ahí (borra la partida)'):'←→ cambia · Z: canales con secreto',W/2,226,'#6b7096',10,'center',236);}
+        txtFit(c.i===5?'←→ elige · Z: verlo (no toca tu partida)':c.i===4?'Z: elegí enemigo, nivel y equipo':c.i===3?(jv>=2?'←→ cómo jugaste antes · Z: empezar':'Elegí capítulo 2 o 3 para elegir la ruta'):c.i===2?(jv===4?(c4Open()?(TS.c4msg>0?'Acceso listo. El capítulo 4 todavía no está.':'Acceso listo: cuando exista, se abre acá'):'Z: pide el código de acceso'):'←→ elige · Z: empezar ahí (borra la partida)'):'←→ cambia · Z: canales con secreto',W/2,226,'#6b7096',10,'center',236);}
       else if(TS.confirm){const rc=TS.confirm==='cap',cs=rc&&chapStart();if(TS.confirm==='jump'){txt('¿Empezar en el '+JUMPN[CHEAT.jump||0].toLowerCase()+((CHEAT.jump||0)>=2?' ('+JROUTES[CHEAT.route||0]+')':'')+'?',W/2,140,'#e8505b',12,'center');txt('Se borra la partida guardada.',W/2,154,'#e8505b',12,'center');}else if(rc){txt('¿Volver al principio del capítulo '+(cs?cs.ch:'')+'?',W/2,140,'#e8505b',12,'center');txt('Se pierde lo que hiciste desde ahí.',W/2,154,'#e8505b',12,'center');}else txt('¿Empezar de cero? Se borra la partida guardada.',W/2,148,'#e8505b',12,'center');(TS.confirm==='jump'?['SÍ, IR AHÍ','NO']:rc?['SÍ, REINICIAR CAPÍTULO','NO']:['SÍ, EMPEZAR DE CERO','NO']).forEach((o,i)=>txt((i===TS.csel?'▶ ':'  ')+o,W/2-60,170+i*16,i===TS.csel?'#e3a849':'#c9ccd8',14));}
       else opts.forEach((o,i)=>{const on=i===TS.sel;if(on){ctx.fillStyle='rgba(227,168,73,'+(.07+.04*Math.sin(t*5))+')';ctx.fillRect(W/2-58,137+i*15,128,14);}txt((on?'▶ ':'  ')+o,W/2-46+(on?1.5+Math.sin(t*6)*1.5:0),148+i*15,on?'#e3a849':(o==='TRUCOS'?'#8a8fb0':'#c9ccd8'),15);});
       if(!TS.cheat){let sw=false;try{sw=localStorage.getItem('piso13_switch')==='1';}catch(e){}txt(sw?'Grabación encontrada. No debiste tocarlo.':'Grabación encontrada. Contenido perturbador.',W/2,206,'#6b7096',11,'center');}break;}
