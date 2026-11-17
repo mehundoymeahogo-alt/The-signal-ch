@@ -174,7 +174,7 @@ const noiseC=[0,1,2,3].map(()=>{const c=mk(160,120),x=c.getContext('2d'),d=x.cre
 const scanC=mk(640,480);{const x=scanC.getContext('2d');x.fillStyle='rgba(0,0,0,.2)';for(let y=0;y<480;y+=3)x.fillRect(0,y,640,1);}
 const vigC=mk(640,480);{const x=vigC.getContext('2d'),g=x.createRadialGradient(320,240,140,320,240,420);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.62)');x.fillStyle=g;x.fillRect(0,0,640,480);}
 const lc=mk(W,H),lx=lc.getContext('2d');
-const SHADE_C={30:'2,2,1',31:'2,2,1',32:'2,1,1',28:'1,2,4',29:'2,1,1',27:'4,6,20',25:'2,3,4',24:'8,4,6',18:'14,4,6',19:'12,3,6',20:'10,8,6',21:'8,6,10',22:'10,8,6',23:'2,6,10',0:'10,12,30',2:'10,8,20',3:'8,10,12',4:'4,12,10',5:'12,10,6',6:'10,10,6',8:'6,8,18',9:'16,4,8'};
+const SHADE_C={33:'2,1,1',30:'2,2,1',31:'2,2,1',32:'2,1,1',28:'1,2,4',29:'2,1,1',27:'4,6,20',25:'2,3,4',24:'8,4,6',18:'14,4,6',19:'12,3,6',20:'10,8,6',21:'8,6,10',22:'10,8,6',23:'2,6,10',0:'10,12,30',2:'10,8,20',3:'8,10,12',4:'4,12,10',5:'12,10,6',6:'10,10,6',8:'6,8,18',9:'16,4,8'};
 let LTINT_=null;const LTINT_F=()=>LTINT_||(LTINT_={[MP.CASA]:['255,176,96',.10],[MP.DEPTO]:['255,184,112',.10],[MP.PASILLO]:['255,207,112',.09],[MP.NICO]:['255,224,160',.08],[MP.IVAN]:['170,255,190',.06],[MP.PEDRO]:['255,216,144',.07],[MP.ESCALERA]:['255,230,176',.05],[MP.PISO3]:['207,224,255',.07],[MP.FELIX]:['255,140,140',.06]});
 const GRADE={0:['105,118,165','160,135,105'],2:['112,112,150','158,135,108'],3:['112,128,120','150,140,105'],4:['105,140,120','120,145,120'],8:['110,122,165','150,120,115'],9:['150,105,115','140,110,110'],10:['125,118,130','155,135,115'],11:['115,118,135','160,135,100'],12:['120,110,150','155,135,105'],13:['110,125,125','125,135,115'],14:['125,105,150','150,125,105'],7:['112,115,135','145,135,110'],16:['130,100,100','110,95,95'],17:['110,110,125','115,115,130']};
 let GRC={};function gradeSpr(k){if(GRC[k])return GRC[k];const c=mk(W,H),x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,H),p=GRADE[k];g.addColorStop(0,'rgb('+p[0]+')');g.addColorStop(1,'rgb('+p[1]+')');x.fillStyle=g;x.fillRect(0,0,W,H);return GRC[k]=c;}
@@ -564,7 +564,7 @@ const MES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DI
 function stamp(){const d=new Date();d.setDate(d.getDate()+(S?S.day-1:0));return MES[d.getMonth()]+'.'+String(d.getDate()).padStart(2,'0')+' 1995   '+hhmm(S?S.min:300);}
 
 /* ================= maps ================= */
-const MP={MX0:30,MX1:31,MX2:32,P2:28,P2C:29,CAMPO:27,ESC2:26,CASA:0,PATIO:1,DEPTO:2,PASILLO:3,IVAN:4,NICO:5,PEDRO:6,ESCALERA:7,PISO3:8,FELIX:9,ESTEF:10,SILV:11,GERO:12,MANT:13,GINES:14,DUCTO:15,PUERTA5:16,REMOTO:17,FOYER5:18,SALA5:19,PASILLO5:20,SELENE5:21,HABIT5:22,FRIGO5:23,CUARTO12:24,CANO5:25};
+const MP={SOT:33,MX0:30,MX1:31,MX2:32,P2:28,P2C:29,CAMPO:27,ESC2:26,CASA:0,PATIO:1,DEPTO:2,PASILLO:3,IVAN:4,NICO:5,PEDRO:6,ESCALERA:7,PISO3:8,FELIX:9,ESTEF:10,SILV:11,GERO:12,MANT:13,GINES:14,DUCTO:15,PUERTA5:16,REMOTO:17,FOYER5:18,SALA5:19,PASILLO5:20,SELENE5:21,HABIT5:22,FRIGO5:23,CUARTO12:24,CANO5:25};
 const TH={
   casa:{floor:'#7a5a3e',line:'#6b4e35',wall:'#c9b59a',wall2:'#bba887',top:'#3a2e24',base:'#5a4632',dark:.12},
   p2:{floor:'#24361f',line:'#1f2f1b',wall:'#8a7a62',wall2:'#7d6e58',top:'#2a221a',base:'#3a3024',dark:.97},
@@ -1281,7 +1281,7 @@ const P2HOUSES=[{k:'caida',x:66,y:50,w:7,h:6,dx:3},{k:'augusto',x:24,y:16,w:7,h:
 const P2TW=[78,14],P2TP=[46,94],P2CART=[74,54];
 const P2PILAS=[[31,76],[27,103],[99,50],[139,104],[85,17],[56,43],[139,80],[92,72],[118,47],[56,86],[114,69],[115,32]];
 const LAMPCAP=273,LAMPP=273,LAMPL=120,LAMPA=.55;
-const isP2=()=>!!S&&[MP.P2,MP.P2C,MP.MX0,MP.MX1,MP.MX2].includes(S.map);
+const isP2=()=>!!S&&[MP.P2,MP.P2C,MP.MX0,MP.MX1,MP.MX2,MP.SOT].includes(S.map);
 function p2House(x,y){return P2HOUSES.find(h=>x>=h.x&&x<h.x+h.w&&y>=h.y&&y<h.y+h.h);}
 function p2Hill(x,y){return Math.sin(x*.09)*Math.cos(y*.11)+.6*Math.sin((x+y)*.05);}
 function p2Grass(px,py,tx,ty){const k=p2Hill(tx+.5,ty+.5),c=Math.round(48+k*10);ctx.fillStyle='rgb('+Math.round(c*.6)+','+(c+26)+','+Math.round(c*.46)+')';ctx.fillRect(px,py,T,T);
@@ -1371,7 +1371,7 @@ function scKill(){const sc=S.flags.scw;[sc.x,sc.y]=S.map===MP.P2?p2n(S.x,S.y):[S
 function c4Tick(dt){if(!S||S.chapter!==4||scene!=='map'||CINE||SCARE)return;const F=S.flags;
   if(MOUSE.on&&isP2()&&!P.moving&&performance.now()-MOUSE.t<500){const a=lampAng();S.dir=Math.abs(a)<Math.PI/4?'right':Math.abs(a)>Math.PI*3/4?'left':a>0?'down':'up';}
   if(F.c4lamp&&F.lampOn&&S.lamp>0&&isP2()){S.lamp-=dt;if(S.lamp<=0){S.lamp=0;PENDING.push('La linterna parpadea y se apaga.','(Se le terminaron las pilas.)');}}
-  if(!F.scOn||!F.scw)return;F.c4ms=(F.c4ms||0)+dt*1000;const sc=F.scw,rate=5+Math.floor(F.c4ms/60000),seen=scSeen();
+  if(!F.scOn||!F.scw||F.scBlock)return;F.c4ms=(F.c4ms||0)+dt*1000;const sc=F.scw,rate=5+Math.floor(F.c4ms/60000),seen=scSeen();
   if(seen){sc.acc=Math.min(sc.acc,1);if(!sc.sn){sc.sn=1;const [ddx,ddy]=p2d(S.x,S.y,sc.x,sc.y,S.map),d=Math.hypot(ddx,ddy);if(d<7){AU.t(82,1.1,'sawtooth',.06,58);AU.t(1250,.6,'sine',.018,1180);AU.nz(.25,.05);}}return;}
   sc.sn=0;if(rnd()<dt/14)scRustle();sc.acc+=dt*rate/60;let k=0;while(sc.acc>=1&&k<4){sc.acc-=1;k++;scStep();if(!F.scOn)return;}
   if(sc.m===S.map){const [ddx,ddy]=p2d(S.x,S.y,sc.x,sc.y,S.map);if(Math.abs(ddx)+Math.abs(ddy)<=1&&sc.acc>=.5)scKill();}}
@@ -1655,7 +1655,7 @@ function c4Mac(id,t,m){if(m<.01)return;ctx.save();ctx.globalAlpha*=m;
   ctx.restore();}
 LOOK.maximo={hair:HC.mar,len:'short',tex:'straight',eye:EC.verde,skin:'#d4a888',shirt:'#8a3a2a',pants:'#34445a'};
 /* ===== La casa de Máximo: planta baja, primer piso y ático. Máximo, el baúl, la cinta, el encendedor ===== */
-const MXMAPS=()=>[MP.MX0,MP.MX1,MP.MX2];const isMX=()=>!!S&&MXMAPS().includes(S.map);
+const MXMAPS=()=>[MP.MX0,MP.MX1,MP.MX2,MP.SOT];const isMX=()=>!!S&&MXMAPS().includes(S.map);
 const C4CODE='7314';
 const isGenoR=()=>{const r=routeName();return r==='INTERFERENCIA'||r==='ANIQUILACIÓN';};
 function mxTile(ch,px,py,tx,ty,t,maxi,cofre){
@@ -1690,9 +1690,9 @@ function padOpen(){UI={kind:'pad4',d:[0,0,0,0],p:0};}
 function maxiTalk(){const M=t=>({who:'Máximo',t});const F=S.flags;
   say([{t:'Un muchacho con sombrero de paja está parado delante de un baúl. Le salen hojas del cuello y de las mangas.'},M('Apagá eso. La luz las pone nerviosas.'),M('Están creciendo adentro mío. Ya casi no me duele.'),M('El baúl no se toca. Ellas me pidieron que lo cuide.'),{t:'Las enredaderas del techo se mueven todas juntas, hacia vos.'}],
     ()=>{S.maxiK=99;startBattle(['maximo'],{maxi:true,leftKey:'maxiK',intro:['¡Máximo (el granjero) no se mueve del baúl!','(Para perdonarlo vas a tener que hacer varias cosas, y aguantar sus ataques.)'],onEnd:maxiAfter});});}
-function maxiAfter(){const F=S.flags;DRAWFLAGS=null;if(F.maxi==='spare')PENDING.push({who:'Máximo',t:'El baúl es tuyo. La llave te la di. Yo me quedo un rato acá, sentado.'});}
+function maxiAfter(){const F=S.flags;DRAWFLAGS=null;if(ropeR()&&F.maxi)friendsDown();if(F.maxi==='spare')PENDING.push({who:'Máximo',t:'El baúl es tuyo. La llave te la di. Yo me quedo un rato acá, sentado.'});}
 function maxiEnd(L){const m=B.foes.find(f=>f.id==='maximo'||f.id==='maximo2'),F=S.flags;if(!m)return;
-  if(m.dead){F.maxi='kill';L.push('Entre las hierbas que le cubren el cuerpo, algo brilla. Una llave.','Se la arrancás. Las raíces no la quieren soltar.',gotLine('llaveB'));}
+  if(m.dead){F.maxi='kill';L.push('Entre las hierbas que le cubren el cuerpo, algo brilla. Una llave.','Se la arrancás. Las raíces no la quieren soltar.',gotLine('llaveB'));if(ropeR())L.push('En el bolsillo del mameluco hay un encendedor de chapa.',gotLine('encendedor'));}
   else if(m.spared&&m.id==='maximo2'){F.maxi='spare';L.push('Máximo se sienta en el piso. Las enredaderas se le aflojan, como un abrazo que se termina.','Máximo: "Tomá. La llave del baúl."',gotLine('llaveB'),'Máximo: "Y esto. Las plantas le tienen miedo al fuego. Lo vas a necesitar."',gotLine('encendedor'));}}
 function maxiPhase2(f){f.id='maximo2';f.def=FOES.maximo2;f.hp=f.mhp=foeHP('maximo2');f.calm=0;f.used={};f.atkN=0;f.shake=9;sfx.stat();AU.t(60,1.4,'sawtooth',.08,40);
   for(const id of ['girasol','papa']){const o={id,def:FOES[id],hp:foeHP(id),calm:0,used:{},spared:false,dead:false,fade:1,shake:0};o.mhp=o.hp;B.foes.push(o);}
@@ -1710,7 +1710,7 @@ function cofreAct(){const F=S.flags;
   if(F.maxi==='kill'&&isGenoR())return cofreGeno();
   F.cofre=1;S.items=S.items.filter(i=>i!=='llaveB');DRAWFLAGS=null;sfx.item();
   const rp=ropeR();if(rp)F.c4rope=1;
-  say(['La llave entra justo. El candado se abre con un clic seco.','Adentro, envuelta en una bolsa de arpillera, hay una cinta de video.',gotLine('cinta2')].concat(rp?['Afuera, lejos, algo largo cae sobre el pasto. Al lado de la carreta.','(Tus amigos armaron una soga hasta el 2. Con ella podés volver a los pisos de arriba y ver la cinta en tu departamento.)']:['(Para verla hace falta una tele con videocasetera.)']));}
+  say(['La llave entra justo. El candado se abre con un clic seco.','Adentro, envuelta en una bolsa de arpillera, hay una cinta de video.',gotLine('cinta2')].concat(rp?['(Con la soga de tus amigos podés subir a los pisos de arriba y ver la cinta en tu departamento, en el 4.)']:['(Para verla hace falta una tele con videocasetera.)']));}
 function cofreGeno(){const F=S.flags;F.cofre=1;S.items=S.items.filter(i=>i!=='llaveB');DRAWFLAGS=null;
   say(['La llave entra justo. Adentro del baúl, envuelta en arpillera, hay una cinta de video.','Atrás tuyo, algo cruje.'],()=>cineStart('maxfus',3.2,()=>{
     say(['Máximo se levanta. Ya no es Máximo.','Las plantas, las raíces y lo que quedaba de él se juntaron en una sola cosa. Te mira con muchos ojos.','No tenés cómo ver la cinta. No hay tiempo.','La partís con las manos.','Adentro, en la cinta enrollada, hay un número escrito: '+C4CODE+'.'],()=>cineStart('alma',6,()=>{
@@ -1718,9 +1718,9 @@ function cofreGeno(){const F=S.flags;F.cofre=1;S.items=S.items.filter(i=>i!=='ll
       say(['De la cinta salió algo. Un recuerdo. Se reía.','Te derretías. Las cintas se partían, todas, una por una.','Perdés la conciencia.'],()=>{if(routeName()==='ANIQUILACIÓN')cineStart('negro',5,tgWake);else endChapter4();});}));}));}
 function teleAct(){const F=S.flags;if(S.items.includes('cinta2')&&ropeR())return say(['Una tele vieja con una videocasetera arriba. La videocasetera está llena de raíces. No anda.','(La tele de tu departamento, en el 4, sí anda.)']);if(!S.items.includes('cinta2'))return say(['Una tele vieja con una videocasetera arriba. No hay nada puesto.']);
   say([{t:'Una tele vieja con una videocasetera arriba.',choices:[{l:'Poner la cinta',f(){AU.t(300,.2,'square',.03);AU.nz(.5,.05);cineStart('tape2',6.4,()=>{F.code2=1;say(['La cinta se termina. La tele vuelve a la lluvia de estática.','En el tanque de agua, pintado grande, había un número: '+C4CODE+'.']);});}},{l:'Dejarla',f(){}}]}]);}
-function sotanoAct(){const F=S.flags;if(F.tgMark&&routeName()==='ANIQUILACIÓN'){AU.t(1600,.06,'square',.03);AU.t(900,.4,'square',.03,0,.1);return say(['Tus dedos marcan el número solos: '+C4CODE+'.','Clic. Clac. La puerta del sótano se abre hacia adentro.','Abajo, la escalera baja y baja. Empezás a bajar.'],()=>endChapter4());}if(F.sotano)return say(['La puerta del sótano está abierta. Abajo hay una escalera que baja y baja.','(El final del capítulo viene en la próxima parte.)']);
+function sotanoAct(){const F=S.flags;if(F.sotano&&!(F.tgMark&&routeName()==='ANIQUILACIÓN'))return goMap(MP.SOT,3,1,'down');if(F.tgMark&&routeName()==='ANIQUILACIÓN'){AU.t(1600,.06,'square',.03);AU.t(900,.4,'square',.03,0,.1);return say(['Tus dedos marcan el número solos: '+C4CODE+'.','Clic. Clac. La puerta del sótano se abre hacia adentro.','Abajo, la escalera baja y baja. Empezás a bajar.'],()=>endChapter4());}if(F.sotano)return say(['La puerta del sótano está abierta. Abajo hay una escalera que baja y baja.','(El final del capítulo viene en la próxima parte.)']);
   say([{t:'Una puerta baja, de madera, comida por las raíces. Tiene un teclado de cuatro números.',choices:[{l:'Poner un número',f(){padOpen();}},{l:'Dejarla',f(){}}]}]);}
-function padTry(code){const F=S.flags;if(code===C4CODE){F.sotano=1;DRAWFLAGS=null;AU.t(1600,.06,'square',.03);AU.t(900,.4,'square',.03,0,.1);AU.nz(.8,.08);say(['Clic. Clac.','La puerta se abre hacia adentro. Del sótano sube un aire frío, con olor a humo.','Abajo hay una escalera que baja y baja.','(El final del capítulo viene en la próxima parte.)']);}
+function padTry(code){const F=S.flags;if(code===C4CODE){F.sotano=1;DRAWFLAGS=null;AU.t(1600,.06,'square',.03);AU.t(900,.4,'square',.03,0,.1);AU.nz(.8,.08);say(['Clic. Clac.','La puerta se abre hacia adentro. Del sótano sube un aire frío, con olor a humo.','Abajo hay una escalera que baja y baja.'],()=>goMap(MP.SOT,3,1,'down'));}
   else{AU.t(220,.25,'square',.04);say(['Bip. El teclado se queda en cero.']);}}
 /* el encendedor: fuego al pasto alto y a los fardos */
 let BURNC=null,FIRES=[];
@@ -1860,10 +1860,11 @@ function PCACHE_CLEAR(){try{if(typeof PCACHE!=='undefined')for(const k in PCACHE
 function cortadoraAct(){const F=S.flags;if(S.items.includes('cortadora')||F.scDead)return say(['Acá estaba la cortadora de pasto de Máximo.']);
   if(!isGenoR())return say(['Una cortadora de pasto de mano, con las cuchillas recién afiladas. Es de Máximo.']);
   say([{t:'Una cortadora de pasto de mano, con las cuchillas recién afiladas. Es de Máximo.',choices:[{l:'Llevártela',f(){S.items.push('cortadora');sfx.item();DRAWFLAGS=null;say(['Te la llevás. Las ruedas chirrían.','Agarraste: Cortadora de pasto.']);}},{l:'Dejarla',f(){}}]}]);}
-function scTalk(){const F=S.flags;if(S.items.includes('cortadora')&&isGenoR())return say([{t:'El espantapájaros. Te mira. No se mueve mientras lo alumbrás.',choices:[{l:'Pasarle la cortadora',f(){scGore();}},{l:'No',f(){}}]}]);say(['Un espantapájaros. Te mira.']);}
+function scTalk(){const F=S.flags;if(F.scBlock)return scBurnTalk();if(S.items.includes('cortadora')&&isGenoR())return say([{t:'El espantapájaros. Te mira. No se mueve mientras lo alumbrás.',choices:[{l:'Pasarle la cortadora',f(){scGore();}},{l:'No',f(){}}]}]);say(['Un espantapájaros. Te mira.']);}
 function scGore(){const F=S.flags,sc=F.scw;F.scRem={m:sc.m,x:sc.x,y:sc.y};F.scOn=0;F.scw=null;F.scDead=1;DRAWFLAGS=null;
   cineStart('scGore',7.2,()=>say(['La cortadora se traba. Empujás más fuerte.','El espantapájaros grita. No es un ruido de paja: es la voz de alguien.','Se desarma sobre el pasto. Entre la paja hay órganos. Un brazo. Una mano con uñas.','Abajo de la arpillera hay una cara.','Era una persona.']));}
 function drawScRemains(t){const r=S.flags.scRem;if(!r||r.m!==S.map)return;const [dx,dy]=p2d(S.x,S.y,r.x,r.y,S.map),x=(S.x+dx)*T,y=(S.y+dy)*T;
+  if(r.ash){ctx.fillStyle='rgba(20,18,16,.85)';ctx.beginPath();ctx.ellipse(x+8,y+12,9,3.5,0,0,7);ctx.fill();ctx.fillStyle='#4a3520';ctx.fillRect(x+7,y+6,2,7);ctx.fillStyle='#2a2420';ctx.fillRect(x+2,y+8,12,1);for(let i=0;i<6;i++){const q=hash(i,5);ctx.fillStyle='#8a8580';ctx.fillRect(x+2+q%12,y+10+(q>>4)%4,1,1);}return;}
   ctx.fillStyle='rgba(90,6,8,.85)';ctx.beginPath();ctx.ellipse(x+8,y+11,13,5,0,0,7);ctx.fill();ctx.fillStyle='#c9a85a';for(let i=0;i<14;i++){const q=hash(i,9);ctx.fillRect(x-4+q%24,y+4+(q>>5)%12,3,1);}
   ctx.fillStyle='#a8956a';ctx.beginPath();ctx.ellipse(x+2,y+8,5,4,.3,0,7);ctx.fill();ctx.fillStyle='#8a3a4a';ctx.beginPath();ctx.ellipse(x+12,y+12,4,2,0,0,7);ctx.ellipse(x+8,y+14,3,1.6,.5,0,7);ctx.fill();ctx.fillStyle='#c89a7a';ctx.fillRect(x+15,y+9,5,2);ctx.fillRect(x+19,y+8,2,1);ctx.fillStyle='#4a3520';ctx.fillRect(x+4,y+2,2,12);}
 function drawScFace(e,t){const k=Math.min(1,(e-4.2)/1.6),dz=1+k*.12,dx=Math.sin(t*.7)*3;ctx.fillStyle='#050403';ctx.fillRect(0,0,W,H);ctx.save();ctx.translate(W/2+dx,H/2);ctx.scale(dz,dz);
@@ -1903,6 +1904,99 @@ function routeCineUpd(c){
   if(c.k==='scGore'){if(!c.a){c.a=1;AU.t(90,1.2,'square',.03,85);}if(c.t>1.3&&!c.b){c.b=1;sfx.scream&&sfx.scream();AU.nz(1.2,.3);}
     if(c.t>1.3&&c.t<4.6){c.v=c.v||1.3;if(c.t>=c.v){c.v=c.t+.09;const f=520-(c.t-1.3)*80+Math.sin(c.t*40)*40;AU.t(f,.12,'sawtooth',.05,f*.9);AU.nz(.08,.06);}}
     if(c.t>2&&c.t<5&&rnd()<.06){AU.t(70,.2,'sine',.08,40);AU.nz(.15,.1);}}}
+/* ===== Sintonía y Estática: los amigos bajan, el espantapájaros se quema en paz, el sótano y la puerta que arde ===== */
+const C4NM={ivan:'Iván',silvestre:'Silvestre',geronimo:'Gerónimo',selene:'Selene'};
+function friendsDown(){const F=S.flags;if(F.c4friends)return;F.c4friends=1;F.c4rope=1;const up=(F.partyUp||[]).slice(),tk=up.filter(p=>C4NM[p]);
+  S.party=up.slice(0,2);placeFollower&&placeFollower();
+  const W=(i,t)=>tk.length?{who:C4NM[tk[i%tk.length]],t}:t;
+  const L=['Se escuchan pasos en la escalera del ático. Varios. Rápidos.'];
+  if(!up.length){L.push('No sube nadie. Pero afuera, al lado de la carreta, cuelga una soga larga que antes no estaba.');PENDING.push(...L);return;}
+  L.push(W(0,'¡Valen! ¡Estás vivo!'),W(1,'Te buscamos por todo el campo. Está todo oscuro, no se ve nada.'),W(2,'Atamos todas las sábanas que encontramos, y los cables del escenario. Hicimos una soga.'),W(0,'La tiramos por el agujero de la bajada. Llega hasta al lado de la carreta, donde caíste.'),W(1,'Arriba quedó atada a una viga. Podemos subir y bajar cuando queramos.'),'Tus amigos vuelven a estar con vos.');
+  PENDING.push(...L);}
+/* el espantapájaros tapa la puerta de Máximo */
+function scBlockSet(){const F=S.flags;if(!ropeR()||F.scDead||F.scBlock)return;F.scBlock=1;F.scOn=1;F.scw={m:MP.P2,x:108,y:87,acc:0};}
+function scBurnTalk(){const F=S.flags;if(!(S.items.includes('encendedor')||S.eq.acc==='encendedor'))return say(['El espantapájaros está parado delante de la puerta de Máximo. No te deja pasar.','Necesitás algo para sacarlo de ahí.']);
+  say([{t:'El espantapájaros está parado delante de la puerta de Máximo. No se mueve. Te mira.',choices:[{l:'Prenderle fuego',f(){scBurn();}},{l:'Todavía no',f(){}}]}]);}
+function scBurn(){const F=S.flags,sc=F.scw;F.scRem={m:sc.m,x:sc.x,y:sc.y,ash:1};F.scOn=0;F.scw=null;F.scDead=1;F.scBlock=0;DRAWFLAGS=null;
+  cineStart('scBurn',7.5,()=>say(['El fuego le sube por la paja, despacio.','No grita.','Adentro ya no hay nadie. Lo que había, de alguna manera, encontró la paz.','De la arpillera queda un poco de ceniza que el viento se lleva para el campo.']));}
+function drawScBurn(e,t){ctx.fillStyle='#030403';ctx.fillRect(0,0,W,H);const k=Math.min(1,Math.max(0,(e-1)/4.5)),cx=W/2,gy=196;
+  {const g=ctx.createRadialGradient(cx,150,10,cx,150,200);g.addColorStop(0,'rgba(255,160,70,'+(.1+k*.35)+')');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
+  ctx.fillStyle='#14200f';ctx.fillRect(0,gy,W,44);
+  /* la casa de Máximo atrás */ctx.fillStyle='#1c1a14';ctx.fillRect(60,96,200,100);ctx.fillStyle='#24140e';ctx.beginPath();ctx.moveTo(50,98);ctx.lineTo(160,58);ctx.lineTo(270,98);ctx.fill();ctx.fillStyle='#0a0806';ctx.fillRect(148,150,24,46);
+  /* el espantapájaros, que se consume quieto */{const fade=Math.max(0,1-Math.max(0,(e-4)/2.6));ctx.save();ctx.globalAlpha=fade;ctx.translate(cx-28,gy-56);ctx.scale(3.5,3.5);drawScarecrow(0,0,t);ctx.restore();
+    ctx.save();ctx.globalCompositeOperation='lighter';const top=gy-k*110;for(let i=0;i<9;i++){const x=cx-24+i*6,y=gy-4-((i*13)%40)*k;if(y<top)continue;flame(x,y,18+k*34,t,i);}ctx.restore();
+    ctx.fillStyle='rgba(20,18,16,'+(.5*k)+')';ctx.beginPath();ctx.ellipse(cx,gy+2,26*k,4,0,0,7);ctx.fill();}
+  /* la ceniza que sube, tranquila */for(let i=0;i<30;i++){const q=hash(i,13),u=((e*.15+q%100/100)%1);ctx.fillStyle='rgba(220,210,200,'+(.5*(1-u)*k)+')';ctx.fillRect(cx-30+q%60+Math.sin(t+i)*8,gy-60-u*140,1,1);}
+  /* vos y tus amigos, mirando */isiFig(70,gy-23,0,playerLook(),'right',2.5);(S.party||[]).slice(0,2).forEach((p,i)=>{const lk=FOL_LOOK[p];if(lk)isiFig(44-i*24,gy-23,0,lk(),'right',2.5);});
+  {const g=ctx.createRadialGradient(W/2,H/2,60,W/2,H/2,220);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.75)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}photoGrain(.07);
+  if(e>6.8){ctx.fillStyle='rgba(0,0,0,'+Math.min(1,(e-6.8)/.7)+')';ctx.fillRect(0,0,W,H);}}
+/* el sótano: una escalera larguísima, y la puerta del final */
+function sotTile(ch,px,py,tx,ty,t){if(ch==='ꝉ'){const d=Math.min(1,ty/38),c=Math.round(70-d*40);ctx.fillStyle='rgb('+c+','+Math.round(c*.74)+','+Math.round(c*.5)+')';ctx.fillRect(px,py,T,T);ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(px,py+12,T,4);ctx.fillStyle='rgba(255,255,255,.05)';ctx.fillRect(px,py,T,1);if(hash(tx,ty)%7===0){ctx.fillStyle='#2e4a22';ctx.fillRect(px+(hash(tx,ty)>>4)%12,py+2,3,2);}return true;}
+  if(ch==='Ꝋ'){ctx.fillStyle='#2a1e14';ctx.fillRect(px,py,T,T);ctx.fillStyle='#4a3020';ctx.fillRect(px+1,py,14,16);ctx.fillStyle='#3a2418';ctx.fillRect(px+3,py+2,10,5);ctx.fillRect(px+3,py+9,10,5);ctx.fillStyle='#c8a860';ctx.fillRect(px+12,py+8,1,1);return true;}
+  return false;}
+function fireDoor(){const F=S.flags;if(F.c4fin)return;F.c4fin=1;P.moving=false;
+  say(['Al final de la escalera hay una puerta de madera, común.','Tiene la manija tibia.'],()=>cineStart('fuego',6.2,()=>{FALLBLK=1;say(['La puerta se prende fuego. Después, la pared. Después, el techo.','El cuarto entero arde a tu alrededor.','El humo baja del techo, espeso, y te llena los pulmones. Tosés. No ves la escalera.'].concat((S.party||[]).length?['Tus amigos tosen atrás tuyo. Uno se cae. Después el otro.']:[]).concat(['Las piernas no te sostienen.','Te desmayás.']),()=>{FALLBLK=0;endChapter4();});}));}
+function flame(x,y,h,t,s){for(const [col,w,f] of [['rgba(255,70,20,.55)',1,1],['rgba(255,150,40,.6)',.7,.8],['rgba(255,230,140,.6)',.4,.55]]){const hh=h*f*(.8+.2*Math.sin(t*8+s)),ww=7*w;ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x-ww,y);ctx.quadraticCurveTo(x-ww*.6+Math.sin(t*6+s)*3,y-hh*.6,x+Math.sin(t*5+s)*4,y-hh);ctx.quadraticCurveTo(x+ww*.6+Math.sin(t*7+s)*3,y-hh*.5,x+ww,y);ctx.fill();}}
+function drawFuego(e,t){const k=Math.max(0,(e-1)/3.6);ctx.fillStyle='#120c08';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#2a1e14';ctx.fillRect(0,40,W,170);ctx.fillStyle='#22180f';for(let x=0;x<W;x+=14)ctx.fillRect(x,40,2,170);ctx.fillStyle='#3a2a1a';ctx.fillRect(0,196,W,44);
+  /* la puerta */const dx=210;ctx.fillStyle='#5a3a22';ctx.fillRect(dx,96,46,100);ctx.fillStyle='#4a2e1a';ctx.fillRect(dx+6,104,34,36);ctx.fillRect(dx+6,148,34,40);ctx.fillStyle='#c8a860';ctx.fillRect(dx+38,148,3,3);
+  ctx.save();ctx.globalCompositeOperation='lighter';
+  if(e>1){for(let i=0;i<8;i++)flame(dx+4+i*6,196,20+k*40,t,i);for(let i=0;i<6;i++)flame(dx,190-i*16,10+k*18,t,i+20),flame(dx+46,190-i*16,10+k*18,t,i+40);}
+  if(k>.35){const s=(k-.35)/.65;for(let i=0;i<24;i++){const x=dx-s*220+i*14;if(x<-10||x>W+10)continue;flame(x,196,20+s*60,t,i+60);}for(let i=0;i<20;i++){const x=dx+20-s*200+i*16;flame(x,40+18,-(10+s*24),t,i+90);}}
+  {const g=ctx.createRadialGradient(dx+23,150,10,dx+23,150,260);g.addColorStop(0,'rgba(255,140,50,'+(.15+k*.5)+')');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
+  ctx.restore();
+  const fall=i=>{const u=Math.max(0,Math.min(1,(e-3.4-i*.35)/.6));return u*u*Math.PI/2;},fy=r=>196-23+Math.sin(r)*14;
+  {const r=fall(2);isiFig(110-k*30,fy(r),-r,playerLook(),'right',2.5);}(S.party||[]).slice(0,2).forEach((p,i)=>{const lk=FOL_LOOK[p],r=fall(i);if(lk)isiFig(80-i*26-k*30,fy(r),-r,lk(),'right',2.5);});
+  for(let i=0;i<10;i++){const q=hash(i,71),sy=Math.min(196,(e-1.2)*55)-((q>>4)%40);if(sy<0)continue;const g=ctx.createRadialGradient(q%W,sy*.6,4,q%W,sy*.6,70);g.addColorStop(0,'rgba(24,20,18,'+Math.min(.85,k*.9)+')');g.addColorStop(1,'rgba(24,20,18,0)');ctx.fillStyle=g;ctx.fillRect(q%W-70,sy*.6-70,140,140);}
+  ctx.fillStyle='rgba(30,26,24,'+(Math.min(.85,k*.95))+')';ctx.fillRect(0,0,W,Math.min(H,80*k+Math.max(0,e-3)*40));
+  if(e>4.6){ctx.fillStyle='rgba(255,200,140,'+Math.min(1,(e-4.6)/.8)+')';ctx.fillRect(0,0,W,H);}if(e>5.4){ctx.fillStyle='rgba(0,0,0,'+Math.min(1,(e-5.4)/.8)+')';ctx.fillRect(0,0,W,H);}photoGrain(.08);}
+function finCineUpd(c){
+  if(c.k==='scBurn'){if(c.t>1&&!c.a){c.a=1;AU.nz(.6,.08);AU.t(1800,.03,'square',.03);}if(c.t>1.2&&c.t<6.4&&rnd()<.25){AU.nz(.04,.04);AU.t(900+rnd()*1600,.02,'square',.008);}
+    if(c.t>2&&!c.b){c.b=1;for(const [f,d] of [[220,0],[277,.05],[330,.1],[440,.15]])AU.t(f,4.2,'sine',.018,f,d);}}
+  if(c.k==='fuego'){if(c.t>1&&c.t<5.4&&rnd()<.4){AU.nz(.05,.03+c.t*.012);AU.t(600+rnd()*1800,.02,'square',.01);}if(c.t>1&&!c.a){c.a=1;AU.nz(.8,.1);}if(c.t>2.6&&!c.b){c.b=1;AU.nz(2.8,.18);AU.t(60,2.8,'sawtooth',.06,40);}}}
+MAPS[MP.SOT]={title:'El sótano de Máximo',theme:'granja',rows:[
+  'ꜴꜴꜴꜴꜴꜴꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꝉꝉꝉꝉꝉꜴ',
+  'ꜴꜴꜴꝊꜴꜴꜴ'],
+  npcs:[],zone(){return'E13';},
+  step(){if(S.y>=35)fireDoor();},
+  act(ch){if(ch==='Ꝋ')return fireDoor();if(ch==='Ꜵ')return say(['Paredes de ladrillo húmedo. Las raíces llegan hasta acá abajo.']);}};
 MAPS[MP.DEPTO]={title:'Departamento 4A · 1995',theme:'home',rows:[
   '###c########WW###WW###',
   '#...AA..#...TV.......#',
@@ -1928,7 +2022,7 @@ MAPS[MP.DEPTO]={title:'Departamento 4A · 1995',theme:'home',rows:[
       case 'N':return say(['El cajón de la mesita de luz está cerrado con llave.','No te acordás dónde dejaste la llave. Ni siquiera te acordás de haberla tenido.']);
       case 'T':return say(['La tele solo muestra nieve.','Por un segundo, en la nieve, ves una estrella cruzando el cielo, demasiado rápido. Después, nada.']);
       case 'V':
-        if(has('cinta2')&&!S.flags.code2)return say(['Metés la cinta del segundo piso en la videocasetera. La etiqueta sigue en blanco.'],()=>cineStart('tape2',6.4,()=>{S.flags.code2=1;say(['La cinta se termina. La tele vuelve a la nieve.','En el tanque de agua, pintado grande, había un número: '+C4CODE+'.']);}));
+        if(has('cinta2')&&!S.flags.code2)return say(['Metés la cinta del segundo piso en la videocasetera. La etiqueta sigue en blanco.'],()=>cineStart('tape2',6.4,()=>{S.flags.code2=1;scBlockSet();say(['La cinta se termina. La tele vuelve a la nieve.','En el tanque de agua, pintado grande, había un número: '+C4CODE+'.']);}));
         if(has('cinta5')&&!S.flags.tape5)return say(['Metés la cinta "PISO 5" en la videocasetera. Entra sola, como si la estuviera esperando.'],()=>{c5Code();playTape(5);});
         if(S.flags.tape5)return say(['La videocasetera está vacía. El código de la puerta de Félix que anotaste: '+S.code5+'.']);
         if(S.items.includes('cinta3')&&!S.flags.tape3)return say(['Metés la cinta "PISO 3" en la videocasetera.'],()=>playTape(3));
@@ -3210,7 +3304,7 @@ function cineUpd(dt){const c=CINE;if(c.hold&&c.t>=c.hat&&c.held<c.hold){c.held+=
   if(c.k==='trap'){c.sc=c.sc||0;if(c.t>.08&&c.sc===0){c.sc=1;AU.nz(.08,.06);for(let k=1;k<4;k++)AU.t(85,.07,'triangle',.07,55,k*.13);}if(c.t>.5&&c.sc===1){c.sc=2;AU.t(90,.4,'square',.12,50);AU.nz(.3,.25);}if(c.t>1.2&&c.sc===2){c.sc=3;AU.t(55,.5,'sine',.18,35);AU.nz(.35,.2);AU.t(700,.5,'triangle',.03,690);AU.t(900,.4,'triangle',.02,880,.05);}if(c.t>1.42&&c.sc===3){c.sc=4;AU.t(160,.3,'square',.1,70);AU.nz(.25,.3);AU.t(2200,.15,'sawtooth',.02,800);}if(c.t>1.68&&c.sc===4){c.sc=5;AU.t(1200,.08,'square',.05);AU.t(300,.1,'square',.05,0,.06);}}
   if(c.k==='fall'){if(c.t>.9&&!c.cr1){c.cr1=1;AU.t(150,.5,'sawtooth',.04,90);}if(c.t>1.35&&!c.cr2){c.cr2=1;AU.nz(.25,.3);AU.t(900,.06,'square',.05,300);AU.t(70,.4,'square',.08,40);}
     if(c.t>1.5&&!c.wd){c.wd=1;AU.nz(2.4,.06);AU.t(320,2.2,'sine',.02,60);}if(c.t>4.7&&!c.th){c.th=1;AU.t(50,.7,'sawtooth',.14,30);AU.nz(.35,.35);}}
-  isiCineUpd(c);c4CineUpd(c);mxCineUpd(c);routeCineUpd(c);
+  isiCineUpd(c);c4CineUpd(c);mxCineUpd(c);routeCineUpd(c);finCineUpd(c);
   if(c.t>=c.dur){const f=c.then;CINE=null;if(f)f();}}
 /* fin del capítulo 3: la escalera de mano se parte y caés solo a la oscuridad del 2; el equipo queda arriba */
 let FALLBLK=0;
@@ -3247,7 +3341,7 @@ function drawLiveGlow(t,cx,cy,m){/* el resplandor de las teles prendidas sobre l
   ctx.save();ctx.globalCompositeOperation='lighter';
   for(let ty=y0;ty<=y1;ty++){const r=rows[ty];for(let tx=x0;tx<=x1;tx++){if(r[tx]!=='T')continue;const f=.10+.04*Math.sin(t*11+tx*3)+.05*((hash(tx+ty*7,Math.floor(t*9))%10)/10),gx=tx*T+8,gy=ty*T+8,g=ctx.createRadialGradient(gx,gy,2,gx,gy,30);g.addColorStop(0,(S.map===MP.CASA?'rgba(110,140,255,':'rgba(170,180,210,')+f+')');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.fillRect(gx-30,gy-30,60,60);}}
   ctx.restore();}
-function drawCine(t){const c=CINE,e=c.t;if(c.k==='fall'){drawFallCine(e,t);return;}if(c.k==='isiPush'){drawIsiPush(e,t);return;}if(c.k==='c4fall'){drawC4Fall(e,t);return;}if(c.k==='tape2'){drawTape2(e,t);return;}if(c.k==='maxfus'){drawMaxFus(e,t);return;}if(c.k==='alma'){drawAlma(e,t);return;}if(c.k==='scGore'){drawScGore(e,t);return;}if(c.k==='negro'){ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);photoGrain(.05);return;}if(c.k==='scareC'){drawScareC(e,t);return;}if(c.k==='isiShot'){drawIsiShot(e,t);return;}ctx.save();
+function drawCine(t){const c=CINE,e=c.t;if(c.k==='fall'){drawFallCine(e,t);return;}if(c.k==='isiPush'){drawIsiPush(e,t);return;}if(c.k==='c4fall'){drawC4Fall(e,t);return;}if(c.k==='tape2'){drawTape2(e,t);return;}if(c.k==='maxfus'){drawMaxFus(e,t);return;}if(c.k==='alma'){drawAlma(e,t);return;}if(c.k==='scGore'){drawScGore(e,t);return;}if(c.k==='scBurn'){drawScBurn(e,t);return;}if(c.k==='fuego'){drawFuego(e,t);return;}if(c.k==='negro'){ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);photoGrain(.05);return;}if(c.k==='scareC'){drawScareC(e,t);return;}if(c.k==='isiShot'){drawIsiShot(e,t);return;}ctx.save();
   if(c.k==='rack'){/* atrás del perchero: primero se mueven las perchas, después se abre la ropa, después la boca */
     ctx.fillStyle='#030304';ctx.fillRect(0,0,W,H);
     const A=Math.min(1,e/1.3),open=Math.max(0,Math.min(1,(e-1.25)/.7)),mo=Math.max(0,Math.min(1,(e-2.05)/.8)),lunge=Math.max(0,(e-2.9)/.9),sh=e>2.9?(rnd()-.5)*10*(1-Math.min(1,lunge)*.4):e>2.05?(rnd()-.5)*1.5*mo:0;
@@ -4333,7 +4427,7 @@ function tileAt(x,y){
   if(S.map===MP.ESCALERA&&y===5&&x>=1&&x<=3&&S.flags.c5stairs&&S.chapter>=3)return 'ϖ'; /* el piano del rellano, en la esquina de abajo a la izquierda: no se traspasa */
   return ch==='+'&&S.flags['dr'+x+'_'+y]?'_':ch;
 }
-const walk=ch=>'ꜳꜵꝁꜶꜷꝅ'.includes(ch)||ch==='ꞡ'||ch==='ꞏ'||ch==='ꞎ'||ch==='ꞈ'||ch==='ʬ'||ch==='ɖ'||ch==='ʓ'||ch==='ǒ'||ch==='ǫ'||ch==='ʑ'||ch==='ǂ'||(ch==='ψ'&&!!S&&S.map===MP.GINES)||ch==='ѣ'||ch==='¨'||ch==='¡'||ch==='.'||ch==='r'||ch===','||ch===':'||ch==='g'||ch==='_'||ch==='-'||(ch===';'&&!!(S&&S.flags.a8))||(ch==='?'&&!!(S&&S.flags.gateA11));
+const walk=ch=>'ꜳꜵꝁꜶꜷꝅꝉ'.includes(ch)||ch==='ꞡ'||ch==='ꞏ'||ch==='ꞎ'||ch==='ꞈ'||ch==='ʬ'||ch==='ɖ'||ch==='ʓ'||ch==='ǒ'||ch==='ǫ'||ch==='ʑ'||ch==='ǂ'||(ch==='ψ'&&!!S&&S.map===MP.GINES)||ch==='ѣ'||ch==='¨'||ch==='¡'||ch==='.'||ch==='r'||ch===','||ch===':'||ch==='g'||ch==='_'||ch==='-'||(ch===';'&&!!(S&&S.flags.a8))||(ch==='?'&&!!(S&&S.flags.gateA11));
 const isWall=ch=>ch===';'?!(S&&S.flags&&S.flags.a8):'#W1234vEDZcmx+%|^µø¬ωΞħЭЂϺϷӁӃӅӤӠაბნტყთიჟѵ'.includes(ch);
 const OUTCH='-!*0678)(][<>?Yl;9{}p/ɟ';
 function npcAt(x,y){
@@ -5986,6 +6080,7 @@ function drawDoor1(ch,px,py,tx,ty,t){const F=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.f
 
 function drawTile(ch,px,py,tx,ty,th,t){
   if(S&&S.map===MP.P2&&p2Tile(ch,px,py,tx,ty,t,S.flags.burnN))return;
+  if(S&&S.map===MP.SOT&&sotTile(ch,px,py,tx,ty,t))return;
   if(S&&isMX()&&mxTile(ch,px,py,tx,ty,t,S.flags.maxi,S.flags.cofre))return;
   if(S&&S.map===MP.P2C&&p2cTile(ch,px,py,tx,ty,t,S.flags.c4lamp,S.flags.c4shelf))return;
   if('ɖʬʭʓǒǫʑ'.includes(ch)){campoGround(ch,px,py,tx,ty);return;}
@@ -6678,7 +6773,7 @@ function updCut(dt){
   if(CUT.t>=1.7&&!CUT.boomed){CUT.boomed=true;sfx.boom();}
   if(CUT.t>=6.2){const idle=CUT.idle;CUT=null;if(idle){scene='pdeath';PD={t:0,sel:0};}else startWake();}
 }
-const FLAT='g-:.,r¡ʬʭɖʓǒǫʑꞏꞎꞈꞡꜳꜵꝁꜶꜷꝅ';let GC={key:null,c:null};
+const FLAT='g-:.,r¡ʬʭɖʓǒǫʑꞏꞎꞈꞡꜳꜵꝁꜶꜷꝅꝉ';let GC={key:null,c:null};
 function groundLayer(m,th,t){/* la clave incluye las filas y las variantes: si no, el ducto (largo/corto) y los pisos sorteados del 5 quedaban con el piso viejo */const key=objSig();if(GC.key===key&&GC.c)return GC.c;
   const W2=m.rows[0].length,H2=m.rows.length,c=mk(W2*T,H2*T),gx=c.getContext('2d'),saved=ctx;gx.imageSmoothingEnabled=false;ctx=gx;
   try{for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){const ch=tileAt(x,y);if(FLAT.includes(ch))drawTile(ch,x*T,y*T,x,y,th,0);}
@@ -9119,7 +9214,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.18.0';
+const GAME_VER='1.19.0';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
