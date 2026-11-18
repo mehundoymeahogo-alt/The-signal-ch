@@ -518,6 +518,8 @@ function give(id){if(IT[id]&&IT[id].t==='key'&&S.items.includes(id))return true;
 function giveOrStore(id){if(give(id))return 'pockets';const c=catOf(id);if(c){S.store[c].push(id);return 'store';}S.items.push(id);return 'pockets';}
 const storeName={heladera:'la heladera',botiquin:'el botiquín',armario:'el armario'};
 function gotLine(id){const w=giveOrStore(id);return w==='store'?'No te entra en los bolsillos: '+IT[id].n+' fue a parar a '+storeName[catOf(id)]+'.':'Agarraste: '+IT[id].n+'.';}
+/* las curas rinden un 40% menos de vida */
+(()=>{for(const k in IT){const it=IT[k];if((it.t==='food'||it.t==='med')&&it.hp){const n=Math.max(1,Math.round(it.hp*.6));if(it.d)it.d=it.d.replace('+'+it.hp+' PV','+'+n+' PV');it.hp=n;}}if(IT.ibuprofeno)IT.ibuprofeno.d=IT.ibuprofeno.d.replace('Cura toda la vida.','Cura un poco más de la mitad de la vida.');})();
 function useItem(i){
   const id=S.items[i],it=IT[id],out=[];
   if(id==='hisopo'){
@@ -529,7 +531,7 @@ function useItem(i){
     S.items.splice(i,1);S.flags.camB=100;S.flags.camLow=0;sfx.item();AU.t(1200,.06,'square',.02);AU.t(1600,.08,'square',.02,0,.08);return['Le ponés la pila a la cámara.','La batería marca cien.'];}
   if(it.t==='food'||it.t==='med'){
     S.items.splice(i,1);out.push('Usaste: '+it.n+'.');
-    if(it.full){S.hp=maxHP();out.push('Recuperaste toda la vida.');}
+    if(it.full){const b=S.hp;S.hp=Math.min(maxHP(),S.hp+Math.round(maxHP()*.6));out.push('Recuperaste '+(S.hp-b)+' PV.');}
     if(it.hp){const b=S.hp;S.hp=Math.min(maxHP(),S.hp+it.hp);out.push('Recuperaste '+(S.hp-b)+' PV.');}
     if(it.maxhp){S.hpBonus+=it.maxhp;S.hp+=it.maxhp;out.push('Tu vida máxima subió '+it.maxhp+'.');}
     if(it.cor){const b=S.cor;gainCor(it.cor);out.push('+'+(S.cor-b)+' COR.');}
@@ -541,7 +543,7 @@ function itemEffect(id){const it=IT[id],L=[];
   if(id==='pila'&&has('linterna'))return 'Llena la linterna'+(has('camara')?' o la cámara':'')+'. Se gasta al usarla.';
   if(id==='pila')return 'Carga la batería de la cámara al cien. Se gasta al usarla.'+(has('camara')?' (La cámara tiene '+Math.round(camBat())+'%.)':'');
   if(id==='hisopo')return 'No está claro para qué sirve. Capaz que para un momento muy específico.';
-  if(it.t==='food'||it.t==='med'){if(it.full)L.push('te cura toda la vida');if(it.hp&&it.cor)L.push('recupera '+it.hp+' PV y '+it.cor+' de cordura');else if(it.hp)L.push('recupera '+it.hp+' PV');else if(it.cor)L.push('recupera '+it.cor+' de cordura');if(it.maxhp)L.push('sube tu vida máxima '+it.maxhp+' para siempre');
+  if(it.t==='food'||it.t==='med'){if(it.full)L.push('te cura el 60% de la vida');if(it.hp&&it.cor)L.push('recupera '+it.hp+' PV y '+it.cor+' de cordura');else if(it.hp)L.push('recupera '+it.hp+' PV');else if(it.cor)L.push('recupera '+it.cor+' de cordura');if(it.maxhp)L.push('sube tu vida máxima '+it.maxhp+' para siempre');
     let s=L.join(' y ');s=s.charAt(0).toUpperCase()+s.slice(1)+'. Se gasta al usarlo.';if(it.hp||it.full)s+=' (Tenés '+S.hp+'/'+maxHP()+' PV.)';else if(it.cor)s+=' (Tenés '+S.cor+'/'+S.maxCor+' de cordura.)';return s;}
   if(it.t==='weapon'){const c=S.eq.weapon&&IT[S.eq.weapon];return 'Arma '+it.k+': '+it.dmg+' de daño. '+critText(it.k)+(c?' (Ahora usás '+c.n+': '+c.dmg+'.)':'');}
   if(it.t==='armor'){const c=S.eq.armor&&IT[S.eq.armor];return 'Abrigo: +'+it.def+' de defensa'+(it.inv?' y los golpes tardan más en volver a lastimarte':'')+(id==='chaqueta'?' y más daño con armas a distancia':'')+'.'+(c?' (Ahora tenés '+c.n+': +'+c.def+'.)':'');}
@@ -4143,23 +4145,24 @@ let RESC=null,CIROTR=null,CIROA=null;
 function rescStart(){const sil=S.party.includes('silvestre');RESC={ph:'cut',i:0,n:5,nd:0,dir:1,z:.3+rnd()*.4,noise:0,listen:0,lift:0,t:0,sil,cut:[0,0,0,0,0],weld:[0,0,0,0,0],flash:0};
   say([sil?{who:'Silvestre',t:'(atrás tuyo, en el caño) Yo te alumbro. Vos cortá. Cuando el soldador esté al rojo, ahí. Ni antes ni después.'}:'Prendés el soldador de Silvestre. La punta se pone roja de a poco.',
     {who:'Ciro',t:'(desde abajo, muy bajito) Si hacés mucho ruido, Den viene. Yo toco más fuerte para taparte.'},'(Apretá Z cuando la aguja esté en la zona roja. Cada error hace ruido.)']);}
+function rescW(r){return (r.ph==='cut'?.13:.095)+(r.sil?.03:0);}
 function rescUpd(dt){const r=RESC;r.t+=dt;if(r.flash>0)r.flash-=dt;
   if(r.listen>0){r.listen-=dt;if(hit('a')||hit('up')){RESC=null;AU.t(70,.5,'square',.1);return c5Caught('resc');}if(r.listen<=0){AU.t(392,.2,'sine',.02);}return;}
-  if(r.ph==='lift'){if(hit('up')||hit('a')){r.lift+=.13;AU.t(140+r.lift*80,.06,'square',.02);}r.lift=Math.max(0,r.lift-dt*.18);
+  if(r.ph==='lift'){if(hit('up')||hit('a')){r.lift+=.1;AU.t(140+r.lift*80,.06,'square',.02);}r.lift=Math.max(0,r.lift-dt*.3);
     if(r.lift>=1){r.ph='weld';r.i=0;r.nd=0;r.z=.3+rnd()*.4;sfx.item();PENDING.push({who:'Ciro',t:'(arriba, temblando, con la guitarra en la espalda) ...Estoy afuera. Estoy afuera.'},'(Ahora soldá los barrotes de nuevo, que no se note nada. Más fino todavía.)');}return;}
-  const w=(r.ph==='cut'?.2:.14)+(r.sil?.05:0),spd=(r.ph==='cut'?.75:.95)+r.i*.12;r.nd+=r.dir*spd*dt;if(r.nd>1){r.nd=1;r.dir=-1;}if(r.nd<0){r.nd=0;r.dir=1;}
+  const w=rescW(r),spd=(r.ph==='cut'?1:1.25)+r.i*.16;r.nd+=r.dir*spd*dt;if(r.nd>1){r.nd=1;r.dir=-1;}if(r.nd<0){r.nd=0;r.dir=1;}
   if(hit('a')){const ok=Math.abs(r.nd-r.z)<=w/2;
     if(ok){(r.ph==='cut'?r.cut:r.weld)[r.i]=1;r.i++;r.flash=.25;AU.nz(.25,.08);AU.t(2400,.15,'sawtooth',.02,1200);r.z=.25+rnd()*.5;
       if(r.i>=r.n){if(r.ph==='cut'){r.ph='lift';r.lift=0;PENDING.push('El último barrote cae adentro del cuarto. Abajo, Ciro abre el pasador de la jaula desde adentro. Nunca tuvo candado.','Se sube a una caja y estira los brazos.','(Apretá ↑ muchas veces para subirlo.)');}else{RESC=null;rescDone();}}}
-    else{r.noise++;AU.t(180,.35,'square',.09,120);AU.nz(.2,.12);if(r.noise>=3){r.noise=0;r.listen=3.2;AU.t(330,.4,'sine',.03);PENDING.push({who:'Den',t:'(desde la cámara de frío, con la voz de la mamá de Ciro) ¿Ciro? ¿Qué es ese ruido, mi amor?'},'(No te muevas. Que no se oiga nada.)');}}}}
+    else{r.noise++;AU.t(180,.35,'square',.09,120);AU.nz(.2,.12);if(r.noise>=2){r.noise=0;r.listen=3.2;AU.t(330,.4,'sine',.03);PENDING.push({who:'Den',t:'(desde la cámara de frío, con la voz de la mamá de Ciro) ¿Ciro? ¿Qué es ese ruido, mi amor?'},'(No te muevas. Que no se oiga nada.)');}}}}
 function rescDone(){const F=S.flags;S.items=S.items.filter(i=>i!=='estano');F.c5rescued=1;F.c5run=0;F.c5ciroFol=1;C5GV=false;CIROTR=[S.x,S.y];sfx.item();
   say(['La soldadura queda prolija. Desde abajo nadie diría que alguien pasó por acá.',{who:'Ciro',t:'...Gracias. Te escuché todo el tiempo. Pensé que eras una grabación.'},{who:'Ciro',t:'Vamos. Arrastrate vos primero, yo te sigo.'},'(Volvé por el caño hasta la tapa de inspección. Ciro va atrás tuyo.)']);}
 function drawResc(t){const r=RESC;drawGrateView(t,r);const x0=W/2-100,y0=152,w=200;
   ctx.fillStyle='rgba(6,8,20,.9)';ctx.fillRect(x0-8,y0-14,w+16,62);
   if(r.ph==='lift'){txt('Subilo: ↑ ↑ ↑',W/2,y0,'#e3a849',12,'center',true);ctx.fillStyle='#2a2c38';ctx.fillRect(x0,y0+10,w,8);ctx.fillStyle='#7cff9a';ctx.fillRect(x0,y0+10,w*Math.min(1,r.lift),8);return;}
-  const wz=(r.ph==='cut'?.2:.14)+(r.sil?.05:0);txt(r.ph==='cut'?'Cortá los barrotes: '+r.i+' de '+r.n:'Soldá los barrotes: '+r.i+' de '+r.n,W/2,y0,'#e3a849',11,'center',true);
+  const wz=rescW(r);txt(r.ph==='cut'?'Cortá los barrotes: '+r.i+' de '+r.n:'Soldá los barrotes: '+r.i+' de '+r.n,W/2,y0,'#e3a849',11,'center',true);
   ctx.fillStyle='#2a2c38';ctx.fillRect(x0,y0+10,w,10);ctx.fillStyle='rgba(255,90,60,.75)';ctx.fillRect(x0+(r.z-wz/2)*w,y0+10,wz*w,10);ctx.fillStyle='#f4f0e0';ctx.fillRect(x0+r.nd*w-1,y0+6,3,18);
-  txt('Ruido:',x0,y0+38,'#767c92',9);for(let k=0;k<3;k++){ctx.fillStyle=k<r.noise?'#ff5a3a':'#3a3c48';ctx.fillRect(x0+36+k*10,y0+31,7,7);}
+  txt('Ruido:',x0,y0+38,'#767c92',9);for(let k=0;k<2;k++){ctx.fillStyle=k<r.noise?'#ff5a3a':'#3a3c48';ctx.fillRect(x0+36+k*10,y0+31,7,7);}
   if(r.listen>0)txt('DEN ESCUCHA · no te muevas',W/2+30,y0+38,Math.floor(t*4)%2?'#ff5a3a':'#a03020',10,'center',true);else txt('Z',x0+w,y0+38,'#9aa0b4',10,'right');
   {const nx=x0+r.nd*w,hot=Math.abs(r.nd-r.z)<=wz/2,g=ctx.createRadialGradient(nx,y0+15,0,nx,y0+15,hot?16:9);g.addColorStop(0,hot?'rgba(255,170,90,.55)':'rgba(255,240,220,.25)');g.addColorStop(1,'rgba(255,120,60,0)');ctx.fillStyle=g;ctx.fillRect(nx-18,y0-3,36,36);}
   if(r.flash>0){ctx.fillStyle='rgba(255,220,150,'+(r.flash*2)+')';ctx.fillRect(0,0,W,H);
@@ -9899,9 +9902,10 @@ function routeName(){if(S.flags.ivanDead)return S.flags.tgAbort?'ESTÁTICA':S.fl
 function endChapter(){chapterCor(1);S.flags.cap1=1;saveLS();transition(1.2,()=>{scene='end';EN={t:0};});}
 function continueGame(){
   if(!loadLS())return transition(.8,newGame);
+  if(!(S.chapter===4&&c4Open())){/* si ya estás en el 4, seguís donde estabas */
   if(S.flags.cap3&&c3Open()){transition(.8,()=>{scene='end';EN={t:0,ch:3};});return;}
   if(S.flags.cap2&&(S.chapter!==3||!c3Open())){transition(.8,()=>{scene='end';EN={t:0,ch:2};});return;}
-  if(S.flags.cap1&&!S.chapter){transition(.8,()=>{scene='end';EN={t:0};});return;}
+  if(S.flags.cap1&&!S.chapter){transition(.8,()=>{scene='end';EN={t:0};});return;}}
   transition(.8,()=>{
     scene='map';P.moving=false;mapTitleT=2.6;if(FOLS().length)placeFollower();
     try{const c=+localStorage.getItem(CLOSED)||0;if(c&&Date.now()-c>=864e5){S.day++;if(S.eq.acc==='collar'||S.items.includes('collar')){S.hpDrain+=5;fixHP();}PENDING.push('Pasó un día entero desde la última vez. El edificio siguió sin vos.','Empieza el día '+S.day+'.');}}catch(e){}
@@ -9911,7 +9915,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.31.5';
+const GAME_VER='1.32.0';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
