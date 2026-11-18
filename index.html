@@ -4537,7 +4537,9 @@ function drawEnd3(t){
   if(EN.t>.8){const F=S.flags,L=['Ciro: '+(F.c5ciroDead?'eliminado':F.c5rescued?'rescatado por los caños':'liberado'),'Den: '+(F.c5trap?'encerrada':'eliminada')+' · Brian: '+(F.c5brian==='spare'?'perdonado':F.c5brian==='dead'?'eliminado':'sin pelear'),'Selene: '+(F.c5selDead?'eliminada':F.c5gato===-1?'no te perdona':'te espera en su set'),'LV '+S.lv+' · $'+S.pesos+' · Día '+S.day].concat(F.corGain3>0?['Cordura máxima +'+F.corGain3]:[]).concat(['RUTA: '+routeName()]);
     L.forEach((l,i)=>endLine(l,i,i===L.length-1?'#e3a849':'#c9ccd8'));}
   if(EN.t>1.6)txt(c4Open()?'Capítulo 4 · En construcción':'Capítulo 4 · Próximamente',W/2,186,'#e3a849',14,'center');
-  if(EN.t>2&&Math.floor(t*2)%2)txt('Z para volver al título',W/2,214,'#767c92',11,'center');
+  if(EN.t>2&&Math.floor(t*2)%2)txt(c4Open()?'Z para seguir':'Z para volver al título',W/2,214,'#767c92',11,'center');
+  if(EN.ok>0){EN.ok-=1/60;txt('Acceso concedido',W/2,200,'#7cff9a',11,'center');}
+  if(EN.pad)drawC3Pad();
 }
 // vals de gramófono y la guitarra de Ciro por los caños
 let TEAT_T=0,TEAT_I=0,GUIT_T=0,GUIT_I=0;
@@ -9894,7 +9896,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.31.0';
+const GAME_VER='1.31.1';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
@@ -10070,7 +10072,7 @@ function update(dt){
       if(hit('a')){sfx.ok();if(GO.sel===0)transition(.9,rewind);else transition(.9,()=>{scene='title';TS.sel=0;});}break;}
     case 'pdeath':{PD.t+=dt;if(PD.t<3)break;if(hit('up')||hit('down')){PD.sel=1-PD.sel;sfx.sel();}
       if(hit('a')){sfx.ok();if(PD.sel===0)transition(1,newGame);else transition(1,()=>{scene='title';TS.sel=0;});}break;}
-    case 'end':{EN.t+=dt;if(EN.ch===2&&EN.pad){c3PadUpd();break;}if(EN.ch===2&&EN.t>1&&hit('b')){EN.xn=(EN.xn||0)+1;if(EN.xn>=3){EN.xn=0;EN.pad={d:[0,0,0,0,0,0,0,0],p:0,msg:''};sfx.sel();}break;}
+    case 'end':{EN.t+=dt;if((EN.ch===2||EN.ch===3)&&EN.pad){c3PadUpd();break;}if((EN.ch===2||EN.ch===3&&!c4Open())&&EN.t>1&&hit('b')){EN.xn=(EN.xn||0)+1;if(EN.xn>=3){EN.xn=0;EN.pad={d:[0,0,0,0,0,0,0,0],p:0,msg:''};sfx.sel();}break;}
       if(EN.t>2&&hit('a')){if(EN.ch===4){transition(1,()=>{scene='title';TS={sel:0};});}else if(EN.ch===3){if(c4Open())transition(1,startChapter4);else transition(1,()=>{scene='title';TS={sel:0};});}else if(EN.ch===2){if(c3Open())startChapter3();else transition(1,()=>{scene='title';TS={sel:0};});}else startChapter2();}break;}
   }
 }
