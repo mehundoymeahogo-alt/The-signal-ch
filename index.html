@@ -1447,7 +1447,7 @@ function c4CineUpd(c){
     if(c.t>2.1&&c.t<2.8){c.rl=c.rl||2.1;if(c.t>=c.rl){c.rl=c.t+.12;AU.t(400+rnd()*500,.04,'square',.025);AU.nz(.05,.08);}}
     if(c.t>3.35&&!c.hy){c.hy=1;AU.nz(.6,.2);AU.t(70,.3,'sine',.1,45);}}
   if(c.k==='scareC'){if(c.t>.06&&!c.sc){c.sc=1;sfx.scream&&sfx.scream();AU.nz(.7,.55);AU.t(66,1,'sawtooth',.22,38);AU.t(1900,.5,'square',.04,700);}}}
-function startChapter4(){const F=S.flags;S.chapter=4;/* el 4 arranca de cero: sin los objetos de antes y sin linterna */S.items=[];F.c4lamp=0;S.lamp=0;if(!F.partyUp)F.partyUp=S.party.slice();S.party=[];F.solo2=1;F.c4ms=0;F.scOn=0;F.scw={m:MP.P2C,x:11,y:6,acc:0};if(S.lamp==null)S.lamp=0;F.lampOn=0;
+function startChapter4(){const F=S.flags;S.chapter=4;if(!S.items.includes('linterna')){F.c4lamp=0;}if(!F.partyUp)F.partyUp=S.party.slice();S.party=[];F.solo2=1;F.c4ms=0;F.scOn=0;F.scw={m:MP.P2C,x:11,y:6,acc:0};if(S.lamp==null)S.lamp=0;F.lampOn=0;
   scene='map';S.map=MP.P2;S.x=75;S.y=56;S.dir='up';P.moving=false;FALLBLK=1;CUT=null;B=null;DLG=null;UI=null;saveLS();
   cineStart('c4fall',4.6,()=>{FALLBLK=1;S.hp=Math.max(1,Math.round(maxHP()*.05));
     c4WakeEsc(F);});}
@@ -4426,7 +4426,7 @@ function drawPianoTune(t){const g=PG,R=PG_R[g.round];ctx.fillStyle='rgba(4,4,8,.
 function pianoTuned(){const F=S.flags;F.pTune=1;for(let i=0;i<20;i++){const f=ELISA[i];if(f)AU.t(f,.3,'triangle',.05,0,.3+i*.22);}
   pianoTunedEsc([].concat(S.party.includes('silvestre')?(F.polQ=1,[{who:'Silvestre',t:'¿Querés bajarlo entero por la escalera? Con un aparejo se puede.'},{who:'Silvestre',t:'A ver. Si lo tiramos, se hace pedazos. Si lo bajamos despacio, el peso hace el trabajo y las barricadas ceden igual.'},{who:'Silvestre',t:'Necesito tres cosas: una soga gruesa, una roldana y una cuña de madera para trabarlo en cada escalón.'},{who:'Silvestre',t:'La soga y la cuña están acá, en esta misma sala: la soga en el telón, y la cuña abajo de la pata de cualquier atril del foso.'},{who:'Silvestre',t:'La roldana está en la habitación de Selene, en su set: el proyector tiene una.'},'(Conseguí la soga, la roldana y la cuña.)']):['(Silvestre sabría cómo bajarlo entero. Está en el 3A.)']));}
 function c5PolQ(){const F=S.flags;return F.polQ===1;}
-function c5PolPiece(id,line){if(!c5PolQ()||has(id))return false;sfx.item();say(line.concat([gotLine(id),'(Piezas del aparejo: '+['soga','roldana','cuna'].filter(has).length+' de 3.)']));return true;}
+function c5PolPiece(id,line){if(!c5PolQ()||has(id)||S.flags['pg_'+id])return false;S.flags['pg_'+id]=1;sfx.item();say(line.concat([gotLine(id),'(Piezas del aparejo: '+['soga','roldana','cuna'].filter(has).length+' de 3.)']));return true;}
 function c5Pulley(){const F=S.flags;
   if(!F.pTune)return false;
   if(!S.party.includes('silvestre')){say(['La escalera tapada de muebles. El piano solo no puede bajar entero.','Silvestre sabría cómo hacerlo. Está en el 3A.']);return true;}
@@ -9896,7 +9896,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.31.2';
+const GAME_VER='1.31.3';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
