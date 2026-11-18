@@ -2137,7 +2137,7 @@ function drawScFace(e,t){const k=Math.min(1,(e-4.2)/3),z=1.02+ez(k)*.22,fl=.88+.
    pasos: ['wait',s] · ['walk',id,[[x,y],...],segXcasilla,espera?] (id 'p' = vos) · ['face',id,dir] · ['pose',id,{...}] · ['spawn',id,look,x,y,dir] · ['del',id]
           ['say',páginas] · ['cine',k,dur] · ['cam',x,y,s] (null = volver a vos) · ['fx',{...}] · ['tw',id,clave,hasta,s,espera?] · ['fade',hasta,s] · ['shake',s,amp] · ['do',fn] */
 let ESC=null,ESCQ=null;
-function esc(steps,done){ESC={q:steps.slice(),cur:null,t:0,act:{},pp:{},fx:[],camC:null,cam:null,fade:0,shk:0,done,tw:[]};P.moving=false;DLG=null;UI=null;}
+function esc(steps,done){ESC={q:steps.slice(),cur:null,t:0,act:{},pp:{},fx:[],camC:null,cam:null,fade:0,zoom:1,shk:0,done,tw:[]};P.moving=false;DLG=null;UI=null;}
 function escQueue(steps,done){ESCQ={steps,done};}
 function escAct(id){return id==='p'?ESC.pp:ESC.act[id];}
 function escStepP(nx,ny,dur){const d=nx>S.x?'right':nx<S.x?'left':ny>S.y?'down':'up',nf=FOLS().length;
@@ -2191,8 +2191,11 @@ function escPerson(x,y,look,dir,t,mv,o){o=o||{};const al=o.alpha==null?1:o.alpha
   ctx.restore();}
 function escEnts(ents,t){const E=ESC;for(const id in E.act){const a=E.act[id],u=a.mv?a.prog:0,x=(a.mv?a.fx+(a.tx-a.fx)*u:a.x)*T,y=(a.mv?a.fy+(a.ty-a.fy)*u:a.y)*T+(a.oy||0);
     ents.push({y:y+(a.lie?-6:0),d:()=>escPerson(x,y,a.look,a.dir,t,a.mv,a)});}
-  for(const f of E.fx)if(f.k==='fire'||f.k==='spark'||f.k==='ash'||f.k==='tapes'||f.k==='hand'||f.k==='notes'||f.k==='heart'||f.k==='car')ents.push({y:f.y*T+(f.k==='fire'?15.5:20),d:()=>escFxDraw(f,t)});}
+  for(const f of E.fx)if(f.k==='fire'||f.k==='spark'||f.k==='ash'||f.k==='tapes'||f.k==='hand'||f.k==='notes'||f.k==='heart'||f.k==='car'||f.k==='camrec'||f.k==='fur')ents.push({y:f.y*T+(f.k==='fire'?15.5:20),d:()=>escFxDraw(f,t)});
+  for(const f of E.fx)if(f.k==='grin'&&E.act[f.id]){const a=E.act[f.id];ents.push({y:a.y*T+(a.oy||0)+.5,d:()=>escGrin(f,a)});}}
 function escFxDraw(f,t){const x=f.x*T+8,y=f.y*T+15;
+  if(f.k==='camrec'){/* la cámara de Selene, apoyada, grabando */const d=f.d==='left'?-1:f.d==='right'?1:0,bx=x-4,by=y-7;ctx.fillStyle='rgba(0,0,0,.4)';ctx.beginPath();ctx.ellipse(x,y-1,6,1.8,0,0,7);ctx.fill();ctx.fillStyle='#1c1c22';ctx.fillRect(bx,by,8,5);ctx.fillStyle='#3a3a44';ctx.fillRect(bx,by,8,1);ctx.fillStyle='#0c0c10';if(d)ctx.fillRect(d<0?bx-2:bx+8,by+1,2,3);else ctx.fillRect(bx+3,f.d==='up'?by-1:by+4,3,2);ctx.fillStyle='#4a5a6a';if(d)ctx.fillRect(d<0?bx-2:bx+9,by+2,1,1);ctx.fillStyle=Math.floor(t*2)%2?'#ff3a2a':'#5a1410';ctx.fillRect(bx+(d<0?6:1),by+1,1,1);return;}
+  if(f.k==='fur'){/* pelos de gato que se te vuelan */const a=f.dur?Math.min(1,(f.dur-f.t)/.8):1;for(let i=0;i<16;i++){const u=(f.t*.45+i/16)%1;ctx.fillStyle=['#d8c8b0','#3a3430','#a08870'][i%3];ctx.globalAlpha=a*(1-u);ctx.fillRect(x-8+((i*5)%16)+Math.sin(t*2+i)*3,y-6-u*16-(i%4)*2,i%2?2:1,1);}ctx.globalAlpha=1;return;}
   if(f.k==='fire'){const g=Math.min(1,f.t/(f.grow||1.2))*(f.dur?Math.min(1,(f.dur-f.t)/1):1)*(f.k2||1);if(g<=0)return;ctx.save();ctx.globalCompositeOperation='lighter';const n=f.w||3;for(let i=0;i<n;i++)flame(x-(n-1)*3+i*6,y,(f.h||22)*g*(.75+.25*Math.sin(t*5+i*2)),t,i+f.x*3);
     for(let i=0;i<10*g;i++){const q=hash(i,(t*4|0)+f.x),u=(t*.9+q%100/100)%1;ctx.fillStyle='rgba(255,'+(150+q%80)+',70,'+(1-u)*.9+')';ctx.fillRect(x-8+q%16+Math.sin(t*3+i)*3,y-6-u*(f.h||22)*1.6,1,1);}ctx.restore();
     for(let i=0;i<5;i++){const q=hash(i,f.x*7+f.y),u=((t*.25+q%100/100)%1),r=4+u*14;ctx.fillStyle='rgba(28,24,22,'+(.32*g*(1-u))+')';ctx.beginPath();ctx.arc(x-4+q%8+Math.sin(t+i)*4,y-(f.h||22)*g-u*40,r,0,7);ctx.fill();}return;}
@@ -2214,6 +2217,7 @@ function escOver(t){const E=ESC;for(const f of E.fx){
       ctx.save();ctx.globalAlpha=a*(.75+.25*Math.sin(t*20+i));ctx.font='bold 26px monospace';ctx.textAlign='center';ctx.fillStyle='rgba(200,30,30,.5)';ctx.fillText(s[i],W/2-36+i*24+j+1.5,H/2-20);ctx.fillStyle='rgba(30,200,220,.4)';ctx.fillText(s[i],W/2-36+i*24+j-1.5,H/2-20);ctx.fillStyle='#e8e8e0';ctx.fillText(s[i],W/2-36+i*24+j,H/2-20);ctx.restore();}
     if(f.t<s.length*(f.each||.5)+.3)for(let k=0;k<160;k++){ctx.fillStyle='rgba(255,255,255,'+rnd()*.25+')';ctx.fillRect(rnd()*W,rnd()*H,2,1);}}
   if(f.k==='pop'){const a=Math.max(0,1-f.t/(f.dur||.8));ctx.save();ctx.globalAlpha=a;txt(f.txt,f.x*T+8-CAMX,f.y*T-4-CAMY-f.t*10,f.col||'#e8e8e0',f.size||12,'center',true);ctx.restore();}}
+  for(const f of E.fx){if(f.k==='vhs')escVHS(f,t);else if(f.k==='stop')escStop(f,t);}
   if(E.fade>0){ctx.fillStyle='rgba(0,0,0,'+Math.min(1,E.fade)+')';ctx.fillRect(0,0,W,H);}}
 function escLights(lights,cx,cy,t){if(!ESC.dark&&ESC.pp.alpha!==0)lights.push({x:pX()+8-cx,y:pY()+6-cy,r:ESC.pp.glow||66,a:.8});for(const id in ESC.act){const a=ESC.act[id];if(a.glow&&a.alpha!==0){const u=a.mv?a.prog:0,x=(a.mv?a.fx+(a.tx-a.fx)*u:a.x)*T,y=(a.mv?a.fy+(a.ty-a.fy)*u:a.y)*T;lights.push({x:x+8-cx,y:y+6-cy,r:a.glow,a:.7});}}for(const f of ESC.fx)if(f.k==='flick'){const on=f.t<1.2?(Math.sin(f.t*40)>.2||f.t>1?1:0)*(f.t>.9?1:.6):1;if(on)lights.push({x:f.x*T+8-cx,y:f.y*T+8-cy,r:150,a:.8*on});}else if(f.k==='fire'){const g=Math.min(1,f.t/(f.grow||1.2));const r=Math.round((f.lr||70)*g*(.92+.08*Math.sin(t*11)));if(r>=4)lights.push({x:f.x*T+8-cx,y:f.y*T+4-cy,r,a:.9*g});}}
 /* ---- las escenas del capítulo 4, jugadas en el mapa ---- */
@@ -2370,6 +2374,78 @@ function frigoPlayEsc(){esc([['do',()=>{AU.t(900,.05,'square',.03);AU.nz(.3,.03)
   ['do',()=>{AU.nz(1.2,.06);AU.t(70,1,'sine',.04,40);}],['shake',.3,1],['wait',1.2]],()=>goMap(MP.FRIGO5,16,18,'up'));}
 /* Pionono en la caja: te agachás, mastica, le sacás la llave */
 function pioEsc(after){esc([['pose','p',{kneel:1}],['wait',.4],['do',()=>{for(let i=0;i<5;i++)setTimeout(()=>AU.nz(.05,.04),i*220);AU.t(700,.12,'sine',.02,500,1.3);}],['wait',1.6],['do',()=>{AU.t(1200,.05,'square',.03);AU.t(1600,.05,'square',.03,0,.08);}],['wait',.4],['pose','p',{kneel:0}],['say',after]]);}
+/* ---- 1.27: lo que todavía se contaba, ahora pasa en el mapa ---- */
+function purr(n){for(let i=0;i<n;i++){AU.t(23+rnd()*3,.34,'sawtooth',.016,20,i*.42);AU.t(46,.3,'triangle',.007,40,i*.42+.06);}}
+/* despertás debajo de la escalera, después del control remoto */
+function remoteWakeEsc(){const iv=S.party.includes('ivan'),si=S.party.includes('silvestre'),ar=S.party.includes('arana')&&S.spiderHP>0,co=iv||si;
+  const up=[['pose','p',{lie:0,breath:0,kneel:1,spx:0,spy:0}],['do',()=>AU.nz(.2,.04)],['wait',.7],['pose','p',{kneel:0,shake:.35}],['wait',.6],['pose','p',{shake:0}]];
+  const stand=[['do',()=>{ESC.pf=null;}],['wait',.2]];
+  const wall=[['face','p','left'],['wait',.7],['do',()=>AU.t(46,2.2,'sine',.05,40)],['wait',1.2],['tw',null,'zoom',1,1.4]];
+  const St=[['do',()=>{AU.t(3900,3.2,'sine',.008,3600);ESC.zoom=2.4;}]];
+  if(ar&&!co)/* la araña te camina por la cara hasta que abrís los ojos */
+    St.push(['wait',.7],['do',()=>{for(let i=0;i<7;i++)AU.t(5200,.015,'square',.006,0,i*.16);}],['tw','p','spx',6,1.2,false],['tw','p','spy',-4,1.2],['fade',.6,.5],['wait',.3],['do',()=>AU.nz(.15,.05)],['fade',0,.5],['wait',1]);
+  else St.push(['fade',0,2.4],['wait',ar?1.4:.6]);
+  const W1=(w,t)=>({who:w,t});
+  if(iv&&si)St.push(['say',[W1('Iván','¡Ahí está! Respira. Respira, ¿no? Sí, respira.'),W1('Silvestre','Che, nos asustaste. Te paraste, caminaste derecho hacia la pared, como si te llamaran.'),W1('Iván','La tocaste y te caíste redondo. Ni la mano pusiste.')]],...up,...stand,['say',[W1('Silvestre','¿Qué puerta? Ahí no hay ninguna puerta. Mirá.')]],...wall);
+  else if(iv)St.push(['say',[W1('Iván','¡Eh! ¡Eh! Abrí los ojos. Eso. Despacio.')]],...up,['say',[W1('Iván','Empezaste a caminar hacia la pared, solo, sin decir nada. La tocaste y te desmayaste.')]],...stand,['say',[W1('Iván','¿Una puerta? No. Lo anoté todo. No había ninguna puerta.')]],...wall);
+  else if(si)St.push(['say',[W1('Silvestre','Despertate, dale. Eso.')]],...up,['say',[W1('Silvestre','Te fuiste caminando hacia la pared como sonámbulo. La tocaste y te caíste de espaldas.')]],...stand,['say',[W1('Silvestre','¿Qué control remoto? Ahí no hay nada. Es una pared.')]],...wall);
+  else St.push(['wait',.6],...up,['pose','p',{shake:.25}],['wait',.5],['pose','p',{shake:0}],...wall);
+  esc(St);ESC.fade=1;ESC.pp.lie=1;ESC.pp.breath=1;if(co)ESC.pf={kneel:1};}
+/* la cama de los gatos: dormís; si dejaste la cámara grabando, después mirás la cinta */
+function catBedEsc(rec){const [dx,dy]=DIRS[S.dir],bt=[S.x+dx,S.y+dy],by=bt[1];let bl=bt[0];while(tileAt(bl-1,by)==='Ӈ')bl--;
+  const cx=S.x,cy=S.y,cd=S.dir,me={...playerLook()},bedX=bl+.3;
+  const toBed=[['spawn','me',me,cx,cy,cd],['pose','p',{alpha:0}],['walk','me',[bt],.35],['tw','me','x',bedX,.4],['pose','me',{lie:1,breath:1,oy:-1}],['do',()=>purr(7)],['tw',null,'zoom',2,1.6,false],['cam',bl+1,by,1.4],['wait',1.2],['fade',1,1.6],['wait',1]];
+  const wake=[['do',()=>purr(4)],['fade',0,1.4],['wait',.6],['pose','me',{shake:.3}],['wait',.5],['pose','me',{shake:0,lie:0,breath:0,oy:0,kneel:1}],['wait',.5],['pose','me',{kneel:0}],['tw','me','x',bt[0],.3],['walk','me',[[cx,cy]],.35],['face','me',cd],['del','me'],['pose','p',{alpha:null}],['face','p',cd],['tw',null,'zoom',1,0.9,false],['cam',null,null,.9]];
+  if(!rec){esc([...toBed,...wake,['fx',{k:'fur',x:cx,y:cy,dur:3.2}],['pose','p',{shake:.6}],['do',()=>{AU.nz(.08,.06);AU.nz(.06,.05);}],['wait',.5],['pose','p',{shake:0}],['wait',.6],['do',()=>{AU.nz(.05,.08);AU.t(900,.05,'sine',.01,500);}],['wait',1.2],['say',['(Cordura y vida al máximo.)']]]);return;}
+  CAMON=false;const CAMF={k:'camrec',x:cx,y:cy,d:cd,t:0};
+  const sh={...playerLook(),skin:'#141216',eye:'#141216',blood:0};
+  const sitT=walk(tileAt(bl+2,by))?[bl+2,by]:[bl+1,by+1];let ent=[sitT[0]+6,by+1];for(let k=9;k>=4;k--)if(walk(tileAt(bl+k,by+1))){ent=[bl+k,by+1];break;}
+  const adj=escNear(cx,cy,[[1,0],[0,1],[-1,0],[0,-1]]),pIn=denBFS(ent[0],ent[1],sitT[0],sitT[1])||escPathL(ent[0],ent[1],sitT[0],sitT[1]),pOut=denBFS(sitT[0],sitT[1],adj[0],adj[1])||escPathL(sitT[0],sitT[1],adj[0],adj[1]);
+  const play=[['pose','p',{kneel:1}],['wait',.4],['do',()=>{CAMF.dur=.001;AU.t(1500,.04,'square',.02);}],['wait',.3],['do',()=>{AU.t(700,1.3,'sawtooth',.008,2600);AU.nz(1.3,.01);}],['wait',1.5],['do',()=>{AU.t(400,.06,'square',.04);AU.t(260,.08,'square',.03,0,.08);}],['pose','p',{kneel:0}],['wait',.3],
+    ['fade',1,.35],['do',()=>{ESC.fx.push({k:'vhs',t:0});ESC.tc=0;ESC.ff=1;ESC.camC=[(bl+1)*T+8,by*T+14];ESC.zoom=2.6;ESC.pp.alpha=0;ESC.hideNpc='selene5';}],['spawn','me',me,bedX,by,'down'],['pose','me',{lie:1,breath:1,oy:-1}],['fade',0,.35],
+    ['do',()=>AU.t(520,2.6,'sawtooth',.006,560)],['tw',null,'tc',10800,2.6],['do',()=>{ESC.ff=0;AU.t(1200,.03,'square',.02);}],['wait',1],
+    ['spawn','o',sh,ent[0],ent[1],'left'],['walk','o',pIn,.5],['tw','o','x',bl+1.45,.6],['face','o','left'],['pose','o',{sit:1,oy:-1}],['wait',3.2],
+    ['do',()=>{ESC.ff=1;AU.t(520,1.8,'sawtooth',.006,560);}],['tw',null,'tc',14400,1.8],['do',()=>{ESC.ff=0;AU.t(1200,.03,'square',.02);}],['wait',.5],
+    ['pose','o',{sit:0,oy:0}],['tw','o','x',sitT[0],.4],['walk','o',pOut,.5],['face','o',escFaceTo(adj[0],adj[1],cx,cy)],['wait',1.1],['fx',{k:'hand',x:cx,y:cy,dur:1.4}],['wait',.8],
+    ['do',()=>{AU.t(300,.05,'square',.05);AU.nz(.08,.04);ESC.fx.push({k:'stop',t:0});}],['wait',2.4],
+    ['do',()=>{ESC.fx=ESC.fx.filter(f=>f.k!=='vhs'&&f.k!=='stop');ESC.camC=null;ESC.zoom=1;ESC.pp.alpha=null;ESC.hideNpc=null;}],['del','me'],['del','o'],['wait',.4]];
+  esc([['pose','p',{kneel:1}],['wait',.4],['do',()=>{ESC.fx.push(CAMF);AU.t(1800,.03,'square',.03);AU.t(1800,.03,'square',.03,0,.1);AU.nz(.15,.02);}],['wait',.5],['pose','p',{kneel:0}],['wait',.2],...toBed,...wake,...play],()=>c5ShotDone(3,[]));}
+/* el camarín, cada vez peor; la cabina de verdad */
+let C12H=[];
+function c12Lag(t){const px=P.moving?P.fx+(S.x-P.fx)*P.prog:S.x;if(C12H.length&&C12H[C12H.length-1][0]>t)C12H=[];C12H.push([t,px]);while(C12H.length>2&&C12H[1][0]<=t-1)C12H.shift();return Math.max(-2,Math.min(2,Math.round((C12H[0][1]-5.5)*.8)));}
+function c12Enter(){const F=S.flags,n=R12();
+  const go=(k,s)=>['walk','p',escPathL(S.x,S.y,S.x,Math.max(2,S.y-k)),s||.4];
+  if(n===12){if(F.r12seen){F.r12done=1;return;}F.r12done=1;F.r12seen=1;
+    return esc([['do',()=>AU.t(60,5,'sine',.02,60)],go(3,.45),['tw',null,'zoom',3.4,1.2,false],['cam',1.6,.6,1.2],['wait',.5],['cam',10.4,.6,3.6],['wait',.9],['walk','p',[[4,3]],.5],['wait',1.5],['walk','p',[[5,3],[6,3]],.5],['wait',1.6],['face','p','up'],['wait',.6],['tw',null,'zoom',1,1.1,false],['cam',null,null,1.1]]);}
+  if(n>=7)AU.nz(.3,.02);say(R12TXT[n]);}
+/* Brian y Den: se prenden los tubos, él en el sillón, ella parada al lado */
+function frigoBossEsc(then){DEN=null;const fl=()=>{AU.t(120,1.6,'sawtooth',.015,121);AU.t(4000,.04,'square',.01);AU.t(4000,.04,'square',.01,0,.18);AU.t(4000,.04,'square',.01,0,.31);};
+  esc([['spawn','b',LOOK.brian,18,1,'down'],['pose','b',{sit:1,oy:3}],['spawn','d',LOOK.den,17,2,'down'],['tw',null,'zoom',2.2,1.6,false],['cam',18,2.6,1.6],['wait',.4],
+    ['do',fl],['fx',{k:'flick',x:18,y:2}],['wait',1.4],['do',fl],['fx',{k:'flick',x:17,y:7}],['wait',1.2],
+    ['fx',{k:'grin',id:'d'}],['tw',null,'zoom',3.4,0.8,false],['cam',17,2,.8],['do',()=>AU.t(90,1.2,'sine',.03,70)],['wait',1.1],['tw',null,'zoom',2.2,0.6,false],['cam',18,2.6,.6],
+    ['say',[{who:'Brian',t:'¿Quién sos? ¿Qué hacés en mi casa?'},{who:'Den',t:'(con la voz de Brian) ¿Quién sos? ¿Qué hacés en mi casa?',on(){AU.nz(.3,.03);AU.t(140,.5,'sawtooth',.02,120);}}]],
+    ['pose','b',{sit:0,oy:0}],['do',()=>AU.nz(.2,.05)],['walk','b',[[18,2]],.45,false],['wait',.5],['do',()=>AU.nz(.2,.03)],['walk','d',[[17,3]],.45],['wait',.6]],then);}
+/* dibujos de estas escenas */
+function escGrin(f,a){const x=Math.round(a.x*T),y=Math.round(a.y*T+(a.oy||0)),w=Math.min(9,3+Math.floor(f.t*7)),x0=x+8-Math.floor(w/2);
+  ctx.fillStyle='#1a0608';ctx.fillRect(x0,y+5,w,2);ctx.fillStyle='#f0ece0';for(let i=0;i<w;i++){if(i%2===0)ctx.fillRect(x0+i,y+5,1,1);else ctx.fillRect(x0+i,y+6,1,1);}}
+function escVHS(f,t){const E=ESC;if(!E.ff&&f.pt!=null)E.tc=(E.tc||0)+Math.max(0,f.t-f.pt);f.pt=f.t;
+  {/* visión nocturna de la cámara: blanco y negro con mucho contraste, teñido de verde */const c=ctx.canvas;if(!ZCV)ZCV=document.createElement('canvas');if(ZCV.width!==c.width||ZCV.height!==c.height){ZCV.width=c.width;ZCV.height=c.height;}
+    const g=ZCV.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,c.width,c.height);g.drawImage(c,0,0);
+    ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.filter='grayscale(1) brightness(2.1) contrast(1.1)';ctx.drawImage(ZCV,0,0);ctx.filter='none';
+    ctx.globalCompositeOperation='multiply';ctx.fillStyle='rgb(110,255,140)';ctx.fillRect(0,0,c.width,c.height);ctx.restore();}
+  ctx.fillStyle='rgba(0,0,0,.2)';for(let y=0;y<H;y+=2)ctx.fillRect(0,y,W,1);
+  const n=E.ff?110:30,by=(t*(E.ff?170:40))%(H+30)-15;for(let k=0;k<n;k++){ctx.fillStyle='rgba(220,255,225,'+rnd()*.3+')';ctx.fillRect(rnd()*W,E.ff?rnd()*H:by+rnd()*12,1+rnd()*16,1);}
+  ctx.save();ctx.strokeStyle='rgba(230,232,239,.5)';ctx.lineWidth=1;const m=12,L2=16;[[m,m+14,1,1],[W-m,m+14,-1,1],[m,H-m-14,1,-1],[W-m,H-m-14,-1,-1]].forEach(([x,y,dx,dy])=>{ctx.beginPath();ctx.moveTo(x,y+dy*L2);ctx.lineTo(x,y);ctx.lineTo(x+dx*L2,y);ctx.stroke();});ctx.restore();
+  txt(E.ff?'▶▶':'▶',24,44,'#e6e8ef',10,'left',true);
+  const tc=E.tc||0,p=v=>String(Math.floor(v)).padStart(2,'0');txt(Math.floor(tc/3600)+':'+p(tc/60%60)+':'+p(tc%60),24,H-30,'#e6e8ef',10,'left',true);}
+function escStop(f,t){if(f.t<1.1){ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);if(f.t<.12)for(let k=0;k<200;k++){ctx.fillStyle='rgba(255,255,255,'+rnd()*.4+')';ctx.fillRect(rnd()*W,rnd()*H,2,1);}return;}
+  ctx.fillStyle='#1d2c9c';ctx.fillRect(0,0,W,H);txt('■ STOP',24,44,'#e6e8ef',10,'left');}
+let ZCV=null;
+function escZoom(cx,cy){const E=ESC,c=ctx.canvas,k=c.width/W,z=E.zoom;if(!ZCV)ZCV=document.createElement('canvas');if(ZCV.width!==c.width||ZCV.height!==c.height){ZCV.width=c.width;ZCV.height=c.height;}
+  const g=ZCV.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,c.width,c.height);g.drawImage(c,0,0);
+  const fx=(E.camC?E.camC[0]:pX()+8)-cx,fy=(E.camC?E.camC[1]:pY()+8)-cy,sw=c.width/z,sh=c.height/z;
+  const sx=Math.max(0,Math.min(c.width-sw,fx*k-sw/2)),sy=Math.max(0,Math.min(c.height-sh,fy*k-sh/2));
+  ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.imageSmoothingEnabled=false;ctx.fillStyle='#000';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(ZCV,sx,sy,sw,sh,0,0,c.width,c.height);ctx.restore();}
 function finCineUpd(c){
   if(c.k==='scBurn'){if(c.t>1&&!c.a){c.a=1;AU.nz(.6,.08);AU.t(1800,.03,'square',.03);}if(c.t>1.2&&c.t<6.4&&rnd()<.25){AU.nz(.04,.04);AU.t(900+rnd()*1600,.02,'square',.008);}
     if(c.t>2&&!c.b){c.b=1;for(const [f,d] of [[220,0],[277,.05],[330,.1],[440,.15]])AU.t(f,4.2,'sine',.018,f,d);}}
@@ -2706,7 +2782,7 @@ MAPS[MP.ESCALERA]={title:'Escalera · entre el 4 y el 3',theme:'escalera',rows:[
   '#####D######'],
   zone:()=>'La escalera',npcs:[],
   under(t){escPiano(t);},
-  over(t){const th=TH.escalera,u=S.y===1&&S.x<=4;ctx.globalAlpha=u?.35:1;if(!S.flags.c5stairs)for(let x=1;x<=3;x++)drawTile('«',x*T,T,x,1,th,t);ctx.fillStyle=th.top;ctx.fillRect(4*T,T,T,T);ctx.globalAlpha=1;ctx.fillStyle=th.top;ctx.fillRect(4*T,0,T,T);ctx.fillRect(7*T,0,T,2*T);/* el hueco de la que baja queda parejo con el de la que sube */
+  over(t){const th=TH.escalera,u=S.y===1&&S.x<=4;ctx.globalAlpha=u?(ESC?.12:.35):1;if(!S.flags.c5stairs)for(let x=1;x<=3;x++)drawTile('«',x*T,T,x,1,th,t);ctx.fillStyle=th.top;ctx.fillRect(4*T,T,T,T);ctx.globalAlpha=1;ctx.fillStyle=th.top;ctx.fillRect(4*T,0,T,T);ctx.fillRect(7*T,0,T,2*T);/* el hueco de la que baja queda parejo con el de la que sube */
     if(S.flags.c5stairs){ctx.fillStyle='#14100c';ctx.fillRect(T,T,3*T,2*T);for(let k=0;k<8;k++){ctx.fillStyle='rgba(120,100,80,'+(.7-k*.08)+')';ctx.fillRect(T,T+2+k*4,3*T,1);}ctx.fillStyle='#d8ceb0';ctx.fillRect(T+6,2*T+9,4,2);ctx.fillRect(2*T+9,2*T+12,3,2);ctx.fillStyle='#0a0a0c';ctx.fillRect(3*T+3,2*T+5,6,2);ctx.fillStyle='#2a2420';ctx.fillRect(T+20,3*T+2,10,3);ctx.fillStyle='#d8ceb0';ctx.fillRect(2*T+2,3*T+8,3,1);}},
   act(ch){
     switch(ch){
@@ -2754,18 +2830,7 @@ function updScream(dt){
   if(k.st===0&&k.t>k.d){k.st=1;AU.scream(1,1);AU.nz(.9,2);AU.t(1300,.9,'sawtooth',1.2,180);AU.t(880,.9,'square',.9,120);AU.t(2400,.7,'sawtooth',.6,600);AU.t(90,.9,'sawtooth',1,40);AU.t(1390,.85,'sawtooth',.6,170);AU.t(2900,.5,'square',.35,800);}
   if(k.st===1&&k.t>k.d+.9){k.st=2;}
   if(SCTEST&&k.t>k.d+1.6){sctBack();return;}
-  if(k.t>k.d+2.9){SCR=null;S.flags.remoteDone=1;S.flags.escDoor=0;S.map=MP.ESCALERA;S.x=1;S.y=1;S.dir='left';P.moving=false;if(FOLS().length)placeFollower();scene='map';say(remoteWake());}
-}
-function remoteWake(){
-  const iv=S.party.includes('ivan'),si=S.party.includes('silvestre'),ar=S.party.includes('arana')&&S.spiderHP>0;
-  const W='Te dicen que empezaste a caminar hacia la pared de abajo de la escalera y que, cuando la tocaste, te desmayaste.';
-  const L=['...','Abrís los ojos. Estás tirado en el piso, debajo de la escalera.'];
-  if(iv&&si)L.push({who:'Iván',t:'¡Ahí está! Respira. Respira, ¿no? Sí, respira.'},{who:'Silvestre',t:'Che, nos asustaste. Te paraste, caminaste derecho hacia la pared, como si te llamaran.'},{who:'Iván',t:'La tocaste y te caíste redondo. Ni la mano pusiste.'},{who:'Silvestre',t:'¿Qué puerta? Ahí no hay ninguna puerta. Mirá.'});
-  else if(iv)L.push({who:'Iván',t:'¡Eh! ¡Eh! Abrí los ojos. Eso. Despacio.'},{who:'Iván',t:'Empezaste a caminar hacia la pared, solo, sin decir nada. La tocaste y te desmayaste.'},{who:'Iván',t:'¿Una puerta? No. Lo anoté todo. No había ninguna puerta.'});
-  else if(si)L.push({who:'Silvestre',t:'Despertate, dale. Eso.'},{who:'Silvestre',t:'Te fuiste caminando hacia la pared como sonámbulo. La tocaste y te caíste de espaldas.'},{who:'Silvestre',t:'¿Qué control remoto? Ahí no hay nada. Es una pared.'});
-  else if(!ar)L.push('No hay nadie. Te duele la cabeza, como si te hubieras golpeado contra algo.','La pared está entera. No hay ninguna puerta.');
-  if(ar)L.push(iv||si?'La araña está sobre tu pecho. Te mira como si hubiera estado esperando.':'Algo te camina por la cara hasta que abrís los ojos: la araña. No se movió de tu lado.',...(iv||si?[]:['Por cómo te mira, sabés lo que pasó: caminaste hasta la pared y te desmayaste al tocarla.','La pared está entera. No hay ninguna puerta.']));
-  return L;
+  if(k.t>k.d+2.9){SCR=null;S.flags.remoteDone=1;S.flags.escDoor=0;S.map=MP.ESCALERA;S.x=1;S.y=1;S.dir='left';P.moving=false;if(FOLS().length)placeFollower();scene='map';remoteWakeEsc();}
 }
 MAPS[MP.PISO3]={title:'Pasillo · piso 3',theme:'pista',encounters:true,enc:{pool:['pelota','naranja','raqueta','valla'],key:'left3',total:20},get rows(){return p3Data().rows;},
   zone:()=>'La pista del 3',
@@ -3387,9 +3452,8 @@ function c5EstefCheck(){if(S.chapter!==3||!S.flags.c5hint||has('sardinas')||(S.f
 /* ---------- la cama de los gatos ---------- */
 function catBed(){
   if(S.flags.c5selDead)return say(['La cama de los gatos. Está fría.']);
-  return say([{t:'Una cama enorme de almohadones, llena de pelos de gato. Dos gatos duermen hechos una rosca.',choices:[...(c5ShotOn(3)?[{l:'Dormir y dejar la cámara grabando',f(){addTime(120);S.cor=S.maxCor;S.hp=maxHP();S.snapAt='gatos';snapshot();sfx.item();
-    c5ShotDone(3,['Apoyás la cámara en un baúl, apuntando a la cama. ● REC.','Te acurrucás entre los gatos. Ronronean como un motor viejo.','Te despertás descansado, con la vida y la cordura llenas.','Rebobinás la cinta para ver qué grabó.','Estás vos, durmiendo. Los gatos, durmiendo. Una hora. Dos.','A las tres horas, alguien entra al cuadro y se sienta en el borde de la cama. Te mira dormir.','No le ves la cara. Tiene tu buzo. Los gatos no se despiertan.','A las cuatro horas se levanta, se acerca a la cámara y la apaga.']);}}]:[]),{l:'Dormir un rato',f(){addTime(120);S.cor=S.maxCor;S.hp=maxHP();S.snapAt='gatos';snapshot();sfx.item();
-    say(['Te acurrucás entre los gatos. Ronronean como un motor viejo.','Te despertás descansado, con la vida y la cordura llenas.','Y lleno de pelos de gato. En la ropa, en el pelo, en la boca.']);}},{l:'Mejor no',f(){}}]}]);
+  const rest=()=>{addTime(120);S.cor=S.maxCor;S.hp=maxHP();S.snapAt='gatos';snapshot();sfx.item();};
+  return say([{t:'Una cama enorme de almohadones, llena de pelos de gato. Dos gatos duermen hechos una rosca.',choices:[...(c5ShotOn(3)?[{l:'Dormir y dejar la cámara grabando',f(){rest();catBedEsc(true);}}]:[]),{l:'Dormir un rato',f(){rest();catBedEsc(false);}},{l:'Mejor no',f(){}}]}]);
 }
 /* ---------- la cámara de Selene: R la prende y la apaga ---------- */
 let CAMON=false,CAMG=0,CAMCUT=0;
@@ -3566,8 +3630,6 @@ const R12TXT=[null,
 function c12Door(){const F=S.flags;
   if(F.r12done)return say(['La puerta de la cabina está entreabierta. La lamparita de GRABANDO sigue prendida.'],()=>{F.r12n=12;goMap(MP.CUARTO12,5,6,'up');});
   return say(['Una puerta de chapa: "CABINA DE SONIDO". Arriba, la lamparita de GRABANDO está prendida.','La puerta, que siempre estuvo cerrada, hoy está entreabierta.',{t:'¿Entrar?',choices:[{l:'Entrar',f(){F.r12n=1;goMap(MP.CUARTO12,5,6,'up');}},{l:'Mejor no',f(){}}]}]);}
-function c12Enter(){const n=R12();if(n===12){S.flags.r12done=1;return say(['No es un camarín.','Es la cabina de sonido. La de verdad: prolija, silenciosa, con olor a cable caliente.','En la pared hay doce monitores. En once se ve el camarín, cada uno peor que el anterior. Abajo de cada uno dice "TOMA" y un número.','En el monitor doce estás vos. De espaldas. Mirando doce monitores.','La lamparita de GRABANDO está prendida desde que abriste la primera puerta.']);}
-  if(n>=7)AU.nz(.3,.02);say(R12TXT[n]);}
 function c12Act(ch,x,y){const F=S.flags,n=R12();
   if(ch==='D'&&y===0){if(n===12)return say(['Donde estaba la puerta hay una pared lisa. Tiene marcado, con cinta de papel, el contorno de una puerta.','Abajo de la cinta, a birome: "TOMA 13".']);
     if(n===11)AU.nz(.6,.04);F.r12n=n+1;return goMap(MP.CUARTO12,5,6,'up');}
@@ -3590,7 +3652,7 @@ function c12Under(t){const n=R12(),F2=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect
     F2('#6e5e4e',80,0,32,16);ctx.strokeStyle='rgba(230,220,190,.35)';ctx.setLineDash([2,2]);ctx.strokeRect(84.5,1.5,23,14);ctx.setLineDash([]);
     for(let k=0;k<12;k++){/* doce monitores: seis a cada lado de la puerta tapiada, sin pisarla */const mx=18+(k%6)*10+(k>=6?96:0),my=2;
       F2('#0a0a0c',mx,my,9,11);const red=k<11?Math.min(1,k/10):0;F2(k<11?`rgb(${60+red*120|0},${50-red*30|0},${46-red*30|0})`:'#1a2a3a',mx+1,my+1,7,7);
-      if(k<11){F2('rgba(0,0,0,.5)',mx+2,my+4,2,3);if(k>=7)F2('#0a0204',mx+5,my+2,1,5);}else{F2('#0a0a0e',mx+3,my+2,2,2);F2('#0a0a0e',mx+2,my+4,4,4);}
+      if(k<11){F2('rgba(0,0,0,.5)',mx+2,my+4,2,3);if(k>=7)F2('#0a0204',mx+5,my+2,1,5);}else{const o=c12Lag(t);F2('#0a0a0e',mx+3+o,my+2,2,2);F2('#0a0a0e',mx+2+o,my+4,4,4);}
       if(Math.sin(t*9+k)>.7)F2('rgba(255,255,255,.12)',mx+1,my+1+((t*20+k*3)%7|0),7,1);F2('rgba(230,220,190,.4)',mx+2,my+9,5,1);}
     F2(Math.floor(t*2)%2?'#ff3a2a':'#7a1a14',91,1,10,3);
     for(const bx of [16,144]){F2('#0c0c10',bx,16,32,14);F2('#2a2a30',bx+1,17,30,12);for(let k=0;k<7;k++){F2('#141418',bx+3+k*4,19,1,8);F2('#c8c0a8',bx+2+k*4,20+((hash(k,bx)+Math.floor(t))%6),3,2);}F2('#1a3a1a',bx+2,27,28,1);F2('#7cff9a',bx+2,27,4+Math.abs(Math.sin(t*3+bx))*20|0,1);}
@@ -4083,9 +4145,8 @@ function cellBars(){const F=S.flags;
   if(F.c5ciroOut||F.c5rescued)return say(['La celda abierta. En el piso quedó una púa de Ringo.']);
   return say(['Una reja de hierro. Del otro lado, sentado contra la pared, un pibe flaco abraza una guitarra.',{who:'Ciro',t:'(muy bajito) ¡Shh! No te acerques a la reja. Si Den te ve, te mata.'},{who:'Ciro',t:'Por acá no me podés sacar. Los caños... los caños pasan por arriba.'}]);
 }
-function frigoBossIntro(){return ['Se prende un tubo fluorescente. Después otro.','Brian está en el sillón, todavía con el guardapolvo del frigorífico. Den está parada al lado. Sonríe con demasiados dientes.',{who:'Brian',t:'¿Quién sos? ¿Qué hacés en mi casa?'},{who:'Den',t:'(con la voz de Brian) ¿Quién sos? ¿Qué hacés en mi casa?'}];}
 function c5BossStart(){const F=S.flags;F.c5fightReady=2;
-  say(frigoBossIntro(),()=>startBattle(['brian','den'],{c5bd:true,leftKey:'c5bdK',intro:['¡Brian y Den te cortan el paso!'],onEnd:()=>say(C5HID(),c5AfterFight)}));}
+  frigoBossEsc(()=>startBattle(['brian','den'],{c5bd:true,leftKey:'c5bdK',intro:['¡Brian y Den te cortan el paso!'],onEnd:()=>say(C5HID(),c5AfterFight)}));}
 /* ---------- la cinta del 5 y las videocaseteras ---------- */
 function vcrPlay(desc){if(!has('cinta5')||S.flags.tape5)return say([desc]);return say([desc,'Probás meter la cinta de Ciro. La videocasetera la traga hasta la mitad, hace un ruido de engranaje y la escupe.','En la etiqueta, abajo de "PISO 5", con letra chiquita: "solo en tu tele".','(La cinta de Ciro solo se puede ver en la videocasetera de tu departamento, en el 4.)']);}
 /* ---------- el piano (minijefe) ---------- */
@@ -7286,7 +7347,7 @@ function renderMap(t){
   if(SCW()&&S.flags.scw.m===S.map){const sc=S.flags.scw,[ddx,ddy]=p2d(S.x,S.y,sc.x,sc.y,S.map),sx=(S.x+ddx)*T,sy=(S.y+ddy)*T;ents.push({y:sy,d:()=>drawScarecrow(sx,sy,t)});}
   if(S.map===MP.P2)for(const [a0,b0] of P2PILAS)if(!S.flags['pl'+a0+'_'+b0]){const [ddx,ddy]=p2d(S.x,S.y,a0,b0,MP.P2),a=S.x+ddx,b=S.y+ddy;if(Math.abs(ddx)>14||Math.abs(ddy)>10)continue;ents.push({y:b*T,d:()=>{ctx.fillStyle='#c8a030';ctx.fillRect(a*T+6,b*T+9,4,3);ctx.fillStyle='#2a2a2a';ctx.fillRect(a*T+6,b*T+9,1,3);}});}
   if(CHASE&&CHASE.map===S.map&&CHASE.px!=null){const cx2=CHASE.px*T,cy2=CHASE.py*T;ents.push({y:cy2,d:()=>drawShadowFig(cx2,cy2,t)});}
-  ents.push({y:ppy,d:()=>{if(ESC&&(ESC.pp.lie||ESC.pp.melt||ESC.pp.kneel||ESC.pp.sit||ESC.pp.cough||ESC.pp.shake||ESC.pp.alpha!=null))escPerson(Math.round(ppx),Math.round(ppy),playerLook(),S.dir,t,P.moving,ESC.pp);else drawPerson(Math.round(ppx),Math.round(ppy)-(S.sit?5:0),{...playerLook(),dir:S.dir,sit:S.sit},t,P.moving);if((S.pro&&S.flags.spider)||(S.party.includes('arana')&&S.spiderHP>0)){const sx=Math.round(ppx)+11,sy=Math.round(ppy)+6;ctx.fillStyle='#0a0a0a';ctx.fillRect(sx,sy,3,2);ctx.fillRect(sx-1,sy-1,1,1);ctx.fillRect(sx+3,sy-1,1,1);ctx.fillRect(sx-1,sy+2,1,1);ctx.fillRect(sx+3,sy+2,1,1);ctx.fillStyle='#ff8a2a';ctx.fillRect(sx+1,sy,1,1);}}});
+  ents.push({y:ppy,d:()=>{if(ESC&&(ESC.pp.lie||ESC.pp.melt||ESC.pp.kneel||ESC.pp.sit||ESC.pp.cough||ESC.pp.shake||ESC.pp.alpha!=null))escPerson(Math.round(ppx),Math.round(ppy),playerLook(),S.dir,t,P.moving,ESC.pp);else drawPerson(Math.round(ppx),Math.round(ppy)-(S.sit?5:0),{...playerLook(),dir:S.dir,sit:S.sit},t,P.moving);if((S.pro&&S.flags.spider)||(S.party.includes('arana')&&S.spiderHP>0)){const lyg=ESC&&ESC.pp.lie,sx=Math.round(ppx)+(lyg?9+Math.round(ESC.pp.spx||0):11),sy=Math.round(ppy)+(lyg?10+Math.round(ESC.pp.spy||0):6);ctx.fillStyle='#0a0a0a';ctx.fillRect(sx,sy,3,2);ctx.fillRect(sx-1,sy-1,1,1);ctx.fillRect(sx+3,sy-1,1,1);ctx.fillRect(sx-1,sy+2,1,1);ctx.fillRect(sx+3,sy+2,1,1);ctx.fillStyle='#ff8a2a';ctx.fillRect(sx+1,sy,1,1);}}});
   try{drawPuffs(t);}catch(e){}
   try{drawGuitarShards(t);}catch(e){}
   try{drawLiveGlow(t,cx,cy,m);}catch(e){}
@@ -7328,6 +7389,7 @@ function renderMap(t){
   ctx.drawImage(lc,0,0);
   if(isP2())lampTint(ppx+8-cx,ppy+8-cy);
   if(MAPS[S.map].post)try{MAPS[S.map].post(t,cx,cy);}catch(e){}
+  if(ESC&&ESC.zoom>1.01)try{escZoom(cx,cy);}catch(e){console.error(e);}
   try{drawCorSense(t,cx,cy);}catch(e){}
   try{drawCam(t,cx,cy);}catch(e){}
   if(RECT>0&&CAMON)RECT=0;
@@ -9620,7 +9682,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.26.0';
+const GAME_VER='1.27.0';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
