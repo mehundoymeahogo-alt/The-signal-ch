@@ -519,7 +519,7 @@ function giveOrStore(id){if(give(id))return 'pockets';const c=catOf(id);if(c){S.
 const storeName={heladera:'la heladera',botiquin:'el botiquín',armario:'el armario'};
 function gotLine(id){const w=giveOrStore(id);return w==='store'?'No te entra en los bolsillos: '+IT[id].n+' fue a parar a '+storeName[catOf(id)]+'.':'Agarraste: '+IT[id].n+'.';}
 /* las curas rinden un 40% menos de vida */
-(()=>{for(const k in IT){const it=IT[k];if((it.t==='food'||it.t==='med')&&it.hp){const n=Math.max(1,Math.round(it.hp*.6));if(it.d)it.d=it.d.replace('+'+it.hp+' PV','+'+n+' PV');it.hp=n;}}if(IT.ibuprofeno)IT.ibuprofeno.d=IT.ibuprofeno.d.replace('Cura toda la vida.','Cura un poco más de la mitad de la vida.');})();
+(()=>{for(const k in IT){const it=IT[k];if((it.t==='food'||it.t==='med')&&it.hp){const n=Math.max(1,Math.round(it.hp*.6));if(it.d)it.d=it.d.replace('+'+it.hp+' PV','+'+n+' PV');it.hp=n;}}})();
 function useItem(i){
   const id=S.items[i],it=IT[id],out=[];
   if(id==='hisopo'){
@@ -531,7 +531,7 @@ function useItem(i){
     S.items.splice(i,1);S.flags.camB=100;S.flags.camLow=0;sfx.item();AU.t(1200,.06,'square',.02);AU.t(1600,.08,'square',.02,0,.08);return['Le ponés la pila a la cámara.','La batería marca cien.'];}
   if(it.t==='food'||it.t==='med'){
     S.items.splice(i,1);out.push('Usaste: '+it.n+'.');
-    if(it.full){const b=S.hp;S.hp=Math.min(maxHP(),S.hp+Math.round(maxHP()*.6));out.push('Recuperaste '+(S.hp-b)+' PV.');}
+    if(it.full){S.hp=maxHP();out.push('Recuperaste toda la vida.');}
     if(it.hp){const b=S.hp;S.hp=Math.min(maxHP(),S.hp+it.hp);out.push('Recuperaste '+(S.hp-b)+' PV.');}
     if(it.maxhp){S.hpBonus+=it.maxhp;S.hp+=it.maxhp;out.push('Tu vida máxima subió '+it.maxhp+'.');}
     if(it.cor){const b=S.cor;gainCor(it.cor);out.push('+'+(S.cor-b)+' COR.');}
@@ -543,7 +543,7 @@ function itemEffect(id){const it=IT[id],L=[];
   if(id==='pila'&&has('linterna'))return 'Llena la linterna'+(has('camara')?' o la cámara':'')+'. Se gasta al usarla.';
   if(id==='pila')return 'Carga la batería de la cámara al cien. Se gasta al usarla.'+(has('camara')?' (La cámara tiene '+Math.round(camBat())+'%.)':'');
   if(id==='hisopo')return 'No está claro para qué sirve. Capaz que para un momento muy específico.';
-  if(it.t==='food'||it.t==='med'){if(it.full)L.push('te cura el 60% de la vida');if(it.hp&&it.cor)L.push('recupera '+it.hp+' PV y '+it.cor+' de cordura');else if(it.hp)L.push('recupera '+it.hp+' PV');else if(it.cor)L.push('recupera '+it.cor+' de cordura');if(it.maxhp)L.push('sube tu vida máxima '+it.maxhp+' para siempre');
+  if(it.t==='food'||it.t==='med'){if(it.full)L.push('te cura toda la vida');if(it.hp&&it.cor)L.push('recupera '+it.hp+' PV y '+it.cor+' de cordura');else if(it.hp)L.push('recupera '+it.hp+' PV');else if(it.cor)L.push('recupera '+it.cor+' de cordura');if(it.maxhp)L.push('sube tu vida máxima '+it.maxhp+' para siempre');
     let s=L.join(' y ');s=s.charAt(0).toUpperCase()+s.slice(1)+'. Se gasta al usarlo.';if(it.hp||it.full)s+=' (Tenés '+S.hp+'/'+maxHP()+' PV.)';else if(it.cor)s+=' (Tenés '+S.cor+'/'+S.maxCor+' de cordura.)';return s;}
   if(it.t==='weapon'){const c=S.eq.weapon&&IT[S.eq.weapon];return 'Arma '+it.k+': '+it.dmg+' de daño. '+critText(it.k)+(c?' (Ahora usás '+c.n+': '+c.dmg+'.)':'');}
   if(it.t==='armor'){const c=S.eq.armor&&IT[S.eq.armor];return 'Abrigo: +'+it.def+' de defensa'+(it.inv?' y los golpes tardan más en volver a lastimarte':'')+(id==='chaqueta'?' y más daño con armas a distancia':'')+'.'+(c?' (Ahora tenés '+c.n+': +'+c.def+'.)':'');}
@@ -9915,7 +9915,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.32.0';
+const GAME_VER='1.32.1';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
