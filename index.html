@@ -1227,6 +1227,7 @@ function drawIsiShot(e,t){const bangT=1.8,FL=196;const sh=e>bangT&&e<bangT+.4?(r
    Se ve con una linterna con pilas. Un espantapájaros te persigue todo el capítulo: solo se mueve si no lo mirás de frente con luz;
    arranca a 5 pasos por minuto y suma 1 por cada minuto. Si te alcanza, te mata. */
 const P2HOUSES=[{k:'caida',x:66,y:50,w:7,h:6,dx:3},{k:'augusto',x:24,y:16,w:7,h:6,dx:3},{k:'manuel',x:110,y:20,w:7,h:6,dx:3},{k:'cata',x:22,y:82,w:7,h:6,dx:3},{k:'maximo',x:104,y:80,w:9,h:7,dx:4},{k:'otra1',x:126,y:44,w:7,h:6,dx:3},{k:'otra2',x:88,y:98,w:7,h:6,dx:3}];
+function p2NearHouse(r){if(!S||S.map!==MP.P2)return false;return P2HOUSES.some(h=>{const [dx,dy]=p2d(S.x,S.y,h.x+h.w/2,h.y+h.h/2,MP.P2);return Math.abs(dx)<=h.w/2+r&&Math.abs(dy)<=h.h/2+r;});}
 const P2TW=[78,14],P2TP=[46,94],P2CART=[74,54];
 const P2PILAS=[[31,76],[27,103],[99,50],[139,104],[85,17],[56,43],[139,80],[92,72],[118,47],[56,86],[114,69],[115,32]];
 const LAMPCAP=273,LAMPP=273,LAMPL=120,LAMPA=.55;
@@ -1369,7 +1370,7 @@ function p2HouseMore(h,ox,oy){const w=h.w*T,hh=h.h*T,rh=(h.h-2)*T+4,k=hash(h.x+9
   for(const x of [ox+1,ox+w-3]){ctx.fillStyle='#7a7a74';ctx.fillRect(x,oy+rh,2,hh-rh-1);ctx.fillStyle='#5a5a54';ctx.fillRect(x,oy+hh-3,3,2);}
   if(k%2===0){const vx=ox+w-T+3;ctx.fillStyle='#8a8478';ctx.fillRect(vx,oy+hh-8,6,4);ctx.fillStyle='#3a3630';for(let i=0;i<3;i++)ctx.fillRect(vx+1,oy+hh-7+i,4,.6);}
   /* manchas de humedad que suben del piso */ctx.fillStyle='rgba(50,60,40,.22)';for(let i=0;i<5;i++){const q=hash(k,i+30);ctx.beginPath();ctx.ellipse(ox+6+q%(w-12),oy+hh-4,3+(q>>5)%5,2+(q>>9)%3,0,0,7);ctx.fill();}}
-function c4Hud(){if(!S||S.chapter!==4||!S.flags.c4lamp||scene!=='map'||!isP2())return;const k=Math.max(0,S.lamp)/LAMPCAP,low=S.lamp<30;
+function c4Hud(){if(!S||S.chapter!==4||!S.flags.c4lamp||!has('linterna')||scene!=='map'||!isP2())return;const k=Math.max(0,S.lamp)/LAMPCAP,low=S.lamp<30;
   ctx.fillStyle='rgba(6,8,20,.7)';ctx.fillRect(W-58,24,50,14);ctx.fillStyle=S.flags.lampOn?'#e3d8b0':'#6b7096';ctx.fillRect(W-54,28,8,6);ctx.fillRect(W-46,27,3,8);
   ctx.strokeStyle='#9aa0b4';ctx.strokeRect(W-39.5,27.5,26,8);ctx.fillRect(W-13,30,2,3);ctx.fillStyle=low&&Math.floor(performance.now()/300)%2?'#ff5a3a':low?'#a83a2a':'#e3a849';ctx.fillRect(W-38,29,Math.round(24*k),6);}
 function lampLook(){return['Una linterna de metal, pesada. '+(S.lamp>0?'Le queda '+(S.lamp>=LAMPCAP*.66?'bastante':S.lamp>=LAMPCAP*.33?'la mitad de':'poca')+' batería.':'Está sin pilas.')];}
@@ -1389,10 +1390,13 @@ function scStepTo(m,sx,sy,tx,ty){const R0=0,R=MAPS[m].rows,Wm=R[0].length,Hm=R.l
   /* BFS desde el objetivo: el primer paso hacia él sale directo */
   while(q.length){const c=q.shift(),x=c%Wm,y=(c/Wm)|0;if(x===sx&&y===sy)break;for(const [ax,ay] of [[1,0],[-1,0],[0,1],[0,-1]]){let nx=x+ax,ny=y+ay;if(m===MP.P2){nx=(nx+Wm)%Wm;ny=(ny+Hm)%Hm;}if(nx<0||ny<0||nx>=Wm||ny>=Hm)continue;const k=K(nx,ny);if(prev[k]>=0)continue;if(!(nx===sx&&ny===sy)&&!walk(R[ny][nx]))continue;prev[k]=c;q.push(k);}}
   const p=prev[K(sx,sy)];if(p<0||p===undefined)return null;return[p%Wm,(p/Wm)|0];}
-const SC_LINKS=()=>({[MP.P2]:[{at:[69,56],to:MP.P2C,arr:[6,8]},{at:[108,87],to:MP.MX0,arr:[9,10]}],[MP.P2C]:[{at:[6,8],to:MP.P2,arr:[69,56]}],[MP.MX0]:[{at:[9,10],to:MP.P2,arr:[108,87]},{at:[15,1],to:MP.MX1,arr:[13,8]}],[MP.MX1]:[{at:[14,8],to:MP.MX0,arr:[15,2]},{at:[2,1],to:MP.MX2,arr:[7,5]}],[MP.MX2]:[{at:[7,6],to:MP.MX1,arr:[2,2]}]});
+const SC_LINKS=()=>({[MP.P2]:[{at:[69,56],to:MP.P2C,arr:[6,8]}],[MP.P2C]:[{at:[6,8],to:MP.P2,arr:[69,56]}],[MP.MX0]:[{at:[9,10],to:MP.P2,arr:[108,87]}],[MP.MX1]:[{at:[14,8],to:MP.MX0,arr:[15,2]}],[MP.MX2]:[{at:[7,6],to:MP.MX1,arr:[2,2]}]});
+/* si estás adentro de una casa ajena, se queda afuera, cerca de la puerta */
+const SC_LURK=()=>({[MP.MX0]:[108,87],[MP.MX1]:[108,87],[MP.MX2]:[108,87],[MP.SOT]:[108,87]});
 function scHop(from,to){const L=SC_LINKS(),prev={},q=[from];prev[from]=null;while(q.length){const m=q.shift();if(m===to)break;for(const l of L[m]||[])if(!(l.to in prev)){prev[l.to]={m,l};q.push(l.to);}}if(!(to in prev)||to===from)return null;let c=to;while(prev[c].m!==from)c=prev[c].m;return prev[c].l;}
 function scStep(){const sc=S.flags.scw;let tx,ty,hop=null;
-  if(sc.m===S.map){[tx,ty]=S.map===MP.P2?p2n(S.x,S.y):[S.x,S.y];}else{hop=scHop(sc.m,S.map);if(!hop)return;[tx,ty]=hop.at;}
+  const lurk=SC_LURK()[S.map],tm=lurk?MP.P2:S.map;
+  if(sc.m===tm){if(lurk){[tx,ty]=lurk;const [ldx,ldy]=p2d(sc.x,sc.y,tx,ty,MP.P2);if(Math.abs(ldx)+Math.abs(ldy)<=3)return;}else[tx,ty]=S.map===MP.P2?p2n(S.x,S.y):[S.x,S.y];}else{hop=scHop(sc.m,tm);if(!hop)return;[tx,ty]=hop.at;}
   if(hop&&sc.x===tx&&sc.y===ty){/* cruza */sc.m=hop.to;[sc.x,sc.y]=hop.arr;if(sc.m===S.map)AU.t(140,.25,'square',.03,90);return;}
   const n=scStepTo(sc.m,sc.x,sc.y,tx,ty);if(!n)return;if(n[0]===tx&&n[1]===ty&&sc.m===S.map){scKill();return;}sc.x=n[0];sc.y=n[1];
   if(sc.m===S.map){const [ddx,ddy]=p2d(S.x,S.y,sc.x,sc.y,S.map),d=Math.hypot(ddx,ddy);if(d<10){const v=.07*(1-d/10);AU.nz(.09,v);AU.t(70,.12,'triangle',v*.6,45);}}}
@@ -7280,7 +7284,7 @@ function arrive(){if(S.map===MP.P2)[S.x,S.y]=p2n(S.x,S.y);try{puffStep();}catch(
   const m=MAPS[S.map];
   const E=m.enc||{pool:['soldadito','casco','radio'],key:'left',total:15};if(S[E.key]==null)S[E.key]=E.total;
   if(m.encounters&&!S.pro&&!CHASE&&S[E.key]<=0&&floorKilled(E.key)&&encCd<=0&&ri(1,50)===50){encCd=7;AU.t(90,.6,'sine',.03,60);say(['Estás solo.']);return;}
-  if(m.encounters&&!S.pro&&!CHASE&&S.flags.p3dark!==1&&S.flags.p3dark!==3&&S[E.key]>0&&encCd<=0&&(()=>{const N=S.chapter===4?50:S.chapter===3?35:30;return ri(1,N)===N;})()){
+  if(m.encounters&&!S.pro&&!CHASE&&!p2NearHouse(10)&&S.flags.p3dark!==1&&S.flags.p3dark!==3&&S[E.key]>0&&encCd<=0&&(()=>{const N=S.chapter===4?50:S.chapter===3?35:30;return ri(1,N)===N;})()){
     const pool=E.pool,ids=[pool[ri(0,pool.length-1)]];
     if(S[E.key]>=2&&rnd()<.3){ids.push(pool[ri(0,pool.length-1)]);if(S[E.key]>=3&&rnd()<.35)ids.push(pool[ri(0,pool.length-1)]);}
     if(E.key==='left'&&!uniHas('cascoU')&&(S.left<=4||S.flags.pedroNo))ids[0]='casco';
@@ -9097,7 +9101,7 @@ Object.assign(PAT,{
 function updDodge(dt){
   B.dt+=dt;const b=B.dbox||BD;
   const mx=(keys.right?1:0)-(keys.left?1:0),my=(keys.down?1:0)-(keys.up?1:0);
-  const staff=B.staff=B.pats.some(p=>STAFFP.includes(p)),ice=B.ice=!staff&&B.pats.some(p=>ICEP.includes(p));B.dark=B.pats.some(p=>DARKP.includes(p));if(MOUSE.on)B.la=Math.atan2(MOUSE.y-B.soul.y-3,MOUSE.x-B.soul.x-3);else if(mx||my)B.la=Math.atan2(my,mx);
+  const staff=B.staff=B.pats.some(p=>STAFFP.includes(p)),ice=B.ice=!staff&&B.pats.some(p=>ICEP.includes(p));B.dark=!!(S&&S.chapter===4)&&B.pats.some(p=>DARKP.includes(p));if(MOUSE.on)B.la=Math.atan2(MOUSE.y-B.soul.y-3,MOUSE.x-B.soul.x-3);else if(mx||my)B.la=Math.atan2(my,mx);
   const grav=B.pats.includes('vallas'),my2=grav||staff?0:my,nrm=(mx&&my2)?.7071:1,spd=82.8*(keys.b?.7:1)*(B.fx2?.62:1);
   if(ice){const v=B.sv||(B.sv={x:0,y:0}),n2=(mx&&my)?.7071:1,a=330*(keys.b?.7:1);v.x+=mx*a*n2*dt;v.y+=my*a*n2*dt;const fr=Math.exp(-((mx||my)?.9:1.5)*dt);v.x*=fr;v.y*=fr;const vs=Math.hypot(v.x,v.y),vm=104*(keys.b?.7:1);if(vs>vm){v.x*=vm/vs;v.y*=vm/vs;}
     let nx=B.soul.x+v.x*dt,ny=B.soul.y+v.y*dt;if(nx<b.x+2||nx>b.x+b.w-8){v.x*=-.35;nx=clamp(nx,b.x+2,b.x+b.w-8);}if(ny<b.y+2||ny>b.y+b.h-8){v.y*=-.35;ny=clamp(ny,b.y+2,b.y+b.h-8);}B.soul.x=nx;B.soul.y=ny;}
@@ -9865,9 +9869,10 @@ function drawShadowFig(x,y,t){ctx.fillStyle='rgba(0,0,0,.5)';ctx.beginPath();ctx
 function gameOver(kind){if(B&&B.test&&scene==='battle'){S.hp=maxHP();B.pops.push({fi:0,txt:'TE LLENASTE LA VIDA',miss:1,t:0});return;}CHASE=null;B=null;DLG=null;UI=null;scene='over';GO={kind,sel:0,t:0};sfx.stat();}
 function rewind(){
   if(!SNAP){S.hp=maxHP();S.cor=S.maxCor;scene='map';return;}
-  const keepMax=S.maxCor,deaths=(S.deaths||0)+1;
+  const keepMax=S.maxCor,deaths=(S.deaths||0)+1,scKeep=S.chapter===4&&S.flags.scw&&S.flags.scOn&&!S.flags.scDead?{scw:JSON.parse(JSON.stringify(S.flags.scw)),c4ms:S.flags.c4ms||0}:null;
   /* todo vuelve al último punto de guardado, reloj incluido; y se limpia lo que quedó a medio hacer */
   S=JSON.parse(SNAP);C5H=null;DEN=null;RESC=null;CINE=null;CIROTR=null;CIROA=null;C5LP=null;HIDE5=false;CAMON=false;CAMCUT=0;CHASE=null;S.deaths=deaths;S.maxCor=Math.max(10,keepMax-5);S.cor=S.maxCor;S.hp=maxHP();P.moving=false;
+  if(scKeep&&S.chapter===4&&!S.flags.scDead){const snapSc=S.flags.scw,far=w=>!w||w.m!==S.map||(()=>{const [a,b]=p2d(S.x,S.y,w.x,w.y,S.map);return Math.hypot(a,b)>=8;})();S.flags.scw=far(scKeep.scw)?scKeep.scw:snapSc&&far(snapSc)?snapSc:{m:MP.P2C,x:11,y:6,acc:0};S.flags.scw.acc=0;S.flags.c4ms=Math.max(S.flags.c4ms||0,scKeep.c4ms);S.flags.scOn=1;}
   if(FOLS().length)placeFollower();
   snapshot();scene='map';mapTitleT=2.6;
   say([S.snapAt==='escalon'?'Rebobinás hasta la última vez que descansaste en el escalón de una casa.':S.snapAt==='cap'&&S.chapter===4?'Rebobinás hasta que caíste en la carreta.':S.snapAt==='ciro'?'Rebobinás hasta que Ciro te pidió que lo sacaras. El reloj vuelve a empezar.':S.snapAt==='trampa'?'Rebobinás hasta que Den quedó encerrada.':S.snapAt==='gatos'?'Rebobinás hasta la última vez que dormiste en la cama de los gatos.':S.snapAt==='cap'&&S.chapter===3?'Rebobinás hasta que entraste al teatro.':'Rebobinás hasta la última vez que estuviste en tu departamento.','Algo se quedó en el camino. Tu cordura máxima ahora es '+S.maxCor+'.']);
@@ -9889,7 +9894,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.30.0';
+const GAME_VER='1.31.0';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
