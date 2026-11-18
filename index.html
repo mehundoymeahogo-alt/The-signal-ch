@@ -992,20 +992,29 @@ function campoTile(ch,px,py,tx,ty,t){const h=hash(tx+41,ty+13),F=(c,x,y,w,hh)=>{
   }
   return false;}
 /* lo que crece en el campo, según el canal; se dibuja con los personajes para que te tape */
-const WHEAT_C=['#9a8446','#8c783e','#a8905a','#7e6c38'];
+const WHEAT_C=['#9a8446','#8c783e','#a8905a','#7e6c38'];let CAMPOFOG=null;
 function wheatWave(x,y,t){return Math.sin(t*1.25-x*.33+y*.14)*.6+Math.sin(t*.55-x*.11-y*.2)*.4;}
-function cropTile(tx,ty,t){const px=tx*T,py=ty*T,h=hash(tx+11,ty+5),wv=wheatWave(tx,ty,t),k=cropKind(),pxp=(P.moving?(P.fx+(S.x-P.fx)*P.prog):S.x)*T+8,pyp=(P.moving?(P.fy+(S.y-P.fy)*P.prog):S.y)*T+8,near=Math.abs(px+8-pxp)<22&&Math.abs(py+8-pyp)<20;
+/* el trigo, el maíz y la soja se dibujan una vez por forma y por momento del viento, y después se copian:
+   así un campo entero no cuesta más que unas pocas plantas. Las que están al lado tuyo se dibujan en vivo, para que se aparten cuando pasás */
+const CROPV=12,CROPPH=13,CROPC={};
+function cropTile(tx,ty,t){const k=cropKind();if(k!=='trigo'&&k!=='maiz'&&k!=='soja')return cropTileRaw(tx,ty,t,tx,ty,null,false);
+  const px=tx*T,py=ty*T,pxp=(P.moving?(P.fx+(S.x-P.fx)*P.prog):S.x)*T+8,pyp=(P.moving?(P.fy+(S.y-P.fy)*P.prog):S.y)*T+8,v=hash(tx+3,ty+17)%CROPV,lx=v*7+3,ly=v*5+1,wv=wheatWave(tx,ty,t);
+  if(Math.abs(px+8-pxp)<26&&Math.abs(py+8-pyp)<24)return cropTileRaw(tx,ty,t,lx,ly,wv,false);
+  const ph=Math.max(0,Math.min(CROPPH-1,Math.round((wv+1)/2*(CROPPH-1)))),key=k+v+'_'+ph;let c=CROPC[key];
+  if(!c){c=mk(T+12,T+18);const sv=ctx;ctx=c.getContext('2d');try{ctx.translate(6,16);cropTileRaw(0,0,0,lx,ly,ph/(CROPPH-1)*2-1,true);}finally{ctx=sv;}CROPC[key]=c;}
+  ctx.drawImage(c,px-6,py-16);}
+function cropTileRaw(tx,ty,t,lx,ly,wvO,noPush){const px=tx*T,py=ty*T,h=hash(tx+11,ty+5),wv=wvO==null?wheatWave(tx,ty,t):wvO,k=cropKind(),pxp=(P.moving?(P.fx+(S.x-P.fx)*P.prog):S.x)*T+8,pyp=(P.moving?(P.fy+(S.y-P.fy)*P.prog):S.y)*T+8,near=!noPush&&Math.abs(px+8-pxp)<22&&Math.abs(py+8-pyp)<20;
   const push=sx=>near?(sx-pxp>0?1:-1)*Math.max(0,3.4-Math.abs(sx-pxp)/6):0;
   if(k==='trigo'){const lit=.55+.4*Math.max(0,wv);
-    for(let i=0;i<7;i++){const q=hash(tx*13+i,ty*7+i*3),sx=px+(q%16),bh=9+(q>>4)%7,base=py+12+((q>>7)%6);const a=wv*2.4+Math.sin(t*3.1+i+tx)*.35+push(sx);
+    for(let i=0;i<7;i++){const q=hash(lx*13+i,ly*7+i*3),sx=px+(q%16),bh=9+(q>>4)%7,base=py+12+((q>>7)%6);const a=wv*2.4+Math.sin(i+lx)*.35+push(sx);
       const top=base-bh,hx=sx+a;ctx.strokeStyle='#5d5530';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(sx,base);ctx.quadraticCurveTo(sx+a*.3,base-bh*.5,hx,top);ctx.stroke();
       ctx.fillStyle=WHEAT_C[(q>>9)%4];ctx.globalAlpha=lit;ctx.fillRect(hx-1,top-4,2,5);ctx.globalAlpha=1;ctx.fillStyle='rgba(230,215,160,.45)';ctx.fillRect(hx-1,top-4,1,2);ctx.fillStyle='rgba(200,180,120,.5)';ctx.fillRect(hx+(a>0?1:-1),top-6,1,2);}return;}
-  if(k==='maiz'){/* maíz: cañas altas, hojas largas que cuelgan, alguna espiga con chala */for(let i=0;i<2;i++){const q=hash(tx*17+i,ty*5+i),sx=px+3+i*8+(q%3),base=py+14+((q>>3)%3),bh=19+(q>>5)%5,a=wv*1.6+push(sx)*.8,top=base-bh;
+  if(k==='maiz'){/* maíz: cañas altas, hojas largas que cuelgan, alguna espiga con chala */for(let i=0;i<2;i++){const q=hash(lx*17+i,ly*5+i),sx=px+3+i*8+(q%3),base=py+14+((q>>3)%3),bh=19+(q>>5)%5,a=wv*1.6+push(sx)*.8,top=base-bh;
       ctx.strokeStyle='#4a5a2a';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(sx,base);ctx.quadraticCurveTo(sx+a*.4,base-bh*.5,sx+a,top);ctx.stroke();
       for(let l=0;l<4;l++){const ly=base-5-l*4,dir=(l+i)%2?1:-1,lx=sx+a*(1-(ly-top)/bh);ctx.strokeStyle=l%2?'#3e5226':'#55682e';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(lx,ly);ctx.quadraticCurveTo(lx+dir*5,ly-3+a*.3,lx+dir*(7+a*.5),ly+2);ctx.stroke();}
       if(q%3===0){ctx.fillStyle='#8a8a4a';ctx.fillRect(sx+a*.5+1,base-12,2,5);ctx.fillStyle='#6a7a3a';ctx.fillRect(sx+a*.5+2,base-13,1,6);}
       ctx.fillStyle='#a89858';ctx.fillRect(sx+a-1,top-3,2,3);ctx.fillRect(sx+a-2,top-2,1,1);ctx.fillRect(sx+a+1,top-2,1,1);}return;}
-  if(k==='soja'){/* soja: matas bajas en hileras, hojas de a tres */for(let i=0;i<3;i++){const q=hash(tx*7+i,ty*13),cx2=px+2+i*5+(q%2),cy2=py+12+((i%2)?-6:0)+((q>>2)%2),a=wv*.8+push(cx2)*.5;
+  if(k==='soja'){/* soja: matas bajas en hileras, hojas de a tres */for(let i=0;i<3;i++){const q=hash(lx*7+i,ly*13),cx2=px+2+i*5+(q%2),cy2=py+12+((i%2)?-6:0)+((q>>2)%2),a=wv*.8+push(cx2)*.5;
       for(let l=0;l<3;l++){const an=-1.6+(l-1)*.9+a*.2;ctx.fillStyle=['#3e5a2a','#4a6a30','#36502a'][(q+l)%3];ctx.beginPath();ctx.ellipse(cx2+Math.cos(an)*3+a,cy2+Math.sin(an)*3,2.4,1.6,an,0,7);ctx.fill();}
       ctx.fillStyle='#2a3a1c';ctx.fillRect(cx2+a*.5,cy2,1,3);if(q%4===0){ctx.fillStyle='#8a8a5a';ctx.fillRect(cx2+1,cy2+1,1,2);}}return;}
   /* canal 100: lo que asoma de la tierra (más o menos uno de cada cuatro pedazos de tierra) */const q=hash(tx*31+7,ty*17+3)%22;if(q>5)return;const jx=(hash(tx,ty*3)%9)-4,jy=(hash(tx*5,ty)%5)-2;ctx.save();ctx.translate(jx,jy);if(hash(tx*2,ty*9)%2){ctx.translate(px*2+16,0);ctx.scale(-1,1);}try{cropDead(q,px,py,tx,ty,t,h);}finally{ctx.restore();}}
@@ -1109,8 +1118,8 @@ MAPS[MP.CAMPO]={title:'Más allá de la pileta',theme:'patio',rows:[
   step(){const F=S.flags;if(!F.isiFol||ISIBG||CINE||DLG)return;const c=tileAt(S.x,S.y);if(c==='ǒ'||c==='ǫ')return isiPush();if(c==='ʑ'&&S.y<=8)return isiShot();},
   zone(x,y){if(x>=111)return'A15';if(y<=5)return x<=18?'A12':'A13';return'A14';},
   ents(t){const L=[],cx=Math.max(0,Math.floor(CAMX/T)-1),cy=Math.max(0,Math.floor(CAMY/T)-1),ex=cx+Math.ceil(W/T)+2,ey=cy+Math.ceil(H/T)+2;
-    for(let y=cy;y<=ey;y++)for(let x=cx;x<=ex;x++){const c=tileAt(x,y);if(c==='ʬ'||c==='ʭ')L.push({y:y*T+1,d:()=>cropTile(x,y,t)});}return L;},
-  over(t){const cx=CAMX,cy=CAMY;for(let k=0;k<7;k++){const x=((k*173+t*(6+k))%(W+260))-130+cx,y=cy+((k*97)%H);const g=ctx.createRadialGradient(x,y,4,x,y,90);g.addColorStop(0,'rgba(170,180,210,.07)');g.addColorStop(1,'rgba(170,180,210,0)');ctx.fillStyle=g;ctx.fillRect(x-90,y-90,180,180);}
+    for(let y=cy;y<=ey;y++){let any=false;for(let x=cx;x<=ex;x++){const c=tileAt(x,y);if(c==='ʬ'||c==='ʭ'){any=true;break;}}if(any)L.push({y:y*T+1,d:()=>{for(let x=cx;x<=ex;x++){const c=tileAt(x,y);if(c==='ʬ'||c==='ʭ')cropTile(x,y,t);}}});}return L;},
+  over(t){const cx=CAMX,cy=CAMY;if(!CAMPOFOG){CAMPOFOG=mk(180,180);const g2=CAMPOFOG.getContext('2d'),g=g2.createRadialGradient(90,90,4,90,90,90);g.addColorStop(0,'rgba(170,180,210,.07)');g.addColorStop(1,'rgba(170,180,210,0)');g2.fillStyle=g;g2.fillRect(0,0,180,180);}for(let k=0;k<7;k++){const x=((k*173+t*(6+k))%(W+260))-130+cx,y=cy+((k*97)%H);ctx.drawImage(CAMPOFOG,x-90,y-90);}
     /* en la zanja cae alguna hoja */if(S.y<=5&&S.x>=19&&S.x<=111)for(let k=0;k<8;k++){const q=hash(k,9),x=cx+((q%W)+t*12*(1+k%3))%W,y=cy+((q>>8)%H+t*(18+k*3))%H;ctx.fillStyle=['#6e4a1e','#5a3a18','#7a5222'][k%3];ctx.fillRect(x,y,2,1);}},
   act(ch,x,y){const F=S.flags;
     if(ch==='·'){const a=campoAnchor(x,y);if(a)return MAPS[MP.CAMPO].act(a[0],a[1],a[2]);return;}
@@ -9902,7 +9911,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.31.4';
+const GAME_VER='1.31.5';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
