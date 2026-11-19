@@ -1462,7 +1462,7 @@ function c4CineUpd(c){
    lo que traías de los pisos de arriba queda */
 function c4Fresh(){const F=S.flags;let pl=0;for(const k of Object.keys(F))if(/^pl\d+_\d+$/.test(k)){pl++;delete F[k];}
   for(const k of ['burnN','burnt','c4fin','c4friends','c4lamp','c4rope','c4shelf','cap4','code2','cofre','lampOn','maxi','maxiAsh','scBlock','scDead','scRem','scRemSeen','sotano','tgMark','c4q','pato','figs','figFall','figSw','depSot'])delete F[k];
-  S.items=S.items.filter(i=>!['linterna','encendedor','llaveB','cinta2','cortadora','llaveA','llaveM','llaveBos','rubi','figColm','figBaq','pedal','platillo','llaveAf','cenizas','pistola','extractor','figPerro','figVenus','huevo'].includes(i));if(S.eq&&S.eq.weapon==='pistola')S.eq.weapon=null;if(S.eq&&S.eq.acc==='extractor')S.eq.acc=null;S.balas=0;for(let i=0;i<pl;i++){const j=S.items.lastIndexOf('pila');if(j<0)break;S.items.splice(j,1);}
+  S.items=S.items.filter(i=>!['linterna','encendedor','llaveB','cinta2','cortadora','llaveA','llaveM','llaveBos','rubi','figColm','figBaq','pedal','platilloM','llaveAf','cenizas','pistola','extractor','figPerro','figVenus','huevo'].includes(i));if(S.eq&&S.eq.weapon==='pistola')S.eq.weapon=null;if(S.eq&&S.eq.acc==='extractor')S.eq.acc=null;S.balas=0;for(let i=0;i<pl;i++){const j=S.items.lastIndexOf('pila');if(j<0)break;S.items.splice(j,1);}
   if(S.eq&&S.eq.acc==='encendedor')S.eq.acc=null;S.lamp=0;}
 function startChapter4(){const F=S.flags;c4Fresh();S.chapter=4;if(!F.partyUp)F.partyUp=S.party.slice();S.party=[];F.solo2=1;F.c4ms=0;F.scOn=0;F.scw={m:MP.P2C,x:11,y:6,acc:0};if(S.lamp==null)S.lamp=0;F.lampOn=0;
   scene='map';S.map=MP.P2;S.x=75;S.y=56;S.dir='up';P.moving=false;FALLBLK=1;CUT=null;B=null;DLG=null;UI=null;saveLS();
@@ -1817,7 +1817,7 @@ Object.assign(IT,{
   figColm:{n:'Figura del colmillo',t:'key',d:'Una figurita tallada en hueso, con forma de colmillo. Estaba en lo de Catalina.'},
   figBaq:{n:'Figura de baqueta',t:'key',d:'Una figurita tallada en madera, con forma de baqueta. Estaba en lo de Manuel.'},
   pedal:{n:'Pedal del bombo',t:'key',d:'Un pedal de batería. Es de Manuel.'},
-  platillo:{n:'Platillo chico',t:'key',d:'Un platillo de batería, chiquito. Es de Manuel.'},
+  platilloM:{n:'Platillo chico',t:'key',d:'Un platillo de batería, chiquito. Es de Manuel.'},
   llaveAf:{n:'Llave de afinar',t:'key',d:'Una llave de batería, en forma de T. Es de Manuel.'},
   cenizas:{n:'Cenizas del espantapájaros',t:'key',d:'Un puñado de cenizas, envuelto en un trapo. Todavía están tibias.'},
   balas:{n:'Balas (x6)',t:'key',d:'Seis balas para la pistola.'},
@@ -1921,14 +1921,14 @@ function hsTile(ch,px,py,tx,ty,t){const st=hsStyle(),P=HSST[st],at=S.map===MP.MX
     if(st==='ma'){F('#c83a2a',5,3,6,3);F('#e8e2d0',6,4,4,1);}
     else if(st==='ca'){F('#e8e0c8',4,4,2,2);F('#c8a860',9,4,3,1);F('#8a8a90',9,5,2,1);}
     else{F('#e8e0c8',5,3,2,3);F('#ffd88a',5,2,2,1);F('rgba(255,210,140,.35)',4,1,4,2);}return true;}
-  if(ch==='Ḇ'){F('rgba(0,0,0,.45)',0,14,T,2);F(st==='ca'?'#8a6a44':'#3a2614',1,0,14,15);F(st==='ca'?'#9a7a54':'#4a3020',2,1,6,13);F(st==='ca'?'#9a7a54':'#4a3020',8,1,6,13);F('#c8a860',7,7,1,2);F('#c8a860',8,7,1,2);F('#2a1c10',1,0,14,1);if(st==='ma'&&!hsHas('platillo')&&!q.mDone){F('rgba(200,180,90,.6)',8,14,4,1);}return true;}
+  if(ch==='Ḇ'){F('rgba(0,0,0,.45)',0,14,T,2);F(st==='ca'?'#8a6a44':'#3a2614',1,0,14,15);F(st==='ca'?'#9a7a54':'#4a3020',2,1,6,13);F(st==='ca'?'#9a7a54':'#4a3020',8,1,6,13);F('#c8a860',7,7,1,2);F('#c8a860',8,7,1,2);F('#2a1c10',1,0,14,1);if(st==='ma'&&!hsHas('platilloM')&&!q.mDone){F('rgba(200,180,90,.6)',8,14,4,1);}return true;}
   if(ch==='Ḅ'){ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(px+8,py+11,8,4,0,0,7);ctx.fill();ctx.fillStyle='#6a5a7a';ctx.beginPath();ctx.ellipse(px+8,py+9,8,5,0,0,7);ctx.fill();ctx.fillStyle='#8a7a9a';ctx.beginPath();ctx.ellipse(px+8,py+9,5.5,3,0,0,7);ctx.fill();F('rgba(240,240,240,.5)',5,8,2,1);F('rgba(240,240,240,.5)',10,10,1,1);return true;}
   if(ch==='Ḏ'||ch==='ḏ'){sh(7);const L=ch==='Ḏ',broken=S.map===MP.MA2,has=k=>broken?false:q.mDone||false;
     if(L){/* bombo, redoblante, tom */ctx.fillStyle='#8a1a1a';ctx.beginPath();ctx.ellipse(px+9,py+10,7,5,0,0,7);ctx.fill();ctx.fillStyle=broken?'#3a3028':'#e8e2d0';ctx.beginPath();ctx.ellipse(px+9,py+10,5.5,3.8,0,0,7);ctx.fill();if(broken){ctx.strokeStyle='#1a1410';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(px+5,py+8);ctx.lineTo(px+9,py+11);ctx.lineTo(px+13,py+9);ctx.stroke();}
       ctx.fillStyle='#c8c8cc';ctx.beginPath();ctx.ellipse(px+4,py+5,3.5,2.2,0,0,7);ctx.fill();ctx.fillStyle='#8a1a1a';ctx.beginPath();ctx.ellipse(px+11,py+3,3,2,0,0,7);ctx.fill();ctx.fillStyle='#e8e2d0';ctx.beginPath();ctx.ellipse(px+11,py+3,2,1.3,0,0,7);ctx.fill();
       if(has('pedal')){F('#8a8a90',8,14,3,2);F('#5a5a60',9,13,1,1);}}
     else{ctx.fillStyle='#8a1a1a';ctx.beginPath();ctx.ellipse(px+6,py+10,4,3,0,0,7);ctx.fill();ctx.fillStyle=broken?'#2a241e':'#e8e2d0';ctx.beginPath();ctx.ellipse(px+6,py+10,2.8,2,0,0,7);ctx.fill();
-      F('#6a6a70',11,3,1,11);ctx.fillStyle='#c8a848';ctx.beginPath();ctx.ellipse(px+11.5,py+3,4.5,1.6,-.2,0,7);ctx.fill();if(has('platillo')){F('#6a6a70',2,1,1,8);ctx.fillStyle='#d8b858';ctx.beginPath();ctx.ellipse(px+2.5,py+1.5,3,1.1,.3,0,7);ctx.fill();}
+      F('#6a6a70',11,3,1,11);ctx.fillStyle='#c8a848';ctx.beginPath();ctx.ellipse(px+11.5,py+3,4.5,1.6,-.2,0,7);ctx.fill();if(has('platilloM')){F('#6a6a70',2,1,1,8);ctx.fillStyle='#d8b858';ctx.beginPath();ctx.ellipse(px+2.5,py+1.5,3,1.1,.3,0,7);ctx.fill();}
       if(!broken){F('#e8d8a8',13,12,1,4);F('#e8d8a8',14,11,1,5);}}
     return true;}
   if(ch==='Ḑ'){sh(7);F('#141416',1,3,14,12);F('#2a2a2e',1,3,14,2);F('#1a1a1c',2,6,12,7);for(let y=7;y<13;y+=2)F('#242428',2,y,12,1);F('#c8a860',3,4,1,1);F('#c8a860',6,4,1,1);F('#c8a860',9,4,1,1);F('#e8e2d0',12,4,2,1);return true;}
@@ -1998,7 +1998,7 @@ function cataTalk(){const q=C4Q(),n=q.bones?q.bones.length:0;
   const L=[[QC('Cada vez que miro la vitrina me acuerdo de algo. No sé de qué.')],[QC('Máximo antes era bueno. Nos traía tomates. Ahora el campo es como él: no deja salir a nadie.')],[QC('¿Ya fuiste a lo de Augusto? Está más gruñón que nunca.'),QC('Y Manuel... Manuel es Manuel.')],[QC('A veces escucho una guitarra. Acá no tiene guitarra nadie más que yo.')]];
   q.caI=((q.caI||0)+1)%L.length;return say(L[q.caI]);}
 /* Manuel */
-const MANU3=['pedal','platillo','llaveAf'];
+const MANU3=['pedal','platilloM','llaveAf'];
 function manuTalk(){const q=C4Q();
   if(!q.maT){q.maT=1;return say([QM('Eh, eh, eh. ¿Quién te dejó pasar?'),QM('Ah, la puerta. Nunca la cierro. Total, nadie viene.'),QM('No firmo autógrafos.'),QM('...¿No sabés quién soy? Entrás a la casa del mejor baterista del campo y no sabés quién soy.')]);}
   if(q.maT===1){q.maT=2;return say([QM('Mirá: desde que a Máximo le agarró lo de las plantas, el campo se apagó. Y uno no puede ni salir a buscar sus cosas.'),QM('Estamos todos encerrados por su culpa. Yo, que tendría que estar tocando en un estadio.'),
@@ -2062,12 +2062,12 @@ function hsAct(ch,x,y){const st=hsStyle(),q=C4Q(),m=S.map;
   if(ch==='Ꜷ'||ch==='ꜷ')return;
   /* las cosas que se encuentran */
   if(m===MP.MA0&&ch==='ꜹ'){if(!hsHas('pedal')&&!q.mDone&&!q.ped){q.ped=1;sfx.item();give('pedal');return say(['Abajo del sillón hay algo de metal: el pedal del bombo.','Agarraste: Pedal del bombo.']);}return hsLook(ch);}
-  if(m===MP.MA1&&ch==='Ḇ'){if(!q.pla&&!q.mDone){q.pla=1;sfx.item();give('platillo');DRAWFLAGS=null;return say(['En el fondo del ropero, entre la ropa, hay un platillo chico.','Agarraste: Platillo chico.']);}return say(['Un ropero lleno de remeras negras. Todas iguales.']);}
+  if(m===MP.MA1&&ch==='Ḇ'){if(!q.pla&&!q.mDone){q.pla=1;sfx.item();give('platilloM');DRAWFLAGS=null;return say(['En el fondo del ropero, entre la ropa, hay un platillo chico.','Agarraste: Platillo chico.']);}return say(['Un ropero lleno de remeras negras. Todas iguales.']);}
   if(m===MP.MA2&&ch==='Ḕ'&&x===2&&y===1){if(!q.laf&&!q.mDone){q.laf=1;sfx.item();give('llaveAf');return say(['Adentro de la caja, entre parches rotos, hay una llave de afinar.','Agarraste: Llave de afinar.']);}return say(['Una caja de parches rotos. Muchos.']);}
   if(m===MP.MA2&&ch==='ḕ'){if(!q.baq){q.baq=1;S.items.push('pila');sfx.item();DRAWFLAGS=null;return say(['Adentro del baúl hay remeras de bandas, un parche firmado y una pila.','Agarraste: Pila.']);}return say(['Remeras de bandas y un parche firmado: "PARA MANUEL, DE MANUEL".']);}
   if(m===MP.MA2&&(ch==='Ḏ'||ch==='ḏ'))return say(['Una batería vieja, con todos los parches rotos. Alguien le pegó hasta romperla.']);
   if(m===MP.MA1&&ch==='Ḟ')return say([q.gun?'La cómoda. El cajón de abajo quedó vacío.':'Una cómoda. El cajón de abajo está cerrado con llave.']);
-  if(m===MP.MA0&&(ch==='Ḏ'||ch==='ḏ')){const n=[q.mDone||hsHas('pedal'),q.mDone||hsHas('platillo'),q.mDone||hsHas('llaveAf')];return say([q.mDone?'La batería de Manuel. Completa. Brilla.':'La batería de Manuel. Le falta el pedal del bombo, un platillo, y está desafinada.']);}
+  if(m===MP.MA0&&(ch==='Ḏ'||ch==='ḏ')){const n=[q.mDone||hsHas('pedal'),q.mDone||hsHas('platilloM'),q.mDone||hsHas('llaveAf')];return say([q.mDone?'La batería de Manuel. Completa. Brilla.':'La batería de Manuel. Le falta el pedal del bombo, un platillo, y está desafinada.']);}
   if(m===MP.CA0&&ch==='Ḓ'){const q2=q.cataDone;return say([q2?'La vitrina de Catalina. Trece huesos, limpios, ordenados por tamaño.':'Una vitrina con tres huesos, limpios, ordenados por tamaño. Hay lugar para muchos más.']);}
   if(m===MP.CA1&&ch==='ḇ')return say(['Una mesa de luz. Un vaso de agua, una púa y unas herramientas chiquitas de tallar.']);
   if(m===MP.CA2&&ch==='Ḓ')return say(['Una vitrina vieja, vacía. En el polvo de los estantes quedaron marcadas las formas de cosas que ya no están.']);
@@ -10448,7 +10448,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.33.0';
+const GAME_VER='1.33.1';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
