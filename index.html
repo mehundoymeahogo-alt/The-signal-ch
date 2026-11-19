@@ -8235,7 +8235,7 @@ function musIter(t0,first){const c=AU.c,M=MUS.src,s=c.createBufferSource(),ig=c.
 function musStop(){if(!MUS.src)return;const c=AU.c,M=MUS.src,g=MUS.gain;MUS.src=null;MUS.gain=null;MUS.cur=null;try{g.gain.cancelScheduledValues(c.currentTime);g.gain.setValueAtTime(g.gain.value,c.currentTime);g.gain.linearRampToValueAtTime(0,c.currentTime+.6);for(const s of M.list)s.stop(c.currentTime+.65);}catch(e){}}
 /* momentos de lore importantes: suena Just Try (loreMusic(true) / loreMusic(false)) */
 let MUSLORE=null;function loreMusic(on){MUSLORE=on?'justtry':null;}
-function musWant(){if(SCARE||scene==='open')return null;if(MUSLORE&&S&&!S.pro)return MUSLORE;if(S&&!S.pro&&S.canal===61&&S.map===MP.AU0&&scene==='map')return 'justtryR';if(S&&S.chapter===4&&(scene==='map'||scene==='over'))return scene==='over'?'over':(!CHASE&&([MP.P2C,MP.MX0,MP.MX1,MP.MX2,MP.SOT].includes(S.map)||HSMAPS().includes(S.map))?'floor2':null);if(S&&!S.pro&&S.flags.ivanDead&&S.flags.nicoDead&&scene==='map'&&[MP.DEPTO,MP.PASILLO,MP.IVAN,MP.NICO,MP.PEDRO].includes(S.map))return null;if(scene==='title')return 'menu';if(scene==='over'||scene==='pdeath')return 'over';if(S&&S.pro&&scene==='map'&&S.map===MP.CAMPO)return null;if(S&&S.pro&&!CUT&&(scene==='intro'||scene==='map'||scene==='battle'))return 'pro';if(scene==='battle'&&B&&(B.ivanFight||B.tgKill))return null;if(scene==='battle'&&B&&B.pasto)return 'grassyou';if(scene==='battle'&&B&&B.c4b)return 'dogfight';if(scene==='battle'&&B&&B.maxi)return 'landslide';if(scene==='battle'&&B&&B.shadow)return 'shadow';if(scene==='battle'&&B&&B.foes&&B.foes.some(f=>f.id==='brian'||f.id==='den'))return 'blizzard';if(scene==='battle'&&B&&B.foes&&B.foes.some(f=>f.id==='pedro'))return 'storm';if(scene==='battle'&&B&&B.felix)return 'felix';if(scene==='battle'&&B&&S&&!S.pro&&!B.boss&&!B.tuto&&!B.shadow)return 'rain';if(QUIZON&&scene==='map')return 'answer';if(S&&!S.pro&&scene==='map'&&chamberMap())return CHASE||isTG()||S.map===MP.HABIT5?null:(S.map===MP.SALA5||S.map===MP.PASILLO5?'floor5':'chamber');/* D9 y D10: solo la guitarra de Ciro */if(S&&!S.pro&&scene==='map'&&S.map===MP.SELENE5)return CHASE||isTG()?null:'selene';if(S&&!S.pro&&scene==='map'&&isTeatMap())return null;if(scene==='race')return 'racing';if(scene==='tennis')return 'tenis';if(S&&!S.pro&&scene==='map'&&S.map===MP.PISO3&&(S.flags.p3dark===1||S.flags.p3dark===3))return null;if(S&&!S.pro&&S.chapter===2&&scene==='map'&&isTG()&&[MP.PISO3,MP.FELIX,MP.ESTEF,MP.SILV,MP.GERO,MP.MANT,MP.GINES].includes(S.map))return null;if(S&&!S.pro&&scene==='map'&&[MP.ESTEF,MP.GERO].includes(S.map))return 'relax';if(S&&!S.pro&&scene==='map'&&[MP.SILV,MP.MANT].includes(S.map))return 'motors';if(S&&!S.pro&&!CHASE&&(scene==='map'||scene==='race'||scene==='tennis')&&[MP.PISO3,MP.FELIX,MP.ESTEF,MP.SILV,MP.GERO,MP.MANT,MP.GINES].includes(S.map))return 'floor3';if(S&&!S.pro&&S.map===MP.NICO&&scene==='map')return S.flags.nicoDead?null:'nico';if(S&&!S.pro&&S.map===MP.DEPTO&&scene==='map')return 'depto';if(S&&!S.pro&&scene==='map'&&!CHASE&&[MP.PASILLO,MP.IVAN,MP.PEDRO].includes(S.map))return 'floor4';return null;}
+function musWant(){if(SCARE||scene==='open')return null;if(MUSLORE&&S&&!S.pro)return MUSLORE;if(S&&!S.pro&&S.canal===61&&S.map===MP.AU0&&scene==='map')return 'justtryR';if(S&&S.chapter===4&&(scene==='map'||scene==='over'))return scene==='over'?'over':(!CHASE&&([MP.P2C,MP.MX0,MP.MX1,MP.MX2,MP.SOT].includes(S.map)||HSMAPS().includes(S.map))?'floor2':null);if(S&&!S.pro&&S.flags.ivanDead&&S.flags.nicoDead&&scene==='map'&&[MP.DEPTO,MP.PASILLO,MP.IVAN,MP.NICO,MP.PEDRO].includes(S.map))return null;if(scene==='title')return 'menu';if(scene==='over'||scene==='pdeath')return 'over';if(S&&S.pro&&scene==='map'&&S.map===MP.CAMPO)return null;if(S&&S.pro&&!CUT&&(scene==='intro'||scene==='map'||scene==='battle'))return 'pro';if(scene==='battle'&&B&&(B.ivanFight||B.tgKill))return null;if(scene==='battle'&&B&&B.pasto)return 'grassyou';if(scene==='battle'&&B&&B.c4b&&B.simon)return B.simM?'dogfight':null;if(scene==='battle'&&B&&B.maxi)return 'landslide';if(scene==='battle'&&B&&B.shadow)return 'shadow';if(scene==='battle'&&B&&B.foes&&B.foes.some(f=>f.id==='brian'||f.id==='den'))return 'blizzard';if(scene==='battle'&&B&&B.foes&&B.foes.some(f=>f.id==='pedro'))return 'storm';if(scene==='battle'&&B&&B.felix)return 'felix';if(scene==='battle'&&B&&S&&!S.pro&&!B.boss&&!B.tuto&&!B.shadow)return 'rain';if(QUIZON&&scene==='map')return 'answer';if(S&&!S.pro&&scene==='map'&&chamberMap())return CHASE||isTG()||S.map===MP.HABIT5?null:(S.map===MP.SALA5||S.map===MP.PASILLO5?'floor5':'chamber');/* D9 y D10: solo la guitarra de Ciro */if(S&&!S.pro&&scene==='map'&&S.map===MP.SELENE5)return CHASE||isTG()?null:'selene';if(S&&!S.pro&&scene==='map'&&isTeatMap())return null;if(scene==='race')return 'racing';if(scene==='tennis')return 'tenis';if(S&&!S.pro&&scene==='map'&&S.map===MP.PISO3&&(S.flags.p3dark===1||S.flags.p3dark===3))return null;if(S&&!S.pro&&S.chapter===2&&scene==='map'&&isTG()&&[MP.PISO3,MP.FELIX,MP.ESTEF,MP.SILV,MP.GERO,MP.MANT,MP.GINES].includes(S.map))return null;if(S&&!S.pro&&scene==='map'&&[MP.ESTEF,MP.GERO].includes(S.map))return 'relax';if(S&&!S.pro&&scene==='map'&&[MP.SILV,MP.MANT].includes(S.map))return 'motors';if(S&&!S.pro&&!CHASE&&(scene==='map'||scene==='race'||scene==='tennis')&&[MP.PISO3,MP.FELIX,MP.ESTEF,MP.SILV,MP.GERO,MP.MANT,MP.GINES].includes(S.map))return 'floor3';if(S&&!S.pro&&S.map===MP.NICO&&scene==='map')return S.flags.nicoDead?null:'nico';if(S&&!S.pro&&S.map===MP.DEPTO&&scene==='map')return 'depto';if(S&&!S.pro&&scene==='map'&&!CHASE&&[MP.PASILLO,MP.IVAN,MP.PEDRO].includes(S.map))return 'floor4';return null;}
 /* ================= pasos y ambiente ================= */
 let NZB=null,STEPN=0,AMB2_T=12;
 function nzBuf(){if(NZB||!AU.c)return NZB;const c=AU.c,b=c.createBuffer(1,c.sampleRate*.25,c.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=rnd()*2-1;return NZB=b;}
@@ -9707,6 +9707,7 @@ function updBattle(dt){
   for(const f of B.foes){f.shake=f.shake>.05?f.shake*Math.exp(-dt*7):0;if(f.dead)f.fade=Math.max(0,f.fade-dt*.9);else if((B.maxi||B.pasto)&&f.spared&&!/^maximo/.test(f.id))f.fade=Math.max(0,f.fade-dt*.7);if(f.rise!=null&&f.rise<1)f.rise=Math.min(1,f.rise+dt*1.6);}
   for(const p of B.pops)p.t+=dt;B.pops=B.pops.filter(p=>p.t<1.1);
   switch(B.state){
+    case 'simAnim':simonAnimUpd(dt);break;
     case 'text':{const s=B.lines[B.li];if(B.shown<s.length){const p=Math.floor(B.shown);B.shown=Math.min(s.length,B.shown+dt*52);if(Math.floor(B.shown)!==p&&p%2===0){const bb=bubbleOf(s);if(bb)bubbleVoice(bb);else voiceBlip(lineSpeaker(s));}if(hit('a'))B.shown=s.length;}else if(hit('a')){B.li++;B.shown=0;if(B.li>=B.lines.length){const n=B.next;B.next=null;n&&n();}}break;}
     case 'menu':if(hit('left')){B.menu=(B.menu+3)%4;sfx.sel();}if(hit('right')){B.menu=(B.menu+1)%4;sfx.sel();}if(hit('a')){sfx.ok();choose(B.menu);}break;
     case 'target':{const a=alive();if(hit('b')){B.state='menu';break;}if(hit('up')||hit('left')){B.sub=(B.sub+a.length-1)%a.length;sfx.sel();}if(hit('down')||hit('right')){B.sub=(B.sub+1)%a.length;sfx.sel();}if(hit('a')){B.target=B.foes.indexOf(a[B.sub]);sfx.ok();B.targetFor();}break;}
@@ -10708,8 +10709,13 @@ Object.assign(C4DR,{
 function c4bPats(){const f=alive().find(o=>o.id==='augustoB'||o.id==='simonB');if(!f)return;const P=f.def.pats,n=f.atkN||B.turn||1,k=f.id==='simonB'?(n<3?2:3):2,out=[];
   while(out.length<k){const p=P[ri(0,P.length-1)];if(!out.includes(p))out.push(p);}B.pats=out;B.combo=true;B.dur=f.id==='simonB'?13:12;f.atkN=(f.atkN||0)+1;}
 /* cuando cae Augusto, Simón se levanta: el verdadero jefe del piso */
-function simonPhase(f){const q=C4Q();q.augDead=1;f.id='simonB';f.def=FOES.simonB;f.hp=f.mhp=FOES.simonB.hp;f.shake=12;f.atkN=0;f.calm=0;f.used={};B.simon=true;sfx.stat();AU.t(55,2,'sawtooth',.09,35);AU.t(110,1.6,'square',.03,80,.3);
-  B.simT=performance.now()/1000;afterPlayer(['(Simón te deja sangrando y no le importa tu defensa.)'],false);}
+/* cuando cae Augusto: una escena corta adentro de la pelea. Augusto cae; Simón se le acerca, lo huele; tiembla, crece. Recién ahí arranca Dogfight Club */
+const SIMAN=3.8;
+function simonPhase(f){const q=C4Q();q.augDead=1;f.id='simonB';f.def=FOES.simonB;f.hp=f.mhp=FOES.simonB.hp;f.atkN=0;f.calm=0;f.used={};B.simon=true;B.simM=0;B.simF=0;B.simT=B.t;B.simT2=SIMAN;B.lines=[];B.state='simAnim';
+  AU.t(70,.35,'sine',.09,28,.55);AU.nz&&AU.nz(.12,.08);for(let i=0;i<3;i++)AU.t(1400+i*120,.05,'triangle',.012,900,1.45+i*.22);AU.t(55,1.2,'sawtooth',.07,40,2.05);}
+function simonAnimUpd(dt){B.simT2-=dt;const e=SIMAN-B.simT2;if(!B.simF&&e>=2.7){B.simF=1;B.screen=9;sfx.stat();AU.t(110,1.6,'square',.04,70);AU.t(60,1.8,'sawtooth',.09,35);}
+  if(B.simT2<=0){B.simM=1;B.state='text';afterPlayer(['(Simón te deja sangrando y no le importa tu defensa.)'],false);}}
+
 function c4bEnd(L){const q=C4Q(),s=B.foes.find(o=>o.id==='simonB');if(s&&s.dead){q.simDead=1;q.augDead=1;}}
 /* la pelea arranca cuando entrás a su casa con la puerta rota */
 function augAniqStart(){const q=C4Q();if(!aniq()||q.augDead||q.augFight||S.map!==MP.AU0)return;q.augFight=1;
@@ -10720,9 +10726,14 @@ function c4Dmg(f,d){if(f.id==='augustoB'||f.id==='simonB'){f.fixedHits=1;return 
 /* ---- y si pasás de nuevo por las casas ---- */
 function drawAugBattle(f,cx,cy,t,calm,m){const dead=f.dead;if(f.id==='augustoB'){gshadow(cx,cy+40,26,5);bigPerson({...LOOK.augusto,dir:'down'},cx-14,cy+8,t,4,f.shake);
     const bx=cx+42,by=cy+30;ctx.save();ctx.translate(bx,by);ctx.scale(1.7,1.7);ctx.translate(-8,-8);drawSimon(0,0,t*2);ctx.restore();return true;}
-  if(f.id==='simonB'){const n=performance.now()/1000,k=B.simT?Math.min(1,(n-B.simT)/1.8):1,e=1-(1-k)**3;
-    /* Augusto, tirado adelante */ctx.save();ctx.translate(cx-92,cy+44);ctx.rotate(-Math.PI/2);bigPerson({...LOOK.augusto,dir:'down'},0,12,0,2.4,0);ctx.restore();
-    ctx.save();ctx.translate(cx,cy+42);ctx.scale(.3+.7*e,.3+.7*e);ctx.translate(-cx,-(cy+42));drawSimonBig(cx,cy,t,dead,f.shake+(k<1?6*(1-k):0));ctx.restore();return true;}return false;}
+  if(f.id==='simonB'){const e=B.simT!=null?B.t-B.simT:99,ease=x=>x<0?0:x>1?1:1-(1-x)**3;
+    /* Augusto: cae de costado, y queda ahí */const fa=ease(e/.7),ax=cx-14+(-52+14)*fa,ay=cy+8+(28-8)*fa;ctx.save();ctx.translate(ax,ay);ctx.rotate(-Math.PI/2*fa);bigPerson({...LOOK.augusto,dir:'down'},0,0,e<.7?t:0,4-1.2*fa,0);ctx.restore();
+    if(e<2.75){/* Simón chico: se levanta, va hasta él, lo huele, tiembla */const wk=ease((e-.6)/1),sx=cx+42+(cx-34-(cx+42))*wk,sy=cy+30+(cy+34-(cy+30))*wk,sn=e>1.6&&e<2.1?Math.sin(e*28)*1.2:0,tr=e>2.1?Math.sin(e*70)*(e-2.1)*3:0;
+      ctx.save();ctx.translate(sx+tr,sy+sn);ctx.scale(-.32,.32);drawSimonBig(0,-40,e>.6&&e<1.6?t*1.6:0,false,0);ctx.restore();}
+    else{/* el salto: blanco, y Simón ya grande */const g=ease((e-2.75)/.9),s=.32+.68*g,px=cx-34+(34)*g,py=cy+34+(42-34)*g;ctx.save();ctx.translate(px,py);ctx.scale(s,s);ctx.translate(-cx,-(cy+42));drawSimonBig(cx,cy,t,dead,f.shake+(g<1?8*(1-g):0));ctx.restore();}
+    return true;}return false;}
+
+
 function bigPerson(lk,cx,cy,t,sc,sh){const c=mk(20,24),g=c.getContext('2d'),sv=ctx;g.imageSmoothingEnabled=false;ctx=g;try{drawPerson(2,5,lk,t,false);}finally{ctx=sv;}ctx.save();ctx.imageSmoothingEnabled=false;const s=sh?Math.sin(t*40)*sh*.3:0;ctx.drawImage(c,cx-10*sc+s,cy-12*sc-10,20*sc,24*sc);ctx.restore();}
 function drawSimonBig(cx,cy,t,dead,sh){const s=sh?Math.sin(t*40)*sh*.3:0,br=Math.sin(t*3)*1.2,gr=Math.max(0,Math.sin(t*1.7))**4;gshadow(cx,cy+42,44,7);ctx.save();ctx.translate(cx+s,cy+8);if(dead){ctx.rotate(.05);ctx.globalAlpha*=.85;}
   const E=(c,x,y,rx,ry,r)=>{ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(x,y,rx,ry,r||0,0,7);ctx.fill();},F=(c,x,y,w,h)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
@@ -10743,6 +10754,8 @@ function augBattleBg(t){ctx.save();ctx.fillStyle='#16201a';ctx.fillRect(0,0,W,78
   const fl=.5+.25*Math.sin(t*9)+.15*Math.sin(t*23);const g=ctx.createRadialGradient(28,70,2,28,70,70);g.addColorStop(0,'rgba(255,140,60,'+(.22*fl)+')');g.addColorStop(1,'rgba(255,140,60,0)');ctx.fillStyle=g;ctx.fillRect(0,0,W,104);
   ctx.fillStyle='#3a3430';ctx.fillRect(10,50,36,28);ctx.fillStyle='#0a0604';ctx.fillRect(16,58,24,20);ctx.fillStyle='rgba(255,'+(110+40*fl|0)+',40,'+(.6+.3*fl)+')';ctx.fillRect(20,72,16,5);ctx.fillRect(24,69,8,3);
   const v=ctx.createLinearGradient(0,0,0,104);v.addColorStop(0,'rgba(0,0,0,.55)');v.addColorStop(.6,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.4)');ctx.fillStyle=v;ctx.fillRect(0,0,W,104);ctx.restore();}
+
+function simonFlash(){if(!B||B.simT==null)return;const e=B.t-B.simT;if(e>2.7&&e<3.15){ctx.fillStyle='rgba(255,255,255,'+(Math.min(1,(3.15-e)/.4)*.85)+')';ctx.fillRect(0,0,W,104);}}
 
 /* ---- enganches de la segunda tanda en los mapas ---- */
 TRACKS.justtryR={get data(){return TRACKS.justtry.data;},name:'Just Try',vol:.16,get buf(){return TRACKS.justtry.buf;},set buf(v){TRACKS.justtry.buf=v;}};
@@ -11013,6 +11026,7 @@ function renderBattle0(t){
     ctx.restore();
     if(f.dead&&f.fade>0){ctx.fillStyle='#050608';for(let k=0;k<(1-f.fade)*40;k++)ctx.fillRect(xs[i]-45,rnd()*104,90,1+rnd()*2);}
     if(B.state==='target'&&alive()[B.sub]===f)txt('▼',xs[i],8,'#e3a849',12,'center');});
+  try{simonFlash();}catch(e){}
   if(B.casing&&B.casing.t<3){const c=B.casing.t,x=Math.max(250-c*90,160),y=96;ctx.save();ctx.translate(x,y);ctx.rotate(c<1.2?-c*8:0);ctx.fillStyle='#b8902a';ctx.fillRect(-6,-3,12,6);ctx.fillStyle='#d8b040';ctx.fillRect(-6,-3,12,2);ctx.fillStyle='#6a5018';ctx.fillRect(5,-3,2,6);ctx.fillStyle='#1a1408';ctx.fillRect(-7,-2,1,4);ctx.restore();if(c>1.2&&c<1.5){ctx.fillStyle='#ffe08a';ctx.beginPath();ctx.arc(x-9,y,5,0,7);ctx.fill();}}
   for(const p of B.pops){const x=xs[p.fi]||160,u=Math.min(1,p.t/.28),eb=1-Math.pow(1-u,3),a=p.t>.85?Math.max(0,1-(p.t-.85)/.25):1,sz=Math.round(18+8*Math.max(0,1-p.t/.14));
     ctx.save();ctx.globalAlpha=a;txt(p.txt,x+(p.miss?0:Math.sin(p.t*40)*Math.max(0,1-p.t*5)*2),30-eb*10-p.t*3,p.miss?'#9aa0b4':(p.t<.08?'#ffffff':'#ff5a5a'),sz,'center',true);
@@ -11203,7 +11217,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.34.1';
+const GAME_VER='1.34.2';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
