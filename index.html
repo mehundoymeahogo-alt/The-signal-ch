@@ -1725,7 +1725,7 @@ function mxTile(ch,px,py,tx,ty,t,maxi,cofre){
 function padOpen(){UI={kind:'pad4',d:[0,0,0,0],p:0};}
 /* Máximo */
 function maxiWordsTalk(){const q=C4Q(),M=t=>({who:'Máximo',t});if(!q.words){q.words=1;return say([M('Ya no las escucho tanto. El sótano está abajo, al lado del pasillo.'),M('Una cosa más. Hay unas palabras. Me las dijeron ellas, las plantas, cuando todavía me hablaban.'),M('Si algún día bajás a la casa del bosque, decilas al lado de las cenizas del espantapájaros:')].concat(MAXI_WORDS.map(t=>M(t))).concat([M('No te las olvides. Yo me las olvidé muchas veces.'),'(Aprendiste las palabras de Máximo.)']));}
-  return say([M(pick(['Ya no las escucho tanto. El sótano está abajo, al lado del pasillo.','¿Te acordás de las palabras? Decilas al lado de las cenizas, en la casa del bosque.']))]);}
+  return say([M(pick(['Ya no las escucho tanto. El sótano está abajo, al lado del pasillo.','¿Te acordás de las palabras? Decilas al lado de las cenizas, en la casa del bosque.','Las plantas ya no me hablan. Igual las sigo regando.','Decile a Manuel que me acuerdo de los domingos. De cuando iba a escucharlo.','Cata me tiene miedo. Hace bien.','Augusto me quería. Simón también. Ya no me acuerdo cuándo dejaron.']))]);}
 function mxDoor(){const q=C4Q(),F=S.flags;if(q.mxOpen||F.maxi||F.cofre||F.code2||F.sotano||F.c4friends)return goMap(MP.MX0,9,10,'up');
   if(hsHas('llaveM'))return say([{t:'La puerta de Máximo está cerrada con llave. De adentro sale olor a tierra mojada.',choices:[{l:'Abrir con la llave de Máximo',f(){q.mxOpen=1;AU.t(900,.05,'square',.03);AU.t(500,.1,'square',.03,0,.07);goMap(MP.MX0,9,10,'up');}},{l:'Todavía no',f(){}}]}]);
   return say(['La puerta de Máximo está cerrada con llave. De adentro sale olor a tierra mojada.']);}
@@ -1996,7 +1996,7 @@ function cataTalk(){const q=C4Q(),n=q.bones?q.bones.length:0;
     QC('Junto huesos. No me preguntes por qué. Me gustan. Los limpio y los pongo en la vitrina.'),QC('Yo no puedo salir a buscarlos. Afuera está lo que hizo Máximo.'),QC('Hay diez tirados por el campo. Traémelos y te doy algo que te sirve: la llave de lo de Augusto.'),QC('Me la dio hace mucho, para que le diera de comer a Simón cuando él no estaba.'),'(Juntá los diez huesos que hay por el campo y traéselos a Catalina.)']);}
   if(!q.cataDone){if(n<10)return say([QC(n?'Tenés '+n+'. Faltan '+(10-n)+'.':'¿Y? ¿No encontraste ninguno?'),QC(pick(['Siguen ahí afuera, entre el pasto. Son blancos; con luz se ven.','No me traigas piedras. Huesos.','Fijate lejos de las casas. Los perros los llevan lejos.']))]);
     q.cataDone=1;DRAWFLAGS=null;sfx.item();return say([QC('Diez. Diez huesos.'),QC('...Están perfectos.'),QC('Un trato es un trato. Tomá, la llave de lo de Augusto.'),gotLine('llaveA'),QC('Y esto. Lo tallé yo, con uno que me sobró. Es de colección: no lo pierdas.'),gotLine('figColm'),QC('Si te gruñe, no es Simón. Es Augusto.')]);}
-  const L=[[QC('Cada vez que miro la vitrina me acuerdo de algo. No sé de qué.')],[QC('Máximo antes era bueno. Nos traía tomates. Ahora el campo es como él: no deja salir a nadie.')],[QC('¿Ya fuiste a lo de Augusto? Está más gruñón que nunca.'),QC('Y Manuel... Manuel es Manuel.')],[QC('A veces escucho una guitarra. Acá no tiene guitarra nadie más que yo.')]];
+  const L=[[QC('Cada vez que miro la vitrina me acuerdo de algo. No sé de qué.')],[QC('Máximo antes era bueno. Nos traía tomates. Ahora el campo es como él: no deja salir a nadie.')],[QC('¿Ya fuiste a lo de Augusto? Está más gruñón que nunca.'),QC('Y Manuel... Manuel es Manuel.')],[QC('A veces escucho una guitarra. Acá no tiene guitarra nadie más que yo.')],[QC('Los huesos no mienten. Uno los limpia y quedan como eran.')],[QC('Manuel toca a cualquier hora. Tiemblan las paredes. Tiemblan los huesos de la vitrina.')],[QC('Tallar es fácil. Lo difícil es saber cuándo parar.')],[QC('Augusto antes venía a tomar mate. Ahora ni abre la puerta.')]];if(q.cataDone)L.push([QC('Trece en la vitrina. Ya no entra ninguno más.'),QC('...Bueno. Uno más sí.')]);
   q.caI=((q.caI||0)+1)%L.length;return say(L[q.caI]);}
 /* Manuel */
 const MANU3=['pedal','platilloM','llaveAf'];
@@ -2007,7 +2007,7 @@ function manuTalk(){const q=C4Q();
   if(!q.mDone){const n=hsCount(MANU3);if(n<3)return say([QM(n?'Tenés '+n+' de tres. Pedal, platillo, llave.':'Pedal, platillo, llave. Ninguna de las tres. Dale.')]);
     return say([QM('¡Las tres! Ahora sí.'),{who:'Manuel',t:'¿Y los cincuenta?',choices:[{l:'Pagar $50',f(){if(S.pesos<50)return say([QM('No te alcanza. Cincuenta, ni uno menos.')]);S.pesos-=50;sfx.coin();for(const id of MANU3)S.items=S.items.filter(i=>i!==id);q.mDone=1;q.gun=1;S.balas=(S.balas||0)+6;S.items.push('pistola');give('figBaq');DRAWFLAGS=null;sfx.item();
       say([QM('Trato hecho.'),QM('Tomá. Es una pistola. No me preguntes de dónde la saqué.'),'Agarraste: Pistola.',QM('Tiene seis balas. Si se te terminan, alguien de arriba debe tener. Siempre hay alguien que tiene.'),QM('Ah, y tomá esto también. Una baqueta tallada. De colección. Firmada por mí, o sea que vale el doble.'),'Agarraste: Figura de baqueta.','(La pistola gasta una bala por disparo. Sin balas, pega muy poco.)'],()=>manuPlay(1.2));}},{l:'Todavía no',f(){say([QM('Sin plata no hay trato.')]);}}]}]);}
-  const L=[[QM('Escuchá cómo suena ahora. Escuchá.')],[QM('Antes, los domingos, Máximo venía a escucharme tocar. Después dejó de venir. Después dejó de ser Máximo.')],[QM('Si ves a Máximo, decile que por su culpa no puedo salir a tocar. Decile así, con esas palabras.')],[QM('¿Vos tocás algo? Tenés cara de tocar el triángulo.')]];
+  const L=[[QM('Escuchá cómo suena ahora. Escuchá.')],[QM('Antes, los domingos, Máximo venía a escucharme tocar. Después dejó de venir. Después dejó de ser Máximo.')],[QM('Si ves a Máximo, decile que por su culpa no puedo salir a tocar. Decile así, con esas palabras.')],[QM('¿Vos tocás algo? Tenés cara de tocar el triángulo.')],[QM('El bombo lo afiné yo. Nadie más lo toca. Ni el viento.')],[QM('Catalina dice que hago ruido. Catalina junta huesos. ¿Quién es la rara acá?')],[QM('Ya tengo el tema para el estadio. Me falta el resto, pero el tema ya lo tengo.')],[QM('Augusto no viene nunca a escucharme. Se lo pierde.')]];if(q.mDone)L.push([QM('La pistola cuidala. No la uses para nada que yo no haría.'),QM('...O sea, para casi nada.')]);
   q.maI=((q.maI||0)+1)%L.length;return say(L[q.maI],()=>{if(q.mDone)manuPlay(.3);});}
 let MANUP=0;function manuPlay(d){const n=8;for(let i=0;i<n;i++){const k=i%4;if(k===0||k===2)AU.t(60,.18,'sine',.08,40,d+i*.16);if(k===1||k===3){AU.nz(.08,.07);AU.t(220,.06,'triangle',.03,160,d+i*.16);}AU.t(7000,.02,'square',.006,0,d+i*.08+.04);}AU.nz(.5,.03);MANUP=performance.now();}
 /* Augusto */
@@ -2019,7 +2019,7 @@ function augTalk(){const q=C4Q();if(augInetTalk())return;
     QA('Si la abrís, te doy la llave de lo de Máximo. Total, yo a Máximo no lo quiero ver.'),'(Averiguá el número del candado, arriba en la casa de Augusto.)']);}
   if(q.auDoor&&!q.mxKey){q.mxKey=1;sfx.item();return say([QA('¿La abriste?'),QA('...Gracias. En serio, gracias.'),QA('Tomá. La llave de lo de Máximo. La tenía guardada para cuando hiciera falta.'),gotLine('llaveM'),QA('Me parece que ahora hace falta.'),QA('Y llevate esto. Un perro, como Simón. Es de colección; a mí ya no me sirve para nada.'),gotLine('figPerro'),
     QA('Bueno. Me voy arriba. Tengo una partida de Omori por la mitad desde hace... no sé desde cuándo.')],()=>augUpEsc());}
-  const L=[[QA('Simón entierra cosas en el patio de atrás, al lado de la cucha. Desde que está viejo ya no sale.'),QA('Lo que haya ahí abajo, sigue ahí.')],[QA('El reloj adelanta. Siempre adelantó. Lo dejo así.')],[QA('Isi. Andá a ver a Isi, a la planta baja. Yo no puedo salir de acá.')],[QA('A Máximo lo quise mucho. Por eso no lo quiero ver así.')]];
+  const L=[[QA('Simón entierra cosas en el patio de atrás, al lado de la cucha. Desde que está viejo ya no sale.'),QA('Lo que haya ahí abajo, sigue ahí.')],[QA('El reloj adelanta. Siempre adelantó. Lo dejo así.')],[QA('Isi. Andá a ver a Isi, a la planta baja. Yo no puedo salir de acá.')],[QA('A Máximo lo quise mucho. Por eso no lo quiero ver así.')],[QA('Simón ya no ladra. Antes le ladraba a todo: a los pájaros, al viento, a Máximo.')],[QA('Las computadoras de arriba las armé yo. Pieza por pieza. Ahora no me acuerdo cómo.')],[QA('Manuel me pide que vaya a escucharlo. Le digo que sí. Hace años que le digo que sí.')],[QA('Cata se acordaba siempre de darle de comer a Simón. Yo, a veces no.')]];
   if(!q.auDoor)L.push([QA('Estaba a la vista. Te juro que estaba a la vista.')]);
   q.auI=((q.auI||0)+1)%L.length;return say(L[q.auI]);}
 function augUpEsc(){const q=C4Q();
@@ -10652,7 +10652,8 @@ function drawPastoMap(X,Y,t,mv,ch){ctx.fillStyle='rgba(0,0,0,.45)';ctx.beginPath
   /* los dos agujeros que miran */ctx.fillStyle='#050805';ctx.fillRect(X-5,Y-14,3,4);ctx.fillRect(X+2,Y-14,3,4);if(ch){ctx.fillStyle='rgba(200,255,150,.8)';ctx.fillRect(X-4,Y-13,1,1);ctx.fillRect(X+3,Y-13,1,1);}}
 /* qué te deja */
 function pastoEnd(L){const g=B.foes.find(f=>f.id==='pastoG');if(!g)return;const Q=C4Q();if(!(g.dead||g.spared))return;Q.pasto=g.spared?'spare':'kill';PASTO=null;
-  if(g.spared){const pa=S.eq.armor;S.eq.armor='armPasto';if(pa)giveOrStore(pa);fixHP();L.push(gotLine('espPasto'),'El monstruo de pasto se convirtió en tu armadura. Le caíste bien.','Te equipaste: Armadura de pasto.'+(pa?' ('+IT[pa].n+' quedó guardada.)':''));}}
+  if(g.spared){const pa=S.eq.armor;S.eq.armor='armPasto';if(pa)giveOrStore(pa);fixHP();L.push('El monstruo de pasto se convirtió en tu armadura. Le caíste bien.','Te equipaste: Armadura de pasto.'+(pa?' ('+IT[pa].n+' quedó guardada.)':''));}
+  /* la espada, solo en Aniquilación */else if(g.dead&&aniq())L.push(gotLine('espPasto'));}
 /* el batallón de pasto: el tercer golpe con la armadura pega más */
 function pastoArmBoost(){if(S.eq.armor!=='armPasto'||!B)return 1;B.apN=(B.apN||0)+1;return B.apN%3===0?1.15:1;}
 /* el dibujo de la pelea */
@@ -11307,7 +11308,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.37.0';
+const GAME_VER='1.37.1';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
