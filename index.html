@@ -9900,7 +9900,7 @@ function drawDarkBox(b,t){if(!DKB){DKB=document.createElement('canvas');DKB.widt
   ctx.drawImage(DKB,0,0);
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.beginPath();ctx.moveTo(sx,sy);ctx.arc(sx,sy,L,a-.62,a+.62);ctx.closePath();ctx.clip();{const gr=ctx.createRadialGradient(sx,sy,2,sx,sy,L);gr.addColorStop(0,'rgba(255,236,190,.12)');gr.addColorStop(1,'rgba(255,236,190,0)');ctx.fillStyle=gr;ctx.fillRect(sx-L,sy-L,L*2,L*2);}ctx.restore();
   /* en lo oscuro apenas brillan; los avisos se ven igual */
-  for(const u of B.bul){if(u.lit)continue;if(u.warn>0){if(Math.floor(t*10)%2){ctx.fillStyle='rgba(255,90,58,.55)';ctx.fillRect(u.x+u.w/2-1,u.y+Math.min(u.h,6)/2-1,2,2);}continue;}const rgb=u.k==='cor'?'167,139,250':(BCOL[u.dr]||'200,230,170');ctx.fillStyle='rgba('+rgb+',.5)';ctx.fillRect(Math.round(u.x+u.w/2)-1,Math.round(u.y+u.h/2)-1,2,2);ctx.fillStyle='rgba('+rgb+',.12)';ctx.fillRect(Math.round(u.x)-1,Math.round(u.y)-1,u.w+2,Math.min(u.h,40)+2);}}
+  for(const u of B.bul){if(u.lit)continue;if(u.warn>0&&u.dr==='dientes'&&u.bite!=null){try{jawWarn(u,t,b);}catch(e){}continue;}if(u.warn>0){if(Math.floor(t*10)%2){ctx.fillStyle='rgba(255,90,58,.55)';ctx.fillRect(u.x+u.w/2-1,u.y+Math.min(u.h,6)/2-1,2,2);}continue;}const rgb=u.k==='cor'?'167,139,250':(BCOL[u.dr]||'200,230,170');ctx.fillStyle='rgba('+rgb+',.5)';ctx.fillRect(Math.round(u.x+u.w/2)-1,Math.round(u.y+u.h/2)-1,2,2);ctx.fillStyle='rgba('+rgb+',.12)';ctx.fillRect(Math.round(u.x)-1,Math.round(u.y)-1,u.w+2,Math.min(u.h,40)+2);}}
 const C4DR={
   kernel(u){ctx.fillStyle=u.k==='cor'?'#a78bfa':'#e8c040';ctx.fillRect(u.x,u.y+1,u.w,u.h-1);ctx.fillRect(u.x+1,u.y,u.w-2,1);ctx.fillStyle='#fff2a0';ctx.fillRect(u.x+1,u.y+1,1,1);},
   chala(u){ctx.fillStyle='#8a9a52';ctx.fillRect(u.x,u.y,u.w,u.h);ctx.fillStyle='#b8b872';ctx.fillRect(u.x+1,u.y,1,u.h);ctx.fillStyle='#5a6a32';ctx.fillRect(u.x+u.w-1,u.y,1,u.h);},
@@ -10458,6 +10458,16 @@ function bulPartDraw(t,b){const dt=BXT==null?1/60:Math.min(.05,Math.max(0,t-BXT)
   if(BXflash>0){ctx.fillStyle='rgba(255,60,50,'+(BXflash*.18)+')';ctx.fillRect(b.x,b.y,b.w,b.h);BXflash=Math.max(0,BXflash-dt*5);}}
 let BXflash=0;
 function bulPartReset(){BXPS=[];BXlast=new Map();BXT=null;BXhp=null;BXflash=0;}
+/* las mandíbulas de Simón avisan: la franja por donde entran se tiñe, asoman los colmillos desde el borde y se marca dónde se cierran */
+function jawWarn(u,t,b){if(u.w0==null)u.w0=u.warn;const p=Math.max(0,Math.min(1,1-u.warn/(u.w0||.6))),top=!!u.top,meet=top?u.bite+u.h:u.bite,e=top?b.y:b.y+b.h,y0=Math.min(e,meet),hh=Math.abs(meet-e),x=u.x,w=u.w;
+  ctx.save();const pul=.5+.5*Math.abs(Math.sin(t*14));
+  const gr=ctx.createLinearGradient(0,e,0,meet);gr.addColorStop(0,'rgba(200,40,50,'+(.32+.18*pul)*(.5+p*.5)+')');gr.addColorStop(1,'rgba(200,40,50,0)');ctx.fillStyle=gr;ctx.fillRect(x,y0,w,hh);
+  ctx.fillStyle='rgba(255,110,110,'+(.35+.4*pul)+')';ctx.fillRect(x,y0,1,hh);ctx.fillRect(x+w-1,y0,1,hh);
+  /* los colmillos asoman del borde, cada vez más */const L=2+p*5,d=top?1:-1;ctx.fillStyle='rgba(244,240,232,'+(.55+.45*p)+')';
+  for(let k=x+1;k<x+w-2;k+=4){ctx.beginPath();ctx.moveTo(k,e);ctx.lineTo(k+3,e);ctx.lineTo(k+1.5,e+d*L);ctx.closePath();ctx.fill();}
+  ctx.fillStyle='rgba(138,26,26,.9)';ctx.fillRect(x,top?e:e-1,w,1);
+  /* donde se cierran */if(top){ctx.fillStyle='rgba(255,170,170,'+(.3+.5*pul)+')';for(let k=x;k<x+w;k+=4)ctx.fillRect(k,Math.round(meet)-.5,2,1);}
+  ctx.restore();}
 
 /* ===================== Capítulo 4 · segunda tanda ===================== */
 /* ---- el piso 2 es difícil: lo que te pega, pega un 35% más ---- */
@@ -11133,6 +11143,7 @@ function renderBattle0(t){
       if(B.mira&&B.pats.includes('mira')){const m=B.mira;ctx.strokeStyle='#e8505b';ctx.lineWidth=1;ctx.beginPath();ctx.arc(m.x,m.y,7,0,7);ctx.moveTo(m.x-10,m.y);ctx.lineTo(m.x+10,m.y);ctx.moveTo(m.x,m.y-10);ctx.lineTo(m.x,m.y+10);ctx.stroke();}
       for(const u of B.bul){
         if(u.warn>0&&u.dr==='kwarn'){const a=.45+.45*Math.abs(Math.sin(t*16)),cy=u.y+2.5,ex=u.side>0?u.x+2:u.x+u.w-2;ctx.fillStyle='rgba(232,80,91,'+(a*.35)+')';ctx.fillRect(u.x,u.y,u.w,u.h);ctx.fillStyle='rgba(255,90,100,'+a+')';for(let x=u.x;x<u.x+u.w;x+=6)ctx.fillRect(x,cy-.5,3,1);/* la punta del cuchillo asomando del lado por donde entra */ctx.fillStyle='rgba(255,230,230,'+Math.min(1,a+.2)+')';ctx.beginPath();ctx.moveTo(ex+u.side*9,cy);ctx.lineTo(ex,cy-3);ctx.lineTo(ex,cy+3);ctx.closePath();ctx.fill();u._t0=null;continue;}
+        if(u.warn>0&&u.dr==='dientes'&&u.bite!=null){try{jawWarn(u,t,b);}catch(e){}u._t0=null;continue;}
         if(u.warn>0){if(Math.floor(t*14)%2){ctx.strokeStyle='#e8505b';ctx.lineWidth=1;ctx.strokeRect(u.x+.5,u.y+.5,u.w-1,u.h-1);}u._t0=null;continue;}
         bulFx(u,t);try{bulPart(u,t);}catch(e){}
       }
@@ -11278,7 +11289,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.36.0';
+const GAME_VER='1.36.1';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
