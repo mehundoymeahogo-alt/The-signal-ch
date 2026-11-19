@@ -2059,7 +2059,7 @@ function hsLook(ch){const st=hsStyle(),q=C4Q();
     'Ḑ':'Un amplificador. Zumba.','ḑ':'Una guitarra, apoyada en su soporte.','ḓ':'Un atril con una partitura. La canción no tiene nombre.','Ḓ':'Una vitrina.','ḕ':'Un baúl.','ḟ':st==='mx'?'Un cajón con revistas de jardinería. Todas abiertas en la misma página.':st==='au'?'Un cajón con juguetes de perro. Una pelota, una soga, un hueso de goma.':'Un cajón lleno de discos.',
     'ḉ':st==='au'?'Una foto de Simón, de cachorro. Ya era enorme.':st==='ca'?'Una partitura enmarcada. Está firmada por alguien con una C.':'Un cuadro.','ḋ':'Un afiche de una banda. Abajo, con fibra: "PRÓXIMAMENTE: MANUEL".'};
   return say([L[ch]||'...']);}
-function hsAct(ch,x,y){const st=hsStyle(),q=C4Q(),m=S.map;
+function hsAct(ch,x,y){const st=hsStyle(),q=C4Q(),m=S.map;if(ch==='ḙ'&&hsFridge())return;
   if(ch==='Ꜷ'||ch==='ꜷ')return;
   /* las cosas que se encuentran */
   if(m===MP.MA0&&ch==='ꜹ'){if(!hsHas('pedal')&&!q.mDone&&!q.ped){q.ped=1;sfx.item();give('pedal');return say(['Abajo del sillón hay algo de metal: el pedal del bombo.','Agarraste: Pedal del bombo.']);}return hsLook(ch);}
@@ -2270,7 +2270,7 @@ function drawFig(k,x,y,r){ctx.save();ctx.translate(x,y);ctx.rotate(r||0);ctx.fil
 MAPS[MP.P2].npcs=P2OUTNPC;MAPS[MP.P2].lights=p2Lights;
 MAPS[MP.MX0]={title:'La casa de Máximo',theme:'granja',rows:[
   'ꜴꜴꜴꜾꜴꜴꜴꜴꜴꜴꜾꜴꜴꜴꜾꜴꜴꜴ',
-  'ꜴꜻꜻꜻꜻꜵꜲꜴ...Ꜹꜵ..ꜶꜶꜴ',
+  'ꜴꜻꜻꜻḙꜵꜲꜴ...Ꜹꜵ..ꜶꜶꜴ',
   'Ꜵ...ꜳ..Ꜵꜳ...ꜳ....Ꜵ',
   'Ꜵꜳ.ꝃꝃ.ꜳ..ꜵ.ꜳ.....Ꜵ',
   'Ꜵꜵꜳ...ꜵꜴ..ꜹꜹꜹ...ꜲꜴ',
@@ -2291,6 +2291,7 @@ MAPS[MP.MX0]={title:'La casa de Máximo',theme:'granja',rows:[
     case 'Ꜻ':return sotanoAct();
     case 'ꜹ':return say(['Un sillón verde. Le crecieron hojas entre los almohadones.']);
     case 'ꜻ':return say(['La mesada de la cocina. En la pileta hay tierra, no platos.']);
+    case 'ḙ':if(hsFridge())return;return hsLook(ch);
     case 'ꝃ':return say(['Una mesa con mantel de hule. En vez de platos hay macetas.']);
     case 'Ꜳ':return say(['Una maceta. La planta se da vuelta para mirarte.']);
     case 'Ꝁ':return say(['Frascos con semillas, todos con la misma letra en la etiqueta: M.']);
@@ -10068,6 +10069,23 @@ let MUSNOTG=0,MUSIR=null;
 const musBase=id=>String(id).replace(/~s$/,''),musSlow=id=>/~s$/.test(String(id)),musRate=id=>musSlow(id)?.2:1;
 function musOut(g,id){const c=AU.c,out=AU.mus||AU.master;if(!musSlow(id)){g.connect(out);return;}
   try{if(!MUSIR)MUSIR=atmIR(4.6,2.4,.32);const cv=c.createConvolver(),wg=c.createGain(),dg=c.createGain();cv.buffer=MUSIR;wg.gain.value=1.1;dg.gain.value=.45;g.connect(dg);dg.connect(out);g.connect(cv);cv.connect(wg);wg.connect(out);}catch(e){g.connect(out);}}
+/* piso 2: comida en las casas. Se le compra al dueño (después de la primera charla) o se roba de la heladera */
+const HSFOOD={manuel:{who:'Manuel',met:q=>q.maT,sell:[['choripan',22],['empanada',18]],fr:['choripan']},
+  cata:{who:'Catalina',met:q=>q.caT,sell:[['flan',12],['alfajor',26]],fr:['flan','alfajor']},
+  augusto:{who:'Augusto',met:q=>q.auT,sell:[['milapan',30],['pastafrola',35]],fr:['milapan','flan']},
+  maximo:{who:'Máximo',met:()=>1,sell:[['empanada',18],['milapan',30]],fr:['empanada','sanguche']}};
+const HSFR={[MP.MA0]:'manuel',[MP.CA0]:'cata',[MP.AU0]:'augusto',[MP.MX0]:'maximo'};
+function hsStock(k){const q=C4Q();q.stk=q.stk||{};if(!q.stk[k]){q.stk[k]={};for(const [id] of HSFOOD[k].sell)q.stk[k][id]=3;}return q.stk[k];}
+function hsBuy(k){const H=HSFOOD[k],st=hsStock(k),L=H.sell.filter(([id])=>st[id]>0);
+  if(!L.length)return say(['(No le queda nada para venderte.)']);
+  say([{t:'(Tenés $'+S.pesos+'.)',choices:L.map(([id,p])=>({l:IT[id].n+' $'+p+' ('+st[id]+')',f(){if(S.pesos<p){sfx.buzz();return say(['(No te alcanza.)']);}S.pesos-=p;st[id]--;sfx.coin();say(['Compraste: '+IT[id].n+'.',gotLine(id).replace(/^Agarraste: .*$/,'')].filter(Boolean));}})).concat([{l:'Nada',f(){}}])}]);}
+function hsShopTalk(k,orig){return function(){const H=HSFOOD[k],q=C4Q();if(!H.met(q))return orig.apply(this,arguments);const self=this,a=arguments;
+  say([{t:'(¿Qué hacés?)',choices:[{l:'Hablar',f(){orig.apply(self,a);}},{l:'Comprar comida',f(){hsBuy(k);}},{l:'Nada',f(){}}]}]);};}
+function hsFridge(){const k=HSFR[S.map];if(!k)return false;const q=C4Q();q.fr=q.fr||{};const left=HSFOOD[k].fr.slice(q.fr[k]||0);
+  if(!left.length)return say(['La heladera. Ya no queda nada que sirva.']),true;
+  say([{t:'En la heladera hay: '+left.map(id=>IT[id].n).join(', ')+'.',choices:[{l:'Robarlo',f(){q.fr[k]=HSFOOD[k].fr.length;sfx.item();say(left.map(id=>gotLine(id)));}},{l:'Dejarlo',f(){}}]}]);return true;}
+(function(){try{const W=(m,id,k)=>{const n=MAPS[m].npcs.find(o=>o.id===id);if(n&&n.talk&&!n._shop){n._shop=1;n.talk=hsShopTalk(k,n.talk);}};
+  W(MP.MA0,'manuelC','manuel');W(MP.CA0,'cataC','cata');W(MP.AU0,'augustoC','augusto');W(MP.MX2,'maximoS','maximo');}catch(e){console.error(e);}})();
 
 /* ===================== Capítulos guardados: cada vez que empieza un capítulo (o sea, al terminar el anterior) queda una copia, y se puede volver a cualquiera desde el título ===================== */
 const CHAPALL='piso13_capitulos';
@@ -11289,7 +11307,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.36.1';
+const GAME_VER='1.37.0';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
