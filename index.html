@@ -2091,7 +2091,7 @@ const hsStairs=(down,up)=>function(){const c=tileAt(S.x,S.y);if(c==='Ꜷ'&&up)re
 MAPS[MP.AU0]=hsMap('La casa de Augusto',HSR.au0,'E14',{step:hsStairs(null,()=>goMap(MP.AU1,13,8,'left')),
   npcs:[{id:'augustoC',x:10,y:3,dir:'down',sit:1,look:LOOK.augusto,vis:()=>(!S.flags.scDead||aniq())&&!C4Q().auUp,talk:augTalk},{id:'simon',x:11,y:4,dir:'left',draw:(x,y,t)=>drawSimon(x,y,t),vis:()=>true,talk:simonTalk}],
   enter(){const q=C4Q();if(!q.auIn){q.auIn=1;if(!S.flags.scDead)PENDING.push({who:'Augusto',t:'¿Quién anda ahí? ...Simón, quieto.'});}},
-  under(t){hsFire(t,10.5,1);},lights(t){const f=.92+.06*Math.sin(t*9)+.04*Math.sin(t*23);return [[11,2.2,96*f,.92],[12,8.6,44,.7],[3.5,3.5,38,.5],[2,9.5,34,.5]];},
+  under(t){hsFire(t,11,1);},lights(t){const f=.92+.06*Math.sin(t*9)+.04*Math.sin(t*23);return [[11,2.2,96*f,.92],[12,8.6,44,.7],[3.5,3.5,38,.5],[2,9.5,34,.5]];},
   act(ch,x,y){if(ch==='ꜿ')return goMap(MP.P2,27,23,'down');return hsAct(ch,x,y);}});
 MAPS[MP.AU1]=hsMap('La casa de Augusto · arriba',HSR.au1,'E15',{step:hsStairs(()=>goMap(MP.AU0,15,2,'down'),()=>goMap(MP.AU2,7,5,'up')),lights(t){return [[13.5,2.3,52+Math.sin(t*7)*1.5,.75]];}});
 MAPS[MP.AU2]=hsMap('La sala de computadoras de Augusto',HSR.au2,'E16',{step:hsStairs(()=>goMap(MP.AU1,2,2,'down'),null),under(t){auPcUnder(t);},
@@ -11387,7 +11387,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.38.1';
+const GAME_VER='1.38.2';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
