@@ -513,8 +513,8 @@ function drawCorSense(t,cx,cy){const L=corSecrets();if(!L.length)return;const lv
 function loseCor(n){const a=S.eq.acc&&IT[S.eq.acc];if(a&&a.corRes)n=Math.ceil(n*(1-a.corRes));S.cor=Math.max(0,S.cor-n);return n;}
 const gainCor=n=>{S.cor=Math.min(S.maxCor,S.cor+n);};
 const catOf=id=>{const t=IT[id].t;return t==='food'?'heladera':t==='med'?'botiquin':(t==='weapon'||t==='armor'||t==='acc')?'armario':null;};
-const pocketCount=()=>S.items.filter(id=>IT[id].t!=='key').length;
-function give(id){if(IT[id]&&IT[id].t==='key'&&S.items.includes(id))return true;/* los objetos clave no se repiten */if(IT[id].t==='key'||pocketCount()<pocketMax()){S.items.push(id);return true;}return false;}
+const pocketCount=()=>S.items.filter((id,i)=>IT[id].t!=='key'&&stkFirst(i)).length;
+function give(id){if(IT[id]&&IT[id].t==='key'&&S.items.includes(id))return true;/* los objetos clave no se repiten */if(IT[id].t==='key'||pocketCount()<pocketMax()||(isStk(id)&&S.items.includes(id))){S.items.push(id);return true;}return false;}
 function giveOrStore(id){if(give(id))return 'pockets';const c=catOf(id);if(c){S.store[c].push(id);return 'store';}S.items.push(id);return 'pockets';}
 const storeName={heladera:'la heladera',botiquin:'el botiquín',armario:'el armario'};
 function gotLine(id){const w=giveOrStore(id);return w==='store'?'No te entra en los bolsillos: '+IT[id].n+' fue a parar a '+storeName[catOf(id)]+'.':'Agarraste: '+IT[id].n+'.';}
@@ -6231,7 +6231,7 @@ const priceMult=()=>{const f=priceFreeze();return f!=null?f:priceLive();};
 const price=(b,id)=>{const it=id&&IT[id],cons=it&&(it.t==='food'||it.t==='med')&&id!=='vitamina',fz=priceFreeze()!=null,dis=fz?S.flags.nicoDis:S.flags.distrust;return Math.ceil(b*(cons?(dis?1.5:1)*(1+.063*((S.lv||1)-1)):priceMult()));};
 const menuOpts=()=>['Bolsillos','Objetos clave','Equipo','Notas'].concat(teamList().length?['Compañeros']:[]).concat(S.party.includes('ivan')?['Hablar con Iván']:[]).concat(S.party.includes('silvestre')?['Hablar con Silvestre']:[]).concat(S.party.includes('geronimo')?['Hablar con Gerónimo']:[]).concat(['Salir al título','Cerrar']);
 function itemOpts(id){const t=IT[id].t;if(id==='controlR')return['Usar','Mirar'];if(id==='linterna')return[S.flags.lampOn?'Apagar':'Prender','Mirar'];if(id==='pila'&&has('linterna'))return(has('camara')?['Poner en la linterna','Poner en la cámara']:['Poner en la linterna']).concat(['Mirar','Tirar']);return(t==='food'||t==='med')?['Usar','Mirar','Tirar']:t==='key'?['Mirar']:['Equipar','Mirar','Tirar'];}
-function itemIdx(mode){const out=[];S.items.forEach((id,i)=>{if((IT[id].t==='key')===(mode==='k'))out.push(i);});return out;}
+function itemIdx(mode){const out=[];S.items.forEach((id,i)=>{if((IT[id].t==='key')===(mode==='k')&&stkFirst(i))out.push(i);});return out;}
 const KEY_HINT={
   lentes:'Pista: llevaselos a Selene, en los pasillos de atrás del teatro.',
   tubo:'Pista: Silvestre funde metal en su taller del 3. Necesita tres piezas.',plomos:'Pista: Silvestre funde metal en su taller del 3. Necesita tres piezas.',platillo:'Pista: Silvestre funde metal en su taller del 3. Necesita tres piezas.',
@@ -6356,7 +6356,7 @@ function drawUI0(){
     panel(134,8,178,198);txt(keyMode?'OBJETOS CLAVE':'BOLSILLOS '+pocketCount()+'/'+pocketMax(),142,22,keyMode?'#e3a849':'#9aa0b4',11);ctx.fillStyle='#2a2d3a';ctx.fillRect(140,144,166,1);
     if(!L.length)txt(keyMode?'Todavía no tenés nada importante.':'Nada. Solo pelusa.',142,38,'#767c92',11);
     const sel=u.kind==='pockets'?u.i:(u.li||0);
-    {const PG=9,pg=Math.floor(Math.max(0,sel)/PG),np=Math.ceil(L.length/PG);L.slice(pg*PG,pg*PG+PG).forEach((ri,k)=>{const i=pg*PG+k;txt((sel===i?'▸ ':'  ')+IT[S.items[ri]].n,140,36+k*11,sel===i?'#e3a849':'#c9ccd8',11);});
+    {const PG=9,pg=Math.floor(Math.max(0,sel)/PG),np=Math.ceil(L.length/PG);L.slice(pg*PG,pg*PG+PG).forEach((ri,k)=>{const i=pg*PG+k;txt((sel===i?'▸ ':'  ')+stkName(S.items[ri]),140,36+k*11,sel===i?'#e3a849':'#c9ccd8',11);});
       if(np>1)txt((pg>0?'▲ ':'')+(pg+1)+'/'+np+(pg<np-1?' ▼':''),304,22,'#e3a849',10,'right');}
     if(L[sel]!=null)wrap(IT[S.items[L[sel]]].d,164,10).slice(0,5).forEach((l,i)=>txt(l,142,156+i*10,'#9aa0b4',10));
     if(u.kind==='itemopt'){const o=itemOpts(S.items[u.it]);panel(232,40,76,o.length*12+8,'#e3a849');o.forEach((c,i)=>txt((u.i===i?'▸ ':'  ')+c,236,52+i*12,u.i===i?'#e3a849':'#c9ccd8',11));}
@@ -9716,7 +9716,7 @@ function updBattle(dt){
     case 'menu':if(hit('left')){B.menu=(B.menu+3)%4;sfx.sel();}if(hit('right')){B.menu=(B.menu+1)%4;sfx.sel();}if(hit('a')){sfx.ok();choose(B.menu);}break;
     case 'target':{const a=alive();if(hit('b')){B.state='menu';break;}if(hit('up')||hit('left')){B.sub=(B.sub+a.length-1)%a.length;sfx.sel();}if(hit('down')||hit('right')){B.sub=(B.sub+1)%a.length;sfx.sel();}if(hit('a')){B.target=B.foes.indexOf(a[B.sub]);sfx.ok();B.targetFor();}break;}
     case 'act':case 'item':case 'mercy':{
-      const list=B.state==='act'?actList(B.foes[B.target]):B.state==='item'?S.items.map((id,i)=>i).filter(i=>IT[S.items[i]].t==='food'||IT[S.items[i]].t==='med'):[0,1];
+      const list=B.state==='act'?actList(B.foes[B.target]):B.state==='item'?S.items.map((id,i)=>i).filter(i=>(IT[S.items[i]].t==='food'||IT[S.items[i]].t==='med')&&stkFirst(i)):[0,1];
       const n=list.length;
       if(hit('b')){B.state='menu';break;}
       if(!n)break;
@@ -10093,6 +10093,10 @@ function patK(p){if(!B)return null;
   if(B.c4b&&SIMBITE.includes(p))return{t:1.2,v:1.2,c:1};
   if(B.c4b&&SIMOTH.includes(p))return{t:1.15,v:1.15,c:1};
   return null;}
+/* las pilas se apilan: ocupan un solo lugar en los bolsillos y se ven como "Pila x3" */
+function isStk(id){return id==='pila';}
+function stkFirst(i){const id=S.items[i];return !isStk(id)||S.items.indexOf(id)===i;}
+function stkName(id){if(!isStk(id))return IT[id].n;const n=S.items.filter(x=>x===id).length;return IT[id].n+(n>1?' x'+n:'');}
 
 /* ===================== Capítulos guardados: cada vez que empieza un capítulo (o sea, al terminar el anterior) queda una copia, y se puede volver a cualquiera desde el título ===================== */
 const CHAPALL='piso13_capitulos';
@@ -10727,7 +10731,7 @@ function partUpd(u){const n=PART_GAP.length;
   if(hit('b')){UI=null;say([QC('Bueno. Cuando quieras.')]);return;}
   if(hit('left')){u.sel=(u.sel+n)%(n+1);sfx.sel();}if(hit('right')){u.sel=(u.sel+1)%(n+1);sfx.sel();}
   if(u.sel<n){if(hit('up')){u.pick[u.sel]=Math.min(PART_N.length-1,u.pick[u.sel]+1);partNote(u.pick[u.sel]);}if(hit('down')){u.pick[u.sel]=Math.max(0,u.pick[u.sel]<0?0:u.pick[u.sel]-1);partNote(u.pick[u.sel]);}if(hit('a'))partPlay(u);}
-  else if(hit('a')){if(u.pick.some(p=>p<0)){u.msg='Faltan notas.';sfx.buzz();return;}const ok=PART_GAP.every((k,g)=>u.pick[g]===PART_MEL[k]);
+  else if(hit('a')){if(u.pick.some(p=>p<0)){u.msg='Faltan notas.';sfx.buzz();return;}const ok=PART_GAP.every((k,g)=>u.pick[g]===PART_MEL[k]||(k===10&&u.pick[g]===6));/* en el segundo hueco, el Si también vale */
     if(!ok){partPlay(u);u.msg='No... así no suena.';return;}partPlay(u);UI=null;partWin();}}
 function partWin(){const q=C4Q();q.capa=1;DRAWFLAGS=null;PENDING.length=0;
   esc([['wait',PART_MEL.length*.3+.4],['say',[QC('...Eso. Así sonaba.'),QC('Hace mucho que no la escuchaba entera.'),QC('Tomá. Es una capa de estrellas. Me la regalaron cuando era chica, y ahora es tuya.'),QC('Con esto vas a poder correr. Y si corrés, te vas a poder escapar de lo que anda afuera.'),gotLine('capa'),'(Es un accesorio. Con la capa puesta, corrés con Shift: ocho segundos, y después quince para recuperarte.)']]]);}
@@ -11211,7 +11215,7 @@ function renderBattle0(t){
     case 'menu':wrap('* '+B.flav,b.w-20,12).forEach((l,i)=>txt(l,tx,ty+i*13,'#e6e8ef',12));break;
     case 'target':alive().forEach((f,i)=>txt((i===B.sub?'▸ ':'  ')+f.def.name,tx,ty+i*15,i===B.sub?'#e3a849':'#c9ccd8',12));txt('X volver',b.x+b.w-10,b.y+b.h-6,'#767c92',10,'right');break;
     case 'act':case 'item':case 'mercy':{
-      let names;if(B.state==='act')names=actList(B.foes[B.target]).map(a=>a.n);else if(B.state==='item')names=S.items.filter(id=>IT[id].t==='food'||IT[id].t==='med').map(id=>IT[id].n);else names=[S.pro?'Perdonar':'Desintonizar','Huir'];
+      let names;if(B.state==='act')names=actList(B.foes[B.target]).map(a=>a.n);else if(B.state==='item')names=S.items.filter((id,i)=>(IT[id].t==='food'||IT[id].t==='med')&&stkFirst(i)).map(id=>stkName(id));else names=[S.pro?'Perdonar':'Desintonizar','Huir'];
       const canSp=B.state==='mercy'&&!B.boss&&spareables().length>0;
       /* de a 8 por página (4 filas de 2), para que no se salgan del cuadro */
       const PG=8,pg=Math.floor(Math.max(0,B.sub)/PG),np=Math.ceil(names.length/PG);
@@ -11387,7 +11391,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.38.2';
+const GAME_VER='1.38.3';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
