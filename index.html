@@ -459,7 +459,7 @@ function saveChapStart(ch){chapArchive(ch);try{localStorage.setItem(CHAPK,JSON.s
 function chapStart(){try{const j=JSON.parse(localStorage.getItem(CHAPK)||'null');if(!j||!j.ch||!j.s)return null;if(j.ch===3&&!(typeof c3Open==='function'&&c3Open()))return null;if(j.ch===4&&!(typeof c4Open==='function'&&c4Open()))return null;return j;}catch(e){return null;}}
 const CHAPNAME={1:'EL CUARTO PISO',2:'EL TERCER PISO',3:'EL QUINTO PISO'};
 function restartChapter(){const c=chapStart();if(!c)return;let cur=null;try{cur=JSON.parse(localStorage.getItem(SAVE)||'null');}catch(e){}
-  S=JSON.parse(c.s);if(c.ch===4){c4Fresh();S.flags.scOn=1;}if(cur&&cur.maxCor!=null&&cur.maxCor<S.maxCor){S.maxCor=cur.maxCor;S.cor=Math.min(S.cor,S.maxCor);}
+  S=JSON.parse(c.s);canalKeep(cur);if(c.ch===4){c4Fresh();S.flags.scOn=1;}if(cur&&cur.maxCor!=null&&cur.maxCor<S.maxCor){S.maxCor=cur.maxCor;S.cor=Math.min(S.cor,S.maxCor);}
   SNAP=JSON.stringify(S);saveLS();B=null;DLG=null;UI=null;CHASE=null;
   transition(1,()=>{scene='map';P.moving=false;mapTitleT=2.6;if(FOLS().length)placeFollower();snapshot();
     say(['CAPÍTULO '+c.ch+' · '+CHAPNAME[c.ch],'Rebobinás la cinta hasta el principio del capítulo.'].concat(cur&&cur.maxCor!=null&&cur.maxCor<JSON.parse(c.s).maxCor?['Lo que perdiste de cordura máxima no vuelve.']:[]));});}
@@ -1382,7 +1382,7 @@ function p2HouseMore(h,ox,oy){const w=h.w*T,hh=h.h*T,rh=(h.h-2)*T+4,k=hash(h.x+9
   for(const x of [ox+1,ox+w-3]){ctx.fillStyle='#7a7a74';ctx.fillRect(x,oy+rh,2,hh-rh-1);ctx.fillStyle='#5a5a54';ctx.fillRect(x,oy+hh-3,3,2);}
   if(k%2===0){const vx=ox+w-T+3;ctx.fillStyle='#8a8478';ctx.fillRect(vx,oy+hh-8,6,4);ctx.fillStyle='#3a3630';for(let i=0;i<3;i++)ctx.fillRect(vx+1,oy+hh-7+i,4,.6);}
   /* manchas de humedad que suben del piso */ctx.fillStyle='rgba(50,60,40,.22)';for(let i=0;i<5;i++){const q=hash(k,i+30);ctx.beginPath();ctx.ellipse(ox+6+q%(w-12),oy+hh-4,3+(q>>5)%5,2+(q>>9)%3,0,0,7);ctx.fill();}}
-function c4Hud(){if(!S||S.chapter!==4||!S.flags.c4lamp||!has('linterna')||scene!=='map'||!isP2())return;const k=Math.max(0,S.lamp)/LAMPCAP,low=S.lamp<30;
+function c4Hud(){if(!S||S.chapter<4||!S.flags.c4lamp||!has('linterna')||scene!=='map'||!isP2())return;const k=Math.max(0,S.lamp)/LAMPCAP,low=S.lamp<30;
   ctx.fillStyle='rgba(6,8,20,.7)';ctx.fillRect(W-58,24,50,14);ctx.fillStyle=S.flags.lampOn?'#e3d8b0':'#6b7096';ctx.fillRect(W-54,28,8,6);ctx.fillRect(W-46,27,3,8);
   ctx.strokeStyle='#9aa0b4';ctx.strokeRect(W-39.5,27.5,26,8);ctx.fillRect(W-13,30,2,3);ctx.fillStyle=low&&Math.floor(performance.now()/300)%2?'#ff5a3a':low?'#a83a2a':'#e3a849';ctx.fillRect(W-38,29,Math.round(24*k),6);}
 function lampLook(){return['Una linterna de metal, pesada. '+(S.lamp>0?'Le queda '+(S.lamp>=LAMPCAP*.66?'bastante':S.lamp>=LAMPCAP*.33?'la mitad de':'poca')+' batería.':'Está sin pilas.')];}
@@ -1413,10 +1413,10 @@ function scStep(){const sc=S.flags.scw;let tx,ty,hop=null;
   const n=scStepTo(sc.m,sc.x,sc.y,tx,ty);if(!n)return;if(n[0]===tx&&n[1]===ty&&sc.m===S.map){scKill();return;}sc.x=n[0];sc.y=n[1];
   if(sc.m===S.map){const [ddx,ddy]=p2d(S.x,S.y,sc.x,sc.y,S.map),d=Math.hypot(ddx,ddy);if(d<10){const v=.07*(1-d/10);AU.nz(.09,v);AU.t(70,.12,'triangle',v*.6,45);}}}
 function scKill(){const sc=S.flags.scw;[sc.x,sc.y]=S.map===MP.P2?p2n(S.x,S.y):[S.x,S.y];S.flags.scOn=0;DLG=null;UI=null;cineStart('scareC',1.5,()=>{S.flags.scOn=1;gameOver('hp');});}
-function c4Tick(dt){if(!S||S.chapter!==4||scene!=='map'||CINE||SCARE)return;const F=S.flags;try{c4PartyFix();}catch(e){}try{c4Amb(dt);}catch(e){}try{hsAmb(dt);}catch(e){}try{pastoTick(dt);}catch(e){}try{c4StarTick(dt);c4GrassTalk(dt);}catch(e){}
+function c4Tick(dt){if(!S||S.chapter<4||scene!=='map'||CINE||SCARE)return;const F=S.flags,c5=S.chapter>=5;if(c5){try{c5PartyFix();}catch(e){}}try{c4Amb(dt);}catch(e){}if(!c5){try{c4PartyFix();}catch(e){}try{hsAmb(dt);}catch(e){}try{pastoTick(dt);}catch(e){}try{c4StarTick(dt);c4GrassTalk(dt);}catch(e){}}
   if(MOUSE.on&&isP2()&&!P.moving&&performance.now()-MOUSE.t<500){const a=lampAng();S.dir=Math.abs(a)<Math.PI/4?'right':Math.abs(a)>Math.PI*3/4?'left':a>0?'down':'up';}
   if(F.c4lamp&&F.lampOn&&S.lamp>0&&isP2()){S.lamp-=dt;if(S.lamp<=0){S.lamp=0;PENDING.push('La linterna parpadea y se apaga.','(Se le terminaron las pilas.)');}}
-  if(!F.scOn||!F.scw||F.scBlock)return;F.c4ms=(F.c4ms||0)+dt*1000;const sc=F.scw,rate=10+Math.floor(F.c4ms/60000),seen=scSeen();
+  if(c5||!F.scOn||!F.scw||F.scBlock)return;F.c4ms=(F.c4ms||0)+dt*1000;const sc=F.scw,rate=10+Math.floor(F.c4ms/60000),seen=scSeen();
   if(seen){sc.acc=Math.min(sc.acc,1);if(!sc.sn){sc.sn=1;const [ddx,ddy]=p2d(S.x,S.y,sc.x,sc.y,S.map),d=Math.hypot(ddx,ddy);if(d<7){AU.t(82,1.1,'sawtooth',.06,58);AU.t(1250,.6,'sine',.018,1180);AU.nz(.25,.05);}}return;}
   sc.sn=0;if(rnd()<dt/14)scRustle();sc.acc+=dt*rate/60*(S.canal===21&&S.map===MP.P2?2:1);let k=0;while(sc.acc>=1&&k<4){sc.acc-=1;k++;scStep();if(!F.scOn)return;}
   if(sc.m===S.map){const [ddx,ddy]=p2d(S.x,S.y,sc.x,sc.y,S.map);if(Math.abs(ddx)+Math.abs(ddy)<=1&&sc.acc>=.5)scKill();}}
@@ -6235,7 +6235,7 @@ const priceLive=()=>(S.flags.distrust?1.5:1)*(1+.126*((S.lv||1)-1));/* suben con
 const priceFreeze=()=>{if(!S.flags.nicoDead)return null;if(S.flags.nicoPM==null){S.flags.nicoPM=priceLive();S.flags.nicoDis=S.flags.distrust?1:0;}return S.flags.nicoPM;};
 const priceMult=()=>{const f=priceFreeze();return f!=null?f:priceLive();};
 // armas, abrigos, accesorios y la vitamina C suben con el nivel; la comida y los remedios suben un 3% por nivel
-const price=(b,id)=>{const it=id&&IT[id],cons=it&&(it.t==='food'||it.t==='med')&&id!=='vitamina',fz=priceFreeze()!=null,dis=fz?S.flags.nicoDis:S.flags.distrust;return Math.ceil(b*(cons?(dis?1.5:1)*(1+.063*((S.lv||1)-1)):priceMult()));};
+const price=(b,id)=>{const it=id&&IT[id],cons=it&&(it.t==='food'||it.t==='med')&&id!=='vitamina',fz=priceFreeze()!=null,dis=fz?S.flags.nicoDis:S.flags.distrust;return Math.ceil(b*(cons?(dis?1.5:1)*(1+.063*((S.lv||1)-1))*(it.t==='food'?Math.pow(1.3,Math.max(0,(S.chapter||1)-1-shopTier())):1):priceMult()));};
 const menuOpts=()=>['Bolsillos','Objetos clave','Equipo','Notas'].concat(teamList().length?['Compañeros']:[]).concat(S.party.includes('ivan')?['Hablar con Iván']:[]).concat(S.party.includes('silvestre')?['Hablar con Silvestre']:[]).concat(S.party.includes('geronimo')?['Hablar con Gerónimo']:[]).concat(['Salir al título','Cerrar']);
 function itemOpts(id){const t=IT[id].t;if(id==='controlR')return['Usar','Mirar'];if(id==='linterna')return[S.flags.lampOn?'Apagar':'Prender','Mirar'];if(id==='pila'&&has('linterna'))return(has('camara')?['Poner en la linterna','Poner en la cámara']:['Poner en la linterna']).concat(['Mirar','Tirar']);return(t==='food'||t==='med')?['Usar','Mirar','Tirar']:t==='key'?['Mirar']:['Equipar','Mirar','Tirar'];}
 function itemIdx(mode){const out=[];S.items.forEach((id,i)=>{if((IT[id].t==='key')===(mode==='k')&&stkFirst(i))out.push(i);});return out;}
@@ -6414,10 +6414,10 @@ function drawUI0(){
     panel(16,10,288,156,'#e3a849');txt('KIOSCO NICO',26,26,'#e3a849',14);txt('$'+S.pesos,294,26,'#e6e8ef',13,'right');
     {const tb=['COMPRAR','VENDER'];tb.forEach((n,i)=>{const on=(u.tab||0)===i;txt(n,172+i*56,25,on?'#e3a849':'#5a6070',10,'center');if(on){ctx.fillStyle='#e3a849';ctx.fillRect(172+i*56-18,28,36,1);}});}
     if(u.tab){const L=sellList();if(!L.length)txt('No tenés armas, abrigos ni accesorios para vender.',24,52,'#9aa0b4',10);
-      L.forEach((o,i)=>{const y=40+i*10.6;if(y>132)return;txt((u.i===i?'▸ ':'  ')+IT[o.id].n,24,y,u.i===i?'#e3a849':'#c9ccd8',11);txt('$'+sellVal(o.id),294,y,'#7cff9a',11,'right');});
+      const o1=Math.max(0,Math.min(u.i-7,L.length-8));shopArrows(o1,L.length);L.forEach((o,i)=>{if(i<o1||i>o1+7)return;const y=40+(i-o1)*10.6;txt((u.i===i?'▸ ':'  ')+IT[o.id].n,24,y,u.i===i?'#e3a849':'#c9ccd8',11);txt('$'+sellVal(o.id),294,y,'#7cff9a',11,'right');});
       if(L[u.i])wrap((shopCopied()?'No te compra nada. ':'Te lo compra al 90% de lo que vale nuevo. ')+IT[L[u.i].id].d,270,10).slice(0,2).forEach((l,i)=>txt(l,26,138+i*10,'#9aa0b4',10));
       txt(u.msg||'Z vender · X salir',26,158,'#767c92',10);}
-    else SHOP.forEach(([id,b],i)=>{const y=40+i*(SHOP.length>8?10.6:12);txt((u.i===i?'▸ ':'  ')+IT[id].n,24,y,u.i===i?'#e3a849':'#c9ccd8',11);const ago=id==='vitamina'&&(S.flags.vitB||0)>=VIT_MAX||shopOut(id);txt(ago?'AGOTADO':'$'+price(b,id),294,y,ago?'#5a6070':'#e6e8ef',11,'right');if(!ago&&(id==='vitamina'||shopCopied()))txt('x'+(shopCopied()?1:VIT_MAX-(S.flags.vitB||0)),236,y,'#767c92',10,'right');});
+    else{const o0=Math.max(0,Math.min(u.i-7,SHOP.length-8));shopArrows(o0,SHOP.length);SHOP.forEach(([id,b],i)=>{if(i<o0||i>o0+7)return;const y=40+(i-o0)*(SHOP.length>8?10.6:12);txt((u.i===i?'▸ ':'  ')+IT[id].n,24,y,u.i===i?'#e3a849':'#c9ccd8',11);const ago=id==='vitamina'&&(S.flags.vitB||0)>=VIT_MAX||shopOut(id);txt(ago?'AGOTADO':'$'+price(b,id),294,y,ago?'#5a6070':'#e6e8ef',11,'right');if(!ago&&(id==='vitamina'||shopCopied()))txt('x'+(shopCopied()?1:VIT_MAX-(S.flags.vitB||0)),236,y,'#767c92',10,'right');});}
     if(!u.tab){const id=SHOP[u.i][0],it=IT[id];wrap(it.d+(it.t==='weapon'?' '+critText(it.k):''),270,10).slice(0,2).forEach((l,i)=>txt(l,26,138+i*10,'#9aa0b4',10));}
     if(!u.tab)txt(u.msg||'Z comprar · ◀▶ vender · X salir',26,158,'#767c92',10);
   }
@@ -8248,7 +8248,7 @@ function musIter(t0,first){const c=AU.c,M=MUS.src,s=c.createBufferSource(),ig=c.
 function musStop(){if(!MUS.src)return;const c=AU.c,M=MUS.src,g=MUS.gain;MUS.src=null;MUS.gain=null;MUS.cur=null;try{g.gain.cancelScheduledValues(c.currentTime);g.gain.setValueAtTime(g.gain.value,c.currentTime);g.gain.linearRampToValueAtTime(0,c.currentTime+.6);for(const s of M.list)s.stop(c.currentTime+.65);}catch(e){}}
 /* momentos de lore importantes: suena Just Try (loreMusic(true) / loreMusic(false)) */
 let MUSLORE=null;function loreMusic(on){MUSLORE=on?'justtry':null;}
-function musWant(){if(SCARE||scene==='open')return null;/* Aniquilación: en ningún piso suena nada; la única excepción es la pelea con Simón (Dogfight Club) */if(S&&!S.pro&&scene!=='title'&&scene!=='over'&&scene!=='pdeath'&&isTG()&&!MUSNOTG){if(scene==='battle'&&B&&B.c4b&&B.simon&&B.simM)return 'dogfight';if(scene==='battle'&&B){let w=null;MUSNOTG=1;try{w=musWant();}finally{MUSNOTG=0;}if(w==='grassyou')return w;if(w&&w!=='rain'&&w!=='dogfight'&&TRACKS[w])return w+'~s';}return null;}if(MUSLORE&&S&&!S.pro)return MUSLORE;if(S&&!S.pro&&S.canal===61&&S.map===MP.AU0&&scene==='map')return 'justtryR';if(S&&S.chapter>=4&&(scene==='map'||scene==='over'))return scene==='over'?'over':(!CHASE&&([MP.P2C,MP.MX0,MP.MX1,MP.MX2,MP.SOT].includes(S.map)||HSMAPS().includes(S.map))?'floor2':null);if(S&&!S.pro&&S.flags.ivanDead&&S.flags.nicoDead&&scene==='map'&&[MP.DEPTO,MP.PASILLO,MP.IVAN,MP.NICO,MP.PEDRO].includes(S.map))return null;if(scene==='title')return 'menu';if(scene==='over'||scene==='pdeath')return 'over';if(S&&S.pro&&scene==='map'&&S.map===MP.CAMPO)return null;if(S&&S.pro&&!CUT&&(scene==='intro'||scene==='map'||scene==='battle'))return 'pro';if(scene==='battle'&&B&&(B.ivanFight||B.tgKill))return null;if(scene==='battle'&&B&&B.pasto)return 'grassyou';if(scene==='battle'&&B&&B.c4b&&B.simon)return B.simM?'dogfight':null;if(scene==='battle'&&B&&B.maxi)return 'landslide';if(scene==='battle'&&B&&B.shadow)return 'shadow';if(scene==='battle'&&B&&B.foes&&B.foes.some(f=>f.id==='brian'||f.id==='den'))return 'blizzard';if(scene==='battle'&&B&&B.foes&&B.foes.some(f=>f.id==='pedro'))return 'storm';if(scene==='battle'&&B&&B.felix)return 'felix';if(scene==='battle'&&B&&S&&!S.pro&&!B.boss&&!B.tuto&&!B.shadow)return 'rain';if(QUIZON&&scene==='map')return 'answer';if(S&&!S.pro&&scene==='map'&&chamberMap())return CHASE||isTG()||S.map===MP.HABIT5?null:(S.map===MP.SALA5||S.map===MP.PASILLO5?'floor5':'chamber');/* D9 y D10: solo la guitarra de Ciro */if(S&&!S.pro&&scene==='map'&&S.map===MP.SELENE5)return CHASE||isTG()?null:'selene';if(S&&!S.pro&&scene==='map'&&isTeatMap())return null;if(scene==='race')return 'racing';if(scene==='tennis')return 'tenis';if(S&&!S.pro&&scene==='map'&&S.map===MP.PISO3&&(S.flags.p3dark===1||S.flags.p3dark===3))return null;if(S&&!S.pro&&S.chapter===2&&scene==='map'&&isTG()&&[MP.PISO3,MP.FELIX,MP.ESTEF,MP.SILV,MP.GERO,MP.MANT,MP.GINES].includes(S.map))return null;if(S&&!S.pro&&scene==='map'&&[MP.ESTEF,MP.GERO].includes(S.map))return 'relax';if(S&&!S.pro&&scene==='map'&&[MP.SILV,MP.MANT].includes(S.map))return 'motors';if(S&&!S.pro&&!CHASE&&(scene==='map'||scene==='race'||scene==='tennis')&&[MP.PISO3,MP.FELIX,MP.ESTEF,MP.SILV,MP.GERO,MP.MANT,MP.GINES].includes(S.map))return 'floor3';if(S&&!S.pro&&S.map===MP.NICO&&scene==='map')return S.flags.nicoDead?null:'nico';if(S&&!S.pro&&S.map===MP.DEPTO&&scene==='map')return 'depto';if(S&&!S.pro&&scene==='map'&&!CHASE&&[MP.PASILLO,MP.IVAN,MP.PEDRO].includes(S.map))return 'floor4';return null;}
+function musWant(){if(SCARE||scene==='open')return null;/* Aniquilación: en ningún piso suena nada; la única excepción es la pelea con Simón (Dogfight Club) */if(S&&!S.pro&&scene!=='title'&&scene!=='over'&&scene!=='pdeath'&&isTG()&&!MUSNOTG){if(scene==='battle'&&B&&B.c4b&&B.simon&&B.simM)return 'dogfight';if(scene==='battle'&&B){let w=null;MUSNOTG=1;try{w=musWant();}finally{MUSNOTG=0;}if(w==='grassyou')return w;if(w&&w!=='rain'&&w!=='dogfight'&&TRACKS[w])return w+'~s';}return null;}if(MUSLORE&&S&&!S.pro)return MUSLORE;if(S&&!S.pro&&S.canal===61&&S.map===MP.AU0&&scene==='map')return 'justtryR';if(S&&S.chapter>=4&&(scene==='over'||scene==='map'&&(S.chapter<5||isP2()||[MP.F1,MP.SOTD].includes(S.map))))return scene==='over'?'over':(!CHASE&&([MP.P2C,MP.MX0,MP.MX1,MP.MX2,MP.SOT].includes(S.map)||HSMAPS().includes(S.map))?'floor2':null);if(S&&!S.pro&&S.flags.ivanDead&&S.flags.nicoDead&&scene==='map'&&[MP.DEPTO,MP.PASILLO,MP.IVAN,MP.NICO,MP.PEDRO].includes(S.map))return null;if(scene==='title')return 'menu';if(scene==='over'||scene==='pdeath')return 'over';if(S&&S.pro&&scene==='map'&&S.map===MP.CAMPO)return null;if(S&&S.pro&&!CUT&&(scene==='intro'||scene==='map'||scene==='battle'))return 'pro';if(scene==='battle'&&B&&(B.ivanFight||B.tgKill))return null;if(scene==='battle'&&B&&B.pasto)return 'grassyou';if(scene==='battle'&&B&&B.c4b&&B.simon)return B.simM?'dogfight':null;if(scene==='battle'&&B&&B.maxi)return 'landslide';if(scene==='battle'&&B&&B.shadow)return 'shadow';if(scene==='battle'&&B&&B.foes&&B.foes.some(f=>f.id==='brian'||f.id==='den'))return 'blizzard';if(scene==='battle'&&B&&B.foes&&B.foes.some(f=>f.id==='pedro'))return 'storm';if(scene==='battle'&&B&&B.felix)return 'felix';if(scene==='battle'&&B&&S&&!S.pro&&!B.boss&&!B.tuto&&!B.shadow)return 'rain';if(QUIZON&&scene==='map')return 'answer';if(S&&!S.pro&&scene==='map'&&chamberMap())return CHASE||isTG()||S.map===MP.HABIT5?null:(S.map===MP.SALA5||S.map===MP.PASILLO5?'floor5':'chamber');/* D9 y D10: solo la guitarra de Ciro */if(S&&!S.pro&&scene==='map'&&S.map===MP.SELENE5)return CHASE||isTG()?null:'selene';if(S&&!S.pro&&scene==='map'&&isTeatMap())return null;if(scene==='race')return 'racing';if(scene==='tennis')return 'tenis';if(S&&!S.pro&&scene==='map'&&S.map===MP.PISO3&&(S.flags.p3dark===1||S.flags.p3dark===3))return null;if(S&&!S.pro&&S.chapter===2&&scene==='map'&&isTG()&&[MP.PISO3,MP.FELIX,MP.ESTEF,MP.SILV,MP.GERO,MP.MANT,MP.GINES].includes(S.map))return null;if(S&&!S.pro&&scene==='map'&&[MP.ESTEF,MP.GERO].includes(S.map))return 'relax';if(S&&!S.pro&&scene==='map'&&[MP.SILV,MP.MANT].includes(S.map))return 'motors';if(S&&!S.pro&&!CHASE&&(scene==='map'||scene==='race'||scene==='tennis')&&[MP.PISO3,MP.FELIX,MP.ESTEF,MP.SILV,MP.GERO,MP.MANT,MP.GINES].includes(S.map))return 'floor3';if(S&&!S.pro&&S.map===MP.NICO&&scene==='map')return S.flags.nicoDead?null:'nico';if(S&&!S.pro&&S.map===MP.DEPTO&&scene==='map')return 'depto';if(S&&!S.pro&&scene==='map'&&!CHASE&&[MP.PASILLO,MP.IVAN,MP.PEDRO].includes(S.map))return 'floor4';return null;}
 /* ================= pasos y ambiente ================= */
 let NZB=null,STEPN=0,AMB2_T=12;
 function nzBuf(){if(NZB||!AU.c)return NZB;const c=AU.c,b=c.createBuffer(1,c.sampleRate*.25,c.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=rnd()*2-1;return NZB=b;}
@@ -9046,10 +9046,10 @@ function drawTape(){const t=TP.t,sh=tapeShot(t);
 let WK=null,NE=null;
 function startWake(){
   const now=new Date(),h=now.getHours(),mi=now.getMinutes();
-  const keep={canal:S.canal,code:S.code,spider:!!S.flags.spider,memo:S.flags.isiMemo||'',vendas:!!S.flags.vendas,patito:!!S.flags.patito&&!S.flags.patitoMelted,pala:!!S.flags.pala,anillo:!!S.flags.anillo,manto:!!S.flags.manto,ctrl:!!S.flags.controlR,esc:!!S.flags.escopeta,cor:!!S.flags.corazonV};
+  const keep={canal:S.canal,code:S.code,spider:!!S.flags.spider,memo:S.flags.isiMemo||'',vendas:!!S.flags.vendas,patito:!!S.flags.patito&&!S.flags.patitoMelted,pala:!!S.flags.pala,anillo:!!S.flags.anillo,manto:!!S.flags.manto,ctrl:!!S.flags.controlR,keys:!!S.flags.casaKeys,cu:!!S.flags.canalUsed,esc:!!S.flags.escopeta,cor:!!S.flags.corazonV};
   S=newState();S.canal=keep.canal;S.code=keep.code;
   if(keep.spider){S.party.push('arana');S.spiderHP=S.spiderMax=10;}
-  S.memo=keep.memo;S.pro=false;S.map=MP.DEPTO;S.x=3;S.y=3;S.dir='left';
+  S.memo=keep.memo;if(keep.keys)S.flags.casaKeys=1;if(keep.cu)S.flags.canalUsed=1;S.pro=false;S.map=MP.DEPTO;S.x=3;S.y=3;S.dir='left';
   if(S.canal===95)S.items.push('foto');
   if(keep.vendas)S.items.push('vendas');if(keep.patito)S.items.push('patito');if(keep.pala)S.items.push('pala');if(keep.anillo)S.items.push('anillo');if(keep.manto)S.items.push('manto');if(keep.ctrl){S.items.push('controlR');S.flags.controlR=1;}if(keep.esc){S.items.push('escopeta');S.flags.escopeta=1;}if(keep.cor){S.items.push('corazonV');S.flags.corazonV=1;S.hpBonus+=15;S.hp=maxHP();}
   if((h===3||h===15)&&mi===33)S.wake='ghost';
@@ -10123,6 +10123,8 @@ Object.assign(IT,{tortaF:{n:'Tortas fritas',t:'food',hp:30,cor:4,d:'Con azúcar 
   horquilla:{n:'Horquilla',t:'weapon',k:'perforación',dmg:38,d:'Para el heno. Tres dientes de hierro. 38 de daño, perforación.'},
   hoz:{n:'Hoz',t:'weapon',k:'cortante',dmg:40,d:'Curva y con el filo recién pasado. 40 de daño, cortante.'}});
 SHOP_T.push([['tortaF',23],['poncho',170],['mazo',152],['hondaC',136],['horquilla',130],['hoz',138],['walkman',55],['pastelP',38],['vitamina',109]]);
+/* la comida sube un 30% por capítulo: cada lista nueva sale un 30% más que la anterior */
+for(let t_=1;t_<SHOP_T.length;t_++)SHOP_T[t_].forEach((e,i)=>{const b0=SHOP_T[0][i];if(b0&&IT[e[0]]&&IT[e[0]].t==='food'&&IT[b0[0]]&&IT[b0[0]].t==='food')e[1]=Math.round(b0[1]*Math.pow(1.3,t_));});
 /* los jefes contestan según lo que les hacés; ya tranquilos, siguen hablando hasta que los perdonás */
 const BOSSTK={
   maximo:{act:{'Apagar la linterna':{ok:'Así está mejor.',no:'Dejala apagada. Por favor.'},'Preguntarle por las plantas':{ok:'Me escuchaban. Nadie más me escuchaba.',no:'Ya te conté.'},
@@ -10411,9 +10413,11 @@ MAPS[MP.F1]={title:'El primer piso',theme:'f1',rows:["ꜴꜴꜴꜴꜴꜴꜴꜴ�
     if(ch==='Ⓟ'||ch==='Ⓡ')return say([bu?'Una computadora quemada.':'Una computadora. Está apagada.']);
     if(ch==='Ⓠ')return say([bu?'Una silla gamer, chamuscada.':'Una silla gamer.']);
     if(ch==='Ꜵ')return say([bu?'Una pared negra de hollín.':'Una pared.']);}};
+/* las partidas que empezaron el 5 con un compañero de menos: vuelven los que bajaron con vos */
+function c5PartyFix(){const F=S.flags;if(F.c5pf)return;F.c5pf=1;let ch=0;for(const p of F.partyUp||[])if(FOL_LOOK[p]&&!(C5DEAD[p]&&F[C5DEAD[p]])&&!F[p+'Home']&&!S.party.includes(p)){S.party.push(p);ch=1;}if(ch)try{placeFollower();}catch(e){}}
 function startChapter5(){const F=S.flags,r=routeName();F.c5r=r;F.c5burnt=r==='SINTONÍA'?0:1;
   const up=((S.party&&S.party.length)?S.party:(F.partyUp||[])).filter(p=>FOL_LOOK[p]&&!(C5DEAD[p]&&F[C5DEAD[p]]));
-  S.chapter=5;S.party=up.slice(0,2);F.solo2=0;F.c5in=0;FALLBLK=0;ENDHOLD=0;C4WHITE=0;CUT=null;B=null;DLG=null;UI=null;CHASE=null;P.moving=false;scene='map';
+  S.chapter=5;S.party=up.slice();F.c5pf=1;F.solo2=0;F.c5in=0;FALLBLK=0;ENDHOLD=0;C4WHITE=0;CUT=null;B=null;DLG=null;UI=null;CHASE=null;P.moving=false;scene='map';
   if(!F.c5burnt){S.map=MP.F1;S.x=3;S.y=5;S.dir='right';placeFollower();saveLS();say(['CAPÍTULO 5 · EL PRIMER PISO']);return;}
   S.map=MP.SOT;S.x=3;S.y=37;S.dir='down';placeFollower();saveLS();
   esc([['do',()=>{ESC.pp.alpha=0;}],['spawn','v',playerLook(),3,36,'down'],['pose','v',{lie:1,lieDir:1,breath:1,oy:-5,glow:44}],
@@ -10432,7 +10436,7 @@ const CH5READY=true;/* el capítulo 5 todavía no existe: el guardado del final 
 function chapOk(ch){if(ch>=5&&!CH5READY)return false;if(ch===3&&!(typeof c3Open==='function'&&c3Open()))return false;if(ch===4&&!(typeof c4Open==='function'&&c4Open()))return false;return true;}
 function chapList(){const A=chapAll();return Object.keys(A).map(Number).filter(ch=>A[ch]&&A[ch].s&&chapOk(ch)).sort((a,b)=>a-b);}
 function loadChapter(ch){const c=chapAll()[ch];if(!c)return;let cur=null;try{cur=JSON.parse(localStorage.getItem(SAVE)||'null');}catch(e){}
-  S=JSON.parse(c.s);if(ch===4){c4Fresh();S.flags.scOn=1;}if(ch===5&&S.chapter!==5){SNAP=JSON.stringify(S);saveLS();B=null;DLG=null;UI=null;CHASE=null;TS.chaps=null;return transition(1,startChapter5);}const lost=cur&&cur.maxCor!=null&&cur.maxCor<S.maxCor;if(lost){S.maxCor=cur.maxCor;S.cor=Math.min(S.cor,S.maxCor);}
+  S=JSON.parse(c.s);canalKeep(cur);if(ch===4){c4Fresh();S.flags.scOn=1;}if(ch===5&&S.chapter!==5){SNAP=JSON.stringify(S);saveLS();B=null;DLG=null;UI=null;CHASE=null;TS.chaps=null;return transition(1,startChapter5);}const lost=cur&&cur.maxCor!=null&&cur.maxCor<S.maxCor;if(lost){S.maxCor=cur.maxCor;S.cor=Math.min(S.cor,S.maxCor);}
   SNAP=JSON.stringify(S);saveLS();try{localStorage.setItem(CHAPK,JSON.stringify({ch,s:c.s}));}catch(e){}B=null;DLG=null;UI=null;CHASE=null;TS.chaps=null;
   transition(1,()=>{scene='map';P.moving=false;mapTitleT=2.6;if(FOLS().length)placeFollower();snapshot();
     say(['CAPÍTULO '+ch+' · '+CHAPNAME[ch],'Rebobinás la cinta hasta el principio del capítulo.'].concat(lost?['Lo que perdiste de cordura máxima no vuelve.']:[]));});}
@@ -10832,6 +10836,8 @@ function pBleedTick(){if(!B||!(B.pBleed>0)||S.hp<=0)return[];B.pBleed--;const d=
 /* ---- las camperas que se venden defienden un 35% menos ---- */
 for(const [k,v] of [['jean',4],['cuero',7],['gamulan',8]]){const it=IT[k];if(!it)continue;it.d=it.d.replace('+'+it.def+' de defensa','+'+v+' de defensa');it.def=v;}
 /* ---- el control remoto: en una partida normal cambia de canal una sola vez ---- */
+function shopArrows(o,n){if(n<=8)return;txt(o>0?'▲':'',152,128,'#e3a849',8,'center');txt(o+8<n?'▼':'',168,128,'#e3a849',8,'center');}
+function canalKeep(o){if(!o||!o.flags||!o.flags.canalUsed||cheatsOn()||!S||!S.flags)return;S.flags.canalUsed=1;if(o.canal!=null)S.canal=o.canal;DRAWFLAGS=null;}
 function canalOpen(){if(!cheatsOn()&&S.flags.canalUsed)return say(['Apretás los botones del control remoto. No pasa nada.','(El control ya cambió de canal una vez. No cambia más.)']);UI={kind:'canal',v:S.canal||1};sfx.sel();}
 /* ---- Augusto, después de Máximo: internet no existe ---- */
 function augInetTalk(){const q=C4Q();if(q.inet||!S.flags.maxi)return false;q.inet=1;
@@ -10891,16 +10897,62 @@ Object.assign(IT,{queso:{n:'Queso de cabra',t:'food',hp:30,d:'De la cabra. +30 P
 const goatAll=()=>{const F=S.flags,c=F.goatCh||{};return !!(c[1]&&c[2]&&c[3])||(F.goatFed||0)>=3;};
 const goatGrows=()=>!!(S&&S.chapter>=4&&S.canal===13&&!S.flags.goatDead&&goatAll());
 let CABRA={x:null,y:null,m:null,face:1,mv:0};
-function drawGoatBig(x,y,t,face,mv,o){o=o||{};const st=Math.sin(t*(mv?9:2)),bob=mv?Math.abs(st)*1.2:st*.4,g=o.grow==null?1:o.grow;ctx.save();ctx.translate(x,y);ctx.scale(face*(.55+.45*g),.55+.45*g);
-  ctx.fillStyle='rgba(0,0,0,.4)';ctx.beginPath();ctx.ellipse(0,0,7,2.2,0,0,7);ctx.fill();
-  /* las piernas, paradas en dos patas, como cuando era chica */const l=mv?st*1.6:0;ctx.fillStyle='#d8d2c2';ctx.fillRect(-3+l,-6,2.4,6);ctx.fillRect(1-l,-6,2.4,6);ctx.fillStyle='#3a3228';ctx.fillRect(-3.4+l,-1,3,1.4);ctx.fillRect(.6-l,-1,3,1.4);
-  ctx.translate(0,-bob);
-  /* el cuerpo, peludo */ctx.fillStyle='#e8e2d4';ctx.beginPath();ctx.ellipse(0,-11,5.4,6.4,0,0,7);ctx.fill();ctx.fillStyle='#d4ccb8';for(let i=0;i<6;i++)ctx.fillRect(-4+i*1.5,-6.5,1,2);
-  /* las manos, demasiado parecidas a las tuyas */ctx.fillStyle='#d9b293';ctx.fillRect(-7,-10+st*.5,2.4,2.4);ctx.fillRect(4.6,-10-st*.5,2.4,2.4);ctx.fillStyle='#c49a7a';ctx.fillRect(-7,-8+st*.5,2.4,.6);
-  /* la cabeza, los cuernos y la barba */ctx.fillStyle='#ece6d8';ctx.beginPath();ctx.ellipse(-1,-19.5,3.6,4.2,0,0,7);ctx.fill();ctx.fillStyle='#e0d8c8';ctx.fillRect(-4.8,-19,2.6,3);
-  ctx.strokeStyle='#8a7a5a';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(-2,-23);ctx.quadraticCurveTo(-1,-28,3,-27);ctx.moveTo(.5,-23);ctx.quadraticCurveTo(2.5,-27,5.5,-25);ctx.stroke();
-  ctx.fillStyle='#d4ccb8';ctx.fillRect(-4,-16,2,3);ctx.fillStyle='#c9a020';ctx.fillRect(-2.6,-20.6,1.3,1);ctx.fillStyle='#141210';ctx.fillRect(-2.4,-20.4,.8,.6);ctx.fillStyle='#8a7a5a';ctx.fillRect(1.5,-22,2.4,1.2);
-  ctx.restore();}
+/* la cabra grande: sprite de píxeles, de frente, parada en dos patas como cuando era chica */
+const GOATPAL={W:'#ebe5d7',w:'#d1c9b5',s:'#b5ab94',H:'#9a8a68',h:'#6a5c42',L:'#c4b48e',E:'#d8ac24',p:'#141210',K:'#d9b293',k:'#b98f70',F:'#36302a',N:'#dcd2c0',n:'#c2b6a2',m:'#7a6c5c',B:'#cfc6b1',b:'#b0a68e',r:'#c99a8a',q:'#a87a6c'};
+const GOATHEAD={f:[
+'...HHH....HHH...',
+'..HL.hH..Hh.LH..',
+'.HL...H..H...LH.',
+'.h....HL.H...Lh.',
+'.....LHWWHL.....',
+'qr..HWWWWWWH..rq',
+'.rrwWWWWWWWWwrr.',
+'...wWEpWWpEWw...',
+'....WWWWWWWW....',
+'.....WWWWWW.....',
+'.....nNNNNn.....',
+'......NmmN......',
+'.....bBBBBb.....',
+'......BbBb......'],
+s:[
+'..HHH....HHH....',
+'.HL.hH..Hh.LH...',
+'HL...H..H...LH..',
+'h....HLH....Lh..',
+'....LHWWHL......',
+'qr..HWWWWWWH..rq',
+'.rrWWWWWWWWwwrr.',
+'...WEpWWpEWWw...',
+'...WWWWWWWWw....',
+'....WWWWWWw.....',
+'....nNNNNw......',
+'.....NmmN.......',
+'....bBBBBb......',
+'.....BbBb.......']};
+const GOATBODY=[
+'...wWWBBbBWWw...',
+'...wWWWWWWWWw...',
+'..KwWWWWWWWWwK..',
+'..KwWWWWWWWWwK..',
+'..k.wWWWWWWw.k..',
+'....wWWWWWWw....',
+'....wwswwsww....',
+'....w.w..w.w....'];
+const GOATLEGS={
+ s:['.....WW..WW.....','.....Ww..wW.....','.....ww..ww.....','.....FF..FF.....'],
+ a:['.....WW..WW.....','.....Ww..wW.....','.....FF..ww.....','.........FF.....'],
+ b:['.....WW..WW.....','.....Ww..wW.....','.....ww..FF.....','.....FF.........']};
+const GOATC=new Map();
+function goatFrame(k){let c=GOATC.get(k);if(c)return c;const [leg,bob,arm,hd,bl]=k.split(':');c=mk(20,32);const g=c.getContext('2d');
+  const put=(rows,y0)=>rows.forEach((r,j)=>{for(let i=0;i<r.length;i++){const ch=r[i];if(ch==='.')continue;g.fillStyle=GOATPAL[ch];g.fillRect(2+i,y0+j,1,1);}});
+  const up=+bob,a=+arm;put(GOATLEGS[leg],27);
+  let body=GOATBODY;if(a){body=body.map((r,j)=>j===2?r.replace(/^..K/,'..w').replace(/K..$/,'w..'):j===4?r.replace('k','.').replace(/k(\.\.)$/,'K$1'):j===5?r.replace(/^..../,'..K.'):r);}
+  put(body,19-up);put(bl==='1'?GOATHEAD[hd||'f'].map((r,j)=>j===7?r.replace(/[Ep]/g,'s'):r):GOATHEAD[hd||'f'],5-up);shadePix(c);GOATC.set(k,c);return c;}
+function drawGoatBig(x,y,t,face,mv,o){o=o||{};const g=o.grow==null?1:o.grow,sc=.55+.45*g,side=o.side!=null?o.side:mv;
+  let k;if(mv){const f=Math.floor(t*8)%4;k=['a','s','b','s'][f]+':'+(f%2)+':'+(f<2?1:0);}else k='s:'+(Math.sin(t*2)>.55?1:0)+':0';k+=':'+(side?'s':'f')+':'+(!mv&&(t%3.7)<.14?1:0);
+  ctx.save();ctx.translate(Math.round(x),Math.round(y));ctx.scale(face*sc,sc);
+  ctx.fillStyle='rgba(0,0,0,.42)';ctx.beginPath();ctx.ellipse(0,0,6.5,2.2,0,0,7);ctx.fill();
+  ctx.drawImage(goatFrame(k),-10,-31);ctx.restore();}
 function cabraTick(dt){const F=S.flags;if(!F.cabra||S.pro||scene!=='map')return;const tx=pX()+8,ty=pY()+15;
   if(CABRA.m!==S.map||CABRA.x==null||Math.hypot(CABRA.x-tx,CABRA.y-ty)>60){CABRA.x=tx+(S.dir==='left'?14:-14);CABRA.y=ty;CABRA.m=S.map;}
   const D={up:[-7,13],down:[7,-11],left:[15,1],right:[-15,1]}[S.dir]||[0,12],gx=tx+D[0],gy=ty+D[1],dx=gx-CABRA.x,dy=gy-CABRA.y,d=Math.hypot(dx,dy);
@@ -11610,7 +11662,7 @@ function renderBattle0(t){
   let x=14+nmw+(over?6:8);
   txt('PV',x,yy,'#9aa0b4',12);x+=w12('PV')+3;{if(B._php==null||B._php<S.hp)B._php=S.hp;B._php+=(S.hp-B._php)*.1;if(B._php-S.hp<.3)B._php=S.hp;bar(x,yy-7,pb,7,B._php,maxHP(),'#ff5a4a','#4a1d1d');ctx.fillStyle='#e3a849';ctx.fillRect(x,yy-7,Math.round(pb*clamp(S.hp/maxHP(),0,1)),7);ctx.fillStyle='rgba(255,255,255,.28)';ctx.fillRect(x,yy-7,Math.round(pb*clamp(S.hp/maxHP(),0,1)),1);ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(x,yy-1,pb,1);}x+=pb+4;txt(hs,x,yy,'#e6e8ef',11);x+=w11(hs)+(over?6:9);
   if(!S.pro){txt('COR',x,yy,'#9aa0b4',12);x+=w12('COR')+3;bar(x,yy-7,cb,7,S.cor,S.maxCor,'#a78bfa','#251d3a');x+=cb+4;txt(String(S.cor),x,yy,'#e6e8ef',11);}}
-  if(!B.tuto){const tg=[S.party.includes('ivan')?'IVÁN':'',S.party.includes('silvestre')?'SILVESTRE':'',S.party.includes('geronimo')?'GERÓNIMO':'',S.party.includes('arana')?'ARAÑA '+S.spiderHP+'/'+S.spiderMax:''].filter(Boolean).join(' · ');if(tg)txt('EQUIPO: '+tg,14,yy-11,'#7cff9a',10);}
+  if(!B.tuto){const tg=[S.party.includes('ivan')?'IVÁN':'',S.party.includes('silvestre')?'SILVESTRE':'',S.party.includes('geronimo')?'GERÓNIMO':'',S.party.includes('arana')?'ARAÑA '+S.spiderHP+'/'+S.spiderMax:'',S.pro&&S.flags.isiFol?'ISIDORO':'',!S.pro&&S.flags.c5selFol?'SELENE':'',!S.pro&&S.flags.cabra?'CABRA':'',patoOn()?'PATO':''].filter(Boolean).join(' · ');if(tg)txtFit('EQUIPO: '+tg,14,yy-11,'#7cff9a',10,'left',292);}
   const labels=['PELEAR','ACTUAR','OBJETO',S.pro?'PERDONAR':'DESINTONIZAR'],canSpare=!B.boss&&spareables().length>0;
   labels.forEach((l,i)=>{const x=14+i*74,y=210,w=70,h=20,sel=B.state==='menu'&&B.menu===i;
     const lift=sel?1:0;ctx.strokeStyle=sel?'#e3a849':'#3a3e50';ctx.lineWidth=1;ctx.strokeRect(x+.5,y+.5-lift,w-1,h-1);
@@ -11692,7 +11744,7 @@ function rewind(){
   if(!SNAP){S.hp=maxHP();S.cor=S.maxCor;scene='map';return;}
   const keepMax=S.maxCor,deaths=(S.deaths||0)+1,scKeep=S.chapter>=4&&S.flags.scw&&S.flags.scOn&&!S.flags.scDead?{scw:JSON.parse(JSON.stringify(S.flags.scw)),c4ms:S.flags.c4ms||0}:null;
   /* todo vuelve al último punto de guardado, reloj incluido; y se limpia lo que quedó a medio hacer */
-  S=JSON.parse(SNAP);C5H=null;DEN=null;RESC=null;CINE=null;CIROTR=null;CIROA=null;C5LP=null;HIDE5=false;CAMON=false;CAMCUT=0;CHASE=null;S.deaths=deaths;S.maxCor=Math.max(10,keepMax-5);S.cor=S.maxCor;S.hp=maxHP();P.moving=false;
+  {const o_={canal:S.canal,flags:{canalUsed:S.flags&&S.flags.canalUsed}};S=JSON.parse(SNAP);canalKeep(o_);}C5H=null;DEN=null;RESC=null;CINE=null;CIROTR=null;CIROA=null;C5LP=null;HIDE5=false;CAMON=false;CAMCUT=0;CHASE=null;S.deaths=deaths;S.maxCor=Math.max(10,keepMax-5);S.cor=S.maxCor;S.hp=maxHP();P.moving=false;
   if(scKeep&&S.chapter>=4&&!S.flags.scDead){const snapSc=S.flags.scw,far=w=>!w||w.m!==S.map||(()=>{const [a,b]=p2d(S.x,S.y,w.x,w.y,S.map);return Math.hypot(a,b)>=8;})();S.flags.scw=far(scKeep.scw)?scKeep.scw:snapSc&&far(snapSc)?snapSc:{m:MP.P2C,x:11,y:6,acc:0};S.flags.scw.acc=0;S.flags.c4ms=Math.max(S.flags.c4ms||0,scKeep.c4ms);S.flags.scOn=1;}
   if(FOLS().length)placeFollower();
   snapshot();scene='map';mapTitleT=2.6;
@@ -11717,7 +11769,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.41.0';
+const GAME_VER='1.41.1';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
