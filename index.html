@@ -447,7 +447,7 @@ function saveLS(){try{localStorage.setItem(SAVE,JSON.stringify(S));}catch(e){}}
 function snapshot(){SNAP=JSON.stringify(S);saveLS();}
 let CHAPC={raw:undefined,d:null};
 function chapInfo(){let d=S;if(scene==='title'||!d){try{const j=localStorage.getItem(SAVE);if(j!==CHAPC.raw){CHAPC.raw=j;CHAPC.d=j?JSON.parse(j):null;}d=CHAPC.d;}catch(e){d=null;}}
-  let n=1,name='EL CUARTO PISO',pre=false;if(d){const f=d.flags||{};if(d.chapter===4){n=4;name='EL SEGUNDO PISO';}else if(d.chapter===3){n=3;name='EL QUINTO PISO';}else if(f.cap1||d.chapter===2){n=2;name='EL TERCER PISO';}else if(d.pro){pre=true;}}
+  let n=1,name='EL CUARTO PISO',pre=false;if(d){const f=d.flags||{};if(d.chapter>=4&&CHAPNAME[d.chapter]){n=d.chapter;name=CHAPNAME[n];}else if(d.chapter===3){n=3;name='EL QUINTO PISO';}else if(f.cap1||d.chapter===2){n=2;name='EL TERCER PISO';}else if(d.pro){pre=true;}}
   const title=pre?'PRÓLOGO · FEBRERO DE 2025':'CAPÍTULO '+n+' · '+name,plate=pre?'Prólogo · VHS':'Capítulo '+n+' · VHS';
   try{const el=document.getElementById('chapPlate');if(el&&el.textContent!==plate)el.textContent=plate;}catch(e){}return{n,title,plate};}
 function hasSave(){try{return !!localStorage.getItem(SAVE);}catch(e){return false;}}
@@ -11554,7 +11554,7 @@ function painFace(f,cx,cy,t){
   ctx.fillStyle=f.id==='casco'?'#e6e8ef':'#3a0a0a';const o=Math.sin(t*20)*1;ctx.beginPath();ctx.ellipse(x,y+3,2.5+o*.3,2+Math.abs(o),0,0,7);ctx.fill();
   ctx.fillStyle='#7ab8ff';const ty=(t*30)%10;ctx.fillRect(x-e-2,y+ty*.6,1,2);ctx.fillRect(x+e+2,y+(ty*.6+3)%6,1,2);
 }
-function renderBattle(t){try{renderBattle0(t);}finally{if(B&&B.test){const L=B.foes.map(f=>f.def.name+' '+Math.round(f.hp)+'/'+f.mhp+(f.rest?' ×'+f.rest:''));txt('PRUEBA · '+L.join(' · '),W-6,26,'#7cff9a',9,'right');txt('Tu daño máx: '+Math.round(atkVal()*dmgMult()*1.6)+' · Defensa '+defVal(),W-6,36,'#7cff9a',9,'right');if(B.pats&&B.pats.length)txt('Ataque: '+B.pats.join(' + ')+(B.state==='dodge'?'':' (el último)'),W-6,46,'#ffd27a',10,'right',true);}}}
+function renderBattle(t){try{renderBattle0(t);}finally{if(B&&B.test){const L=B.foes.map(f=>f.def.name+' '+Math.round(f.hp)+'/'+f.mhp+(f.rest?' ×'+f.rest:''));txtFit((L.length>2?'':'PRUEBA · ')+L.join(' · '),W-6,26,'#7cff9a',9,'right',W-12);txt('Tu daño máx: '+Math.round(atkVal()*dmgMult()*1.6)+' · Defensa '+defVal(),W-6,36,'#7cff9a',9,'right');if(B.pats&&B.pats.length)txt('Ataque: '+B.pats.join(' + ')+(B.state==='dodge'?'':' (el último)'),W-6,46,'#ffd27a',10,'right',true);}}}
 function renderBattle0(t){
   ctx.fillStyle='#050608';ctx.fillRect(0,0,W,H);
   ctx.fillStyle=B.boss?'#1a1a0d':B.tuto?'#1a120a':S.chapter>=4?'#0b160d':'#0e1220';
@@ -11662,7 +11662,7 @@ function renderBattle0(t){
   let x=14+nmw+(over?6:8);
   txt('PV',x,yy,'#9aa0b4',12);x+=w12('PV')+3;{if(B._php==null||B._php<S.hp)B._php=S.hp;B._php+=(S.hp-B._php)*.1;if(B._php-S.hp<.3)B._php=S.hp;bar(x,yy-7,pb,7,B._php,maxHP(),'#ff5a4a','#4a1d1d');ctx.fillStyle='#e3a849';ctx.fillRect(x,yy-7,Math.round(pb*clamp(S.hp/maxHP(),0,1)),7);ctx.fillStyle='rgba(255,255,255,.28)';ctx.fillRect(x,yy-7,Math.round(pb*clamp(S.hp/maxHP(),0,1)),1);ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(x,yy-1,pb,1);}x+=pb+4;txt(hs,x,yy,'#e6e8ef',11);x+=w11(hs)+(over?6:9);
   if(!S.pro){txt('COR',x,yy,'#9aa0b4',12);x+=w12('COR')+3;bar(x,yy-7,cb,7,S.cor,S.maxCor,'#a78bfa','#251d3a');x+=cb+4;txt(String(S.cor),x,yy,'#e6e8ef',11);}}
-  if(!B.tuto){const tg=[S.party.includes('ivan')?'IVÁN':'',S.party.includes('silvestre')?'SILVESTRE':'',S.party.includes('geronimo')?'GERÓNIMO':'',S.party.includes('arana')?'ARAÑA '+S.spiderHP+'/'+S.spiderMax:'',S.pro&&S.flags.isiFol?'ISIDORO':'',!S.pro&&S.flags.c5selFol?'SELENE':'',!S.pro&&S.flags.cabra?'CABRA':'',patoOn()?'PATO':''].filter(Boolean).join(' · ');if(tg)txtFit('EQUIPO: '+tg,14,yy-11,'#7cff9a',10,'left',292);}
+  if(!B.tuto){const tg=[S.party.includes('ivan')?'IVÁN':'',S.party.includes('silvestre')?'SILVESTRE':'',S.party.includes('geronimo')?'GERÓNIMO':'',S.party.includes('arana')?'ARAÑA '+S.spiderHP+'/'+S.spiderMax:''].filter(Boolean).join(' · ');if(tg)txt('EQUIPO: '+tg,14,yy-11,'#7cff9a',10);}
   const labels=['PELEAR','ACTUAR','OBJETO',S.pro?'PERDONAR':'DESINTONIZAR'],canSpare=!B.boss&&spareables().length>0;
   labels.forEach((l,i)=>{const x=14+i*74,y=210,w=70,h=20,sel=B.state==='menu'&&B.menu===i;
     const lift=sel?1:0;ctx.strokeStyle=sel?'#e3a849':'#3a3e50';ctx.lineWidth=1;ctx.strokeRect(x+.5,y+.5-lift,w-1,h-1);
@@ -11769,7 +11769,7 @@ function continueGame(){
 const INTRO=['Febrero de 2025.','Casa de campo de Valentín, a las afueras de la ciudad.','Hoy cumple 19. Vinieron todos.'];
 let IN=null,TS={sel:0};
 /* versión del juego: cambios chicos suben el último número, medianos el del medio, grandes el primero */
-const GAME_VER='1.41.1';
+const GAME_VER='1.41.2';
 const CHEAT=(()=>{let c={canal:null,skip:false};try{const j=JSON.parse(localStorage.getItem('piso13_trucos_cfg')||'null');if(j)c=Object.assign(c,j);}catch(e){}try{const b=JSON.parse(localStorage.getItem('piso13_trucos_bt')||'null');if(b)c.bt=b;}catch(e){}return c;})();
 function saveCheat(){try{localStorage.setItem('piso13_trucos_cfg',JSON.stringify({canal:CHEAT.canal,skip:CHEAT.skip,route:CHEAT.route||0}));}catch(e){}}
 function cheatsOn(){if(CHEAT.on)return true;try{return localStorage.getItem('piso13_trucos')==='1';}catch(e){return false;}}
@@ -11777,17 +11777,32 @@ const JUMPN=['PRÓLOGO','CAPÍTULO 1','CAPÍTULO 2','CAPÍTULO 3','CAPÍTULO 4']
 /* ---------- trucos: probador de peleas ----------
    El enemigo recibe golpes como siempre, pero al llegar a cero se restaura al máximo. Vos tampoco morís: se te llena la vida.
    No toca la partida guardada. */
-const TB_FOES=[['maximo'],['choclo'],['zapallo'],['sauce'],['papa'],['girasol'],['choclo','papa'],['soldadito'],['casco'],['radio'],['pedro'],['ivan'],['pelota'],['naranja'],['raqueta'],['valla'],['felix'],['saxo'],['plato'],['trian'],['uke'],['piano'],['selene'],['chori'],['morci'],['costi'],['chinchu'],['chori','chori'],['brian'],['brian','den'],['ciro']];
-const tbName=f=>f.length>1?(f[0]===f[1]?'2 × '+FOES[f[0]].name:FOES[f[0]].name+' y '+FOES[f[1]].name):FOES[f[0]].name;
+/* todas las peleas del juego: jefes, rutas y grupos de enemigos. {ch} capítulo, {o} opciones de la pelea, {n} nombre en el menú, {aniq} con la ruta Aniquilación */
+const TB_FOES=[
+  {ids:['tuto'],ch:1,o:{tuto:true},n:'Dragón de cartón (tutorial)'},
+  {ids:['soldadito'],ch:1},{ids:['casco'],ch:1},{ids:['radio'],ch:1},{ids:['soldadito','casco'],ch:1},{ids:['casco','radio'],ch:1},{ids:['soldadito','casco','radio'],ch:1},{ids:['radio','radio','soldadito'],ch:1},
+  {ids:['pedro'],ch:1,o:{boss:true}},{ids:['ivan'],ch:1,o:{ivan:true}},{ids:['sombra'],ch:1,o:{shadow:true},n:'La Sombra'},
+  {ids:['pelota'],ch:2},{ids:['naranja'],ch:2},{ids:['raqueta'],ch:2},{ids:['valla'],ch:2},{ids:['pelota','naranja'],ch:2},{ids:['raqueta','valla'],ch:2},{ids:['pelota','naranja','raqueta'],ch:2},{ids:['valla','valla','pelota'],ch:2},
+  {ids:['felix'],ch:2,o:{boss:true,felix:true}},{ids:['sombra'],ch:2,o:{shadow:true,weird:true},n:'La Sombra (en la pista)'},
+  {ids:['saxo'],ch:3},{ids:['plato'],ch:3},{ids:['trian'],ch:3},{ids:['uke'],ch:3},{ids:['saxo','plato'],ch:3},{ids:['trian','uke'],ch:3},{ids:['saxo','plato','trian'],ch:3},{ids:['uke','uke','trian'],ch:3},
+  {ids:['piano'],ch:3,o:{leftKey:'c5pianoK'}},
+  {ids:['chori'],ch:3,fr:1},{ids:['morci'],ch:3,fr:1},{ids:['costi'],ch:3,fr:1},{ids:['chinchu'],ch:3,fr:1},{ids:['chori','chori'],ch:3,fr:1},{ids:['morci','costi'],ch:3,fr:1},{ids:['chori','morci','chinchu'],ch:3,fr:1},{ids:['costi','costi','chinchu'],ch:3,fr:1},
+  {ids:['brian'],ch:3,fr:1,o:{c5bt:true}},{ids:['brian','den'],ch:3,fr:1,o:{c5bd:true}},
+  {ids:['selene'],ch:3,o:{tgKill:1},aniq:1,n:'Selene (Aniquilación)'},{ids:['ciro'],ch:3,fr:1,o:{tgKill:1},aniq:1,n:'Ciro (Aniquilación)'},
+  {ids:['choclo'],ch:4},{ids:['zapallo'],ch:4},{ids:['sauce'],ch:4},{ids:['papa'],ch:4},{ids:['girasol'],ch:4},{ids:['choclo','papa'],ch:4},{ids:['zapallo','girasol'],ch:4},{ids:['choclo','zapallo','sauce'],ch:4},{ids:['papa','girasol','girasol'],ch:4},
+  {ids:['maximo'],ch:4,o:{maxi:true,leftKey:'maxiK'},n:'Máximo (las dos fases)'},
+  {ids:['pastoG'],ch:4,o:{pasto:true,leftKey:'left2'}},{ids:['pastoG'],ch:4,o:{pasto:true,leftKey:'left2'},aniq:1,n:'Monstruo de pasto (Aniquilación)'},
+  {ids:['augustoB'],ch:4,o:{c4b:'aug',leftKey:'c4xK'},aniq:1,n:'Augusto y Simón (Aniquilación)'}];
+const tbName=e=>{if(e.n)return e.n;const f=e.ids,N=id=>FOES[id].name;if(f.length===1)return N(f[0]);if(f.length===2)return f[0]===f[1]?'2 × '+N(f[0]):N(f[0])+' y '+N(f[1]);
+  const c={};f.forEach(i=>c[i]=(c[i]||0)+1);return Object.keys(c).map(i=>(c[i]>1?c[i]+' × ':'')+N(i)).join(', ');};
 const TB_W=()=>[null].concat(Object.keys(IT).filter(k=>IT[k].t==='weapon')),TB_A=()=>[null].concat(Object.keys(IT).filter(k=>IT[k].t==='armor')),TB_C=()=>[null].concat(Object.keys(IT).filter(k=>IT[k].t==='acc'));
 let TESTB=false;
-function tbCfg(){if(!CHEAT.bt)CHEAT.bt={foe:0,lv:8,w:0,a:0,c:0};return CHEAT.bt;}
-function testBattleStart(){const c=tbCfg(),ids=TB_FOES[c.foe],id=ids[0],P4=['soldadito','casco','radio','pedro','ivan'],P3=['pelota','naranja','raqueta','valla','felix'],FR=['chori','morci','costi','chinchu','brian','den','ciro'];
-  S=newState();S.pro=false;S.name='PRUEBA';S.flags.cap1=1;S.flags.cap2=1;S.flags.testB=1;S.chapter=P4.includes(id)?1:P3.includes(id)?2:3;S.lv=c.lv;S.xp=XPT[c.lv-1]||0;
-  S.eq.weapon=TB_W()[c.w]||null;S.eq.armor=TB_A()[c.a]||null;S.eq.acc=TB_C()[c.c]||null;S.items=['alfajor','alfajor','sanguche','curita','ibuprofeno'];S.party=[];
-  S.map=S.chapter===1?MP.PASILLO:S.chapter===2?MP.PISO3:FR.includes(id)?MP.FRIGO5:MP.SALA5;S.x=2;S.y=2;S.hp=maxHP();scene='map';OP.out=1;TESTB=true;
-  const o={leftKey:'tbK',intro:['(PRUEBA: '+tbName(ids)+'. Cuando su vida llega a cero, se restaura. Vos tampoco morís. Para salir: DESINTONIZAR → Huir.)']};
-  if(id==='pedro')o.boss=true;if(id==='felix'){o.boss=true;o.felix=true;}if(id==='ivan')o.ivan=true;if(id==='brian'&&ids.length===1)o.c5bt=true;if(ids[1]==='den')o.c5bd=true;if(id==='selene'||id==='ciro')o.tgKill=1;
+function tbCfg(){if(!CHEAT.bt)CHEAT.bt={foe:0,lv:8,w:0,a:0,c:0};if(!(CHEAT.bt.foe>=0&&CHEAT.bt.foe<TB_FOES.length))CHEAT.bt.foe=0;return CHEAT.bt;}
+function testBattleStart(){const c=tbCfg(),e=TB_FOES[c.foe],ids=e.ids;
+  S=newState();S.pro=false;S.name='PRUEBA';S.flags.cap1=1;S.flags.cap2=1;S.flags.testB=1;S.chapter=e.ch;if(e.ch>=4){S.flags.cap3=1;S.flags.c4lamp=1;S.flags.c4q={};}if(e.aniq){S.flags.ivanDead=1;S.flags.trueGeno=1;S.kills=40;S.spares=0;}
+  S.lv=c.lv;S.xp=XPT[c.lv-1]||0;S.eq.weapon=TB_W()[c.w]||null;S.eq.armor=TB_A()[c.a]||null;S.eq.acc=TB_C()[c.c]||null;S.items=['alfajor','alfajor','sanguche','curita','ibuprofeno'];S.party=[];
+  S.map=e.ch===1?MP.PASILLO:e.ch===2?MP.PISO3:e.ch>=4?MP.P2:e.fr?MP.FRIGO5:MP.SALA5;S.x=e.ch>=4?75:2;S.y=e.ch>=4?56:2;S.hp=maxHP();scene='map';OP.out=1;TESTB=true;
+  const o={leftKey:'tbK',...(e.o||{})};o.intro=['(PRUEBA: '+tbName(e)+'. Cuando su vida llega a cero, se restaura. Vos tampoco morís. Para salir: DESINTONIZAR → Huir.)'];if(o.leftKey)S[o.leftKey]=99;
   startBattle(ids,o);}
 function testBattleArm(){B.test=1;TESTB=false;B.foes.forEach((f,i)=>{let v=f.hp;Object.defineProperty(f,'hp',{configurable:true,get(){return v;},set(n){if(n<=0){v=f.mhp;f.rest=(f.rest||0)+1;B&&B.pops.push({fi:i,txt:'¡VIDA LLENA!',miss:1,t:0});}else v=n;}});});}
 function tbUpd(){const u=TS.bt,c=tbCfg(),l=hit('left'),r=hit('right'),N=7;if(hit('up')){u.i=(u.i+N-1)%N;sfx.sel();}if(hit('down')){u.i=(u.i+1)%N;sfx.sel();}
@@ -11802,7 +11817,7 @@ function drawTB(){const u=TS.bt,c=tbCfg(),nm=k=>k?IT[k].n:'—',W0=TB_W()[c.w],A
   txt('PROBAR UNA PELEA',W/2,110,'#e3a849',13,'center');
   const rows=['ENEMIGO: ◀ '+tbName(TB_FOES[c.foe])+' ▶','NIVEL: ◀ '+c.lv+' ▶','ARMA: ◀ '+nm(W0)+(W0?' ('+IT[W0].dmg+')':'')+' ▶','ABRIGO: ◀ '+nm(A0)+(A0?' (+'+IT[A0].def+')':'')+' ▶','ACCESORIO: ◀ '+nm(C0)+' ▶','EMPEZAR','VOLVER'];
   rows.forEach((o,i)=>txtFit((i===u.i?'▶ ':'  ')+o,28,124+i*13,i===u.i?'#e3a849':'#c9ccd8',12,'left',268));
-  txtFit(u.i<=4?'←→ cambia':u.i===5?'Z: a pelear (no toca tu partida)':'Z: volver',W/2,228,'#6b7096',10,'center',270);}
+  txtFit(u.i===0?'←→ cambia · pelea '+(c.foe+1)+' de '+TB_FOES.length:u.i<=4?'←→ cambia':u.i===5?'Z: a pelear (no toca tu partida)':'Z: volver',W/2,228,'#6b7096',10,'center',270);}
 function testBattleEnd(){B=null;DLG=null;UI=null;S=null;scene='title';TS={sel:0,cheat:{i:4},bt:{i:0}};try{musStop();}catch(e){}}
 
 /* ---------- trucos: probar los screamers (no toca la partida) ---------- */
